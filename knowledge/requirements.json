@@ -1,0 +1,57 @@
+[
+  {
+    "industry": "通用",
+    "module": "采购管理",
+    "description": "通用采购管理需求模板",
+    "standardRequirements": [
+      {
+        "id": "REQ-GEN-001",
+        "name": "采购申请管理",
+        "description": "支持采购申请的创建、编辑、提交、审批流程",
+        "priority": "P0",
+        "businessValue": 9,
+        "complexity": 6
+      },
+      {
+        "id": "REQ-GEN-002",
+        "name": "供应商管理",
+        "description": "支持供应商的创建、审批、信息变更",
+        "priority": "P0",
+        "businessValue": 8,
+        "complexity": 5
+      },
+      {
+        "id": "REQ-GEN-003",
+        "name": "合同管理",
+        "description": "支持框架协议和采购合同的创建、审批、执行跟踪",
+        "priority": "P1",
+        "businessValue": 7,
+        "complexity": 6
+      },
+      {
+        "id": "REQ-GEN-004",
+        "name": "采购订单管理",
+        "description": "支持采购订单的创建、审批、发送、执行跟踪",
+        "priority": "P0",
+        "businessValue": 9,
+        "complexity": 5
+      },
+      {
+        "id": "REQ-GEN-005",
+        "name": "收货管理",
+        "description": "支持采购收货、退货操作",
+        "priority": "P1",
+        "businessValue": 7,
+        "complexity": 4
+      },
+      {
+        "id": "REQ-GEN-006",
+        "name": "发票管理",
+        "description": "支持发票的匹配、审批、付款流程",
+        "priority": "P1",
+        "businessValue": 7,
+        "complexity": 6
+      }
+    ]
+  }
+]

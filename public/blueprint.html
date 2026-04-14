@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>蓝图设计助手 - Ariba项目实施助手</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f5f7fa;min-height:100vh}
+    .header{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;padding:20px 30px;display:flex;justify-content:space-between;align-items:center}
+    .header h1{font-size:1.5em}
+    .header a{color:white;text-decoration:none;padding:8px 20px;background:rgba(255,255,255,0.2);border-radius:20px}
+    .main{max-width:1400px;margin:0 auto;padding:30px}
+    .panel{background:white;border-radius:15px;box-shadow:0 5px 20px rgba(0,0,0,0.08);overflow:hidden;margin-bottom:30px}
+    .panel-header{background:#f8f9fa;padding:20px;border-bottom:1px solid #eee;display:flex;justify-content:space-between;align-items:center}
+    .panel-header h2{color:#333;font-size:1.2em}
+    .panel-body{padding:25px}
+    .form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px}
+    .form-group{margin-bottom:20px}
+    .form-group label{display:block;margin-bottom:8px;color:#333;font-weight:500}
+    .form-group input,.form-group select,.form-group textarea{width:100%;padding:12px 15px;border:2px solid #e0e0e0;border-radius:10px;font-size:1em}
+    .form-group textarea{min-height:150px;resize:vertical}
+    .btn{padding:12px 30px;border:none;border-radius:25px;font-size:1em;font-weight:600;cursor:pointer;transition:all 0.3s}
+    .btn-primary{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white}
+    .btn-primary:hover{transform:translateY(-2px);box-shadow:0 5px 20px rgba(102,126,234,0.4)}
+    .btn-secondary{background:#e0e0e0;color:#666}
+    .btn-group{display:flex;gap:15px;margin-top:25px}
+    .stats-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:15px;margin-bottom:25px}
+    .stat-card{text-align:center;padding:15px;background:#f8f9fa;border-radius:10px}
+    .stat-card .value{font-size:1.8em;font-weight:bold;color:#667eea}
+    .stat-card .label{font-size:0.85em;color:#666}
+    .story-card{background:#f8f9fa;border-radius:12px;padding:20px;margin-bottom:20px;border-left:5px solid #667eea}
+    .story-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:15px}
+    .story-title{font-size:1.1em;color:#333;font-weight:600}
+    .story-meta{display:flex;gap:10px;align-items:center}
+    .priority-badge{padding:3px 10px;border-radius:15px;font-size:0.8em;font-weight:600;color:white}
+    .priority-p0{background:#f44336}.priority-p1{background:#ff9800}.priority-p2{background:#2196f3}.priority-p3{background:#9e9e9e}
+    .invest-score{background:#e8f5e9;color:#4caf50;padding:3px 10px;border-radius:15px;font-size:0.85em;font-weight:600}
+    .story-content{margin-bottom:15px}
+    .story-content p{margin-bottom:5px;color:#555}
+    .story-content strong{color:#333}
+    .tabs{display:flex;gap:10px;margin-bottom:20px}
+    .tab{padding:10px 20px;background:#f0f0f0;border:none;border-radius:20px;cursor:pointer}
+    .tab.active{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white}
+    .tab-content{display:none}
+    .tab-content.active{display:block}
+    .flowchart-container{background:#f5f5f5;border-radius:10px;padding:20px;overflow-x:auto;font-family:'Courier New',monospace;white-space:pre;font-size:0.9em}
+    .loading{text-align:center;padding:60px;color:#666}
+    .spinner{width:40px;height:40px;border:4px solid #e0e0e0;border-top-color:#667eea;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 15px}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    @media(max-width:768px){.stats-grid{grid-template-columns:repeat(2,1fr)}}
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>🏗️ 蓝图设计与User Stories助手</h1>
+    <a href="/">← 返回首页</a>
+  </div>
+  <div class="main">
+    <div class="panel">
+      <div class="panel-header"><h2>📝 输入需求信息</h2></div>
+      <div class="panel-body">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>行业类型 *</label>
+            <select id="industry" required>
+              <option value="制造业">制造业</option><option value="零售业">零售业</option><option value="能源行业">能源行业</option>
+              <option value="医疗健康">医疗健康</option><option value="金融服务">金融服务</option><option value="通用" selected>通用行业</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>流程类型 *</label>
+            <select id="processType" required>
+              <option value="采购流程" selected>采购流程</option><option value="寻源流程">寻源流程</option>
+              <option value="合同流程">合同流程</option><option value="P2P流程">P2P流程</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>需求列表 (JSON格式) *</label>
+          <textarea id="requirements" placeholder='[{"id":"REQ-001","name":"采购申请管理","description":"支持采购申请的创建和审批","module":"采购申请","priority":"P0","businessValue":8,"complexity":5}]' required></textarea>
+        </div>
+        <div class="btn-group">
+          <button class="btn btn-primary" onclick="generateBlueprint()">🚀 生成User Stories</button>
+          <button class="btn btn-secondary" onclick="generateFlowchartOnly()">📊 生成流程图</button>
+        </div>
+      </div>
+    </div>
+    <div class="panel" id="resultPanel" style="display:none;">
+      <div class="panel-header"><h2>📊 生成结果</h2></div>
+      <div class="panel-body">
+        <div class="stats-grid" id="statsGrid"></div>
+        <div class="tabs">
+          <button class="tab active" onclick="switchTab('stories')">User Stories</button>
+          <button class="tab" onclick="switchTab('flowchart')">流程图</button>
+        </div>
+        <div id="storiesTab" class="tab-content active">
+          <div id="storiesContainer"></div>
+        </div>
+        <div id="flowchartTab" class="tab-content">
+          <div class="flowchart-container" id="flowchartContainer"></div>
+        </div>
+      </div>
+    </div>
+    <div class="panel" id="loadingPanel" style="display:none;">
+      <div class="loading"><div class="spinner"></div><p id="loadingText">正在生成，请稍候...</p></div>
+    </div>
+  </div>
+  <script>
+    let currentResult=null;
+    async function generateBlueprint(){
+      const industry=document.getElementById('industry').value;
+      const processType=document.getElementById('processType').value;
+      const requirementsText=document.getElementById('requirements').value;
+      if(!requirementsText.trim()){alert('请输入需求列表');return;}
+      let requirements;
+      try{requirements=JSON.parse(requirementsText);}catch(e){alert('JSON格式错误');return;}
+      if(!Array.isArray(requirements)||!requirements.length){alert('请输入至少一个需求');return;}
+      showLoading('正在生成User Stories和流程图...');
+      try{
+        const response=await fetch('/api/blueprint/document',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({requirements,industry,processType})});
+        const result=await response.json();
+        if(result.success){currentResult=result;hideLoading();renderResults(result);}
+        else{showError('生成失败');}
+      }catch(e){showError('请求失败');}
+    }
+    async function generateFlowchartOnly(){
+      const industry=document.getElementById('industry').value;
+      const processType=document.getElementById('processType').value;
+      showLoading('正在生成流程图...');
+      try{
+        const response=await fetch('/api/blueprint/flowchart',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({processType,industry})});
+        const result=await response.json();
+        if(result.success){hideLoading();document.getElementById('resultPanel').style.display='block';document.getElementById('statsGrid').innerHTML='<div class="stat-card"><div class="value">-</div><div class="label">Stories</div></div><div class="stat-card"><div class="value">-</div><div class="label">工时</div></div><div class="stat-card"><div class="value">-</div><div class="label">INVEST</div></div><div class="stat-card"><div class="value">1</div><div class="label">流程图</div></div>';document.getElementById('flowchartContainer').textContent=result.flowchart||'';}
+        else{showError('生成失败');}
+      }catch(e){showError('请求失败');}
+    }
+    function renderResults(result){
+      const panel=document.getElementById('resultPanel');
+      panel.style.display='block';
+      const stats=result.statistics||{};const stories=result.document?.userStories||[];
+      document.getElementById('statsGrid').innerHTML='<div class="stat-card"><div class="value">'+(stats.totalStories||stories.length)+'</div><div class="label">User Stories</div></div><div class="stat-card"><div class="value">'+(stats.totalEstimatedHours||0)+'h</div><div class="label">总工时</div></div><div class="stat-card"><div class="value">'+(stats.averageInvestScore||0)+'%</div><div class="label">INVEST评分</div></div><div class="stat-card"><div class="value">'+(result.document?.phases?.length||0)+'</div><div class="label">阶段数</div></div>';
+      let html='';
+      stories.forEach(story=>{const score=story.investScore||80;html+='<div class="story-card"><div class="story-header"><div class="story-title">'+story.id+': '+story.title+'</div><div class="story-meta"><span class="priority-badge priority-'+(story.priority||'P2').toLowerCase()+'">'+story.priority+'</span><span>⏱️ '+(story.estimatedHours||8)+'h</span><span class="invest-score">INVEST '+score+'%</span></div></div><div class="story-content"><p><strong>As a</strong> '+story.asA+'</p><p><strong>I want</strong> '+story.iWant+'</p><p><strong>So that</strong> '+story.soThat+'</p></div></div>';});
+      document.getElementById('storiesContainer').innerHTML=html||'<p style="color:#999;">暂无User Stories</p>';
+      document.getElementById('flowchartContainer').textContent=result.document?.flowchart||result.flowchart||'';
+    }
+    function switchTab(tabName){
+      document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+      event.target.classList.add('active');
+      document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
+      document.getElementById(tabName+'Tab').classList.add('active');
+    }
+    function showLoading(text){document.getElementById('resultPanel').style.display='none';document.getElementById('loadingPanel').style.display='block';document.getElementById('loadingText').textContent=text||'处理中...';}
+    function hideLoading(){document.getElementById('loadingPanel').style.display='none';}
+    function showError(msg){hideLoading();document.getElementById('resultPanel').style.display='block';document.getElementById('statsGrid').innerHTML='<div class="stat-card" style="grid-column:1/-1;"><div class="value" style="color:#f44336;">❌</div><div class="label">'+msg+'</div></div>';}
+  </script>
+</body>
+</html>

@@ -1,0 +1,53 @@
+[
+  {
+    "industry": "通用",
+    "processType": "采购流程",
+    "description": "通用采购流程蓝图",
+    "phases": [
+      {
+        "name": "需求识别",
+        "activities": [
+          "需求提交",
+          "需求审批"
+        ],
+        "userStories": []
+      },
+      {
+        "name": "寻源管理",
+        "activities": [
+          "供应商选择",
+          "询价比价",
+          "合同签订"
+        ],
+        "userStories": []
+      },
+      {
+        "name": "订单执行",
+        "activities": [
+          "订单创建",
+          "订单审批",
+          "订单发送"
+        ],
+        "userStories": []
+      },
+      {
+        "name": "收货验收",
+        "activities": [
+          "收货确认",
+          "质量验收",
+          "问题处理"
+        ],
+        "userStories": []
+      },
+      {
+        "name": "发票付款",
+        "activities": [
+          "发票匹配",
+          "付款申请",
+          "付款审批"
+        ],
+        "userStories": []
+      }
+    ]
+  }
+]
