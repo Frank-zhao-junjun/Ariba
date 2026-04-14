@@ -1,0 +1,22 @@
+{
+  "name": "ariba-assistant",
+  "version": "1.0.0",
+  "description": "Ariba智能审批状态查询助手 - 基于Coze平台的商业软件实施助手",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "test": "node test/test.js"
+  },
+  "keywords": ["ariba", "procurement", "assistant", "chatbot", "coze"],
+  "author": "Frank Zhao",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "axios": "^1.6.0",
+    "dotenv": "^16.3.1"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
