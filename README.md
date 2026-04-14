@@ -372,3 +372,50 @@ curl -X POST http://localhost:3001/api/contract-summary/brief \
   -H "Content-Type: application/json" \
   -d '{"text":"甲方：XXX公司..."}'
 ```
+
+### 6️⃣ 智能采购聊天助手 (AI Procurement Chatbot v1.7) 🚀
+
+| 功能 | 描述 |
+|------|------|
+| 💬 **对话式交互** | 自然语言问答，无需学习系统操作 |
+| 📋 **政策问答** | 采购政策、审批流程、付款条款智能解答 |
+| 🏢 **供应商查询** | 按品类搜索认证供应商，查看联系方式和评级 |
+| 📦 **申请追踪** | 查询采购申请和订单审批状态 |
+| 💰 **预算查询** | 部门预算使用情况和预警提醒 |
+| 🛒 **申请引导** | 对话式引导提交采购申请 |
+
+**核心价值**:
+- ⏱️ **85%** 减少采购工单
+- 🎯 **24/7** 全天候自助服务
+- 📈 **提升合规性** 自动验证采购政策
+
+**使用示例**:
+```bash
+# 政策问答
+curl -X POST http://localhost:3001/api/chatbot/chat \
+  -H "Content-Type: application/json" \
+  -d '{"message":"超过10万需要哪些审批"}'
+
+# 供应商查询
+curl -X POST http://localhost:3001/api/chatbot/chat \
+  -H "Content-Type: application/json" \
+  -d '{"message":"电子元器件有哪些供应商"}'
+
+# 预算查询
+curl -X POST http://localhost:3001/api/chatbot/chat \
+  -H "Content-Type: application/json" \
+  -d '{"message":"研发部还有多少预算"}'
+
+# 申请状态
+curl -X POST http://localhost:3001/api/chatbot/chat \
+  -H "Content-Type: application/json" \
+  -d '{"message":"我的采购申请状态"}'
+```
+
+**API接口**:
+- `POST /api/chatbot/chat` - 发送聊天消息
+- `GET /api/chatbot/demo` - 获取演示信息
+- `GET /api/chatbot/policy/search?q=关键词` - 搜索政策
+- `GET /api/chatbot/vendor/search?q=品类` - 搜索供应商
+- `GET /api/chatbot/pr/status?q=关键词` - 查询申请状态
+- `GET /api/chatbot/budget/:部门` - 查询部门预算

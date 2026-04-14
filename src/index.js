@@ -16,6 +16,7 @@ const invoiceRouter = require('./routes/invoice');
 const rfxRouter = require('./routes/rfx');
 const approvalRouter = require('./routes/approval');
 const guidedBuyingRouter = require('./routes/guided-buying');
+const chatbotRouter = require('./routes/chatbot');
 const knowledgeService = require('./services/knowledge');
 
 const app = express();
@@ -44,6 +45,7 @@ app.use('/api/invoice', invoiceRouter);
 app.use('/api/rfx', rfxRouter);
 app.use('/api/approval', approvalRouter);
 app.use('/api/guided-buying', guidedBuyingRouter);
+app.use('/api/chatbot', chatbotRouter);
 
 // 页面路由
 app.get('/', (req, res) => { res.sendFile(path.join(__dirname, '../public/index.html')); });
