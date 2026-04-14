@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>智能发票差异分析 - Ariba实施助手</title>
+  <link rel="stylesheet" href="https://unpkg.com/antd@5.12.8/dist/reset.css">
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://unpkg.com/antd@5.12.8/dist/antd.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f0f2f5; }
+    .page-header { background: #fff; padding: 16px 24px; border-bottom: 1px solid #e8e8e8; }
+    .page-header h1 { font-size: 20px; color: #333; }
+    .page-header p { font-size: 14px; color: #666; margin-top: 4px; }
+    .main-container { max-width: 1400px; margin: 0 auto; padding: 24px; }
+    .empty-state { text-align: center; padding: 80px 20px; background: #fafafa; border-radius: 8px; }
+    .empty-icon { font-size: 80px; margin-bottom: 20px; }
+    .empty-state h3 { font-size: 24px; margin: 16px 0 8px; color: #333; }
+    .empty-state p { color: #666; margin-bottom: 30px; }
+    .features { display: flex; justify-content: center; gap: 40px; margin-bottom: 30px; }
+    .feature-item { display: flex; align-items: center; gap: 8px; color: #666; font-size: 16px; }
+    .loading-container { display: flex; align-items: center; justify-content: center; min-height: 400px; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+    const { useState } = React;
+    const { Card, Button, Table, Tag, Alert, Tabs, Badge, List } = antd;
+    const { FileTextOutlined, SwapOutlined, WarningOutlined, CheckCircleOutlined } = icons;
+
+    const InvoiceAnalyzer = () => {
+      const [loading, setLoading] = useState(false);
+      const [report, setReport] = useState(null);
+
+      const runDemoAnalysis = async () => {
+        setLoading(true);
+        try {
+          const response = await fetch('/api/invoice/demo', { method: 'POST', headers: { 'Content-Type': 'application/json' } });
+          const result = await response.json();
+          if (result.success) setReport(result.data);
+        } catch (error) { console.error('分析失败:', error); }
+        finally { setLoading(false); }
+      };
+
+      const statusConfig = {
+        APPROVED: { color: 'success', text: '✅ 审核通过' },
+        REJECTED: { color: 'error', text: '❌ 拒绝' },
+        ESCALATE: { color: 'error', text: '🔴 需升级处理' },
+        REVIEW: { color: 'warning', text: '🟡 需审核' },
+        PENDING_INFO: { color: 'processing', text: '🔵 待处理' }
+      };
+
+      if (!report) {
+        return (
+          <div className="main-container">
+            <Card>
+              <div className="empty-state">
+                <div className="empty-icon">💰</div>
+                <h3>发票差异分析</h3>
+                <p>自动对比发票与采购订单，识别价格/数量差异</p>
+                <div className="features">
+                  <div className="feature-item"><SwapOutlined /> <span>三单匹配</span></div>
+                  <div className="feature-item"><WarningOutlined /> <span>差异分析</span></div>
+                  <div className="feature-item"><CheckCircleOutlined /> <span>智能建议</span></div>
+                </div>
+                <Button type="primary" size="large" onClick={runDemoAnalysis} loading={loading}>点击查看演示</Button>
+              </div>
+            </Card>
+          </div>
+        );
+      }
+
+      const { summary, matchStatus } = report;
+      const statusInfo = statusConfig[matchStatus] || statusConfig.PENDING_INFO;
+
+      const columns = [
+        { title: '物料号', dataIndex: 'itemNumber', key: 'itemNumber' },
+        { title: '描述', dataIndex: 'description', key: 'description' },
+        { title: '发票单价', key: 'invPrice', render: (_, r) => r.discrepancies?.[0]?.invPrice ? '¥' + r.discrepancies[0].invPrice : '-' },
+        { title: 'PO单价', key: 'poPrice', render: (_, r) => r.discrepancies?.[0]?.poPrice ? '¥' + r.discrepancies[0].poPrice : '-' },
+        { title: '差异说明', key: 'msg', render: (_, r) => r.discrepancies.length === 0 ? <Tag color="green">✅ 匹配</Tag> : r.discrepancies.map((d,i) => <Tag key={i} color={d.type === 'PRICE_VARIANCE' ? 'purple' : 'cyan'}>{d.message}</Tag>) }
+      ];
+
+      return (
+        <div className="main-container">
+          <Card title={<><FileTextOutlined /> 智能发票差异分析助手</>}>
+            <Card size="small" style={{ marginBottom: 16, borderLeft: '4px solid #1890ff' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                <span style={{ fontSize: 16, fontWeight: 500 }}>整体匹配状态</span>
+                <Tag color={statusInfo.color}>{statusInfo.text}</Tag>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20, textAlign: 'center' }}>
+                <div><div style={{ color: '#666', fontSize: 12 }}>发票金额</div><div style={{ fontSize: 20, fontWeight: 600 }}>¥{summary.totalInvoiceAmount?.toLocaleString()}</div></div>
+                <div><div style={{ color: '#666', fontSize: 12 }}>PO金额</div><div style={{ fontSize: 20, fontWeight: 600 }}>¥{summary.totalPOAmount?.toLocaleString()}</div></div>
+                <div><div style={{ color: '#666', fontSize: 12 }}>差异</div><div style={{ fontSize: 20, fontWeight: 600, color: summary.totalVariance > 0 ? '#ff4d4f' : '#52c41a' }}>{summary.totalVariance > 0 ? '+' : ''}¥{summary.totalVariance?.toLocaleString()} ({(summary.variancePercent * 100).toFixed(2)}%)</div></div>
+              </div>
+            </Card>
+            <Tabs defaultActiveKey="1">
+              <Tabs.TabPane tab="📋 行项对比" key="1">
+                <Table dataSource={report.lineItems} columns={columns} rowKey="itemNumber" size="small" pagination={false} />
+              </Tabs.TabPane>
+              <Tabs.TabPane tab="🔄 三单匹配" key="2">
+                {report.threeWayMatch && (
+                  <div>
+                    <Tag color={report.threeWayMatch.status === 'PASSED' ? 'green' : 'red'} style={{ marginBottom: 16 }}>
+                      {report.threeWayMatch.status === 'PASSED' ? '✅ 匹配通过' : '❌ 匹配失败'} ({report.threeWayMatch.matchedLines}/{report.threeWayMatch.totalLines})
+                    </Tag>
+                    <Table dataSource={report.threeWayMatch.details} columns={[{ title: '物料号', dataIndex: 'itemNumber' }, { title: '状态', dataIndex: 'status', render: s => <Tag color={s === 'MATCHED' ? 'green' : 'red'}>{s}</Tag> }, { title: '说明', dataIndex: 'message' }]} rowKey="itemNumber" size="small" pagination={false} />
+                  </div>
+                )}
+              </Tabs.TabPane>
+              <Tabs.TabPane tab="💡 建议" key="3">
+                {report.recommendations?.map((rec, idx) => <Alert key={idx} type={rec.priority === 'HIGH' ? 'error' : rec.priority === 'MEDIUM' ? 'warning' : 'info'} message={<span><Tag color={rec.priority === 'HIGH' ? 'red' : rec.priority === 'MEDIUM' ? 'orange' : 'green'}>{rec.priority}</Tag> {rec.message}</span>} style={{ marginBottom: 8 }} />)}
+              </Tabs.TabPane>
+            </Tabs>
+          </Card>
+        </div>
+      );
+    };
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<InvoiceAnalyzer />);
+  </script>
+</body>
+</html>

@@ -1,5 +1,5 @@
 /**
- * Ariba项目实施助手 v1.0
+ * Ariba项目实施助手 v1.3
  * 主入口文件
  */
 
@@ -11,6 +11,7 @@ const requirementRouter = require('./routes/requirement');
 const blueprintRouter = require('./routes/blueprint');
 const bidAnalysisRouter = require('./routes/bidAnalysis');
 const contractRouter = require('./routes/contract');
+const invoiceRouter = require('./routes/invoice');
 const knowledgeService = require('./services/knowledge');
 
 const app = express();
@@ -38,6 +39,7 @@ app.use('/api/requirement', requirementRouter);
 app.use('/api/blueprint', blueprintRouter);
 app.use('/api/bid-analysis', bidAnalysisRouter);
 app.use('/api/contract', contractRouter);
+app.use('/api/invoice', invoiceRouter);
 
 // 主页
 app.get('/', (req, res) => {
@@ -54,12 +56,17 @@ app.get('/blueprint', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/blueprint.html'));
 });
 
+// 发票差异分析页面
+app.get('/invoice', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/invoice.html'));
+});
+
 // 健康检查
 app.get('/health', (req, res) => {
   res.json({ 
     status: 'healthy', 
     service: 'Ariba项目实施助手',
-    version: '1.0.0',
+    version: '1.3.0',
     uptime: process.uptime(),
     timestamp: new Date().toISOString()
   });
@@ -69,23 +76,12 @@ app.get('/health', (req, res) => {
 app.get('/api', (req, res) => {
   res.json({
     service: 'Ariba项目实施助手 API',
-    version: '1.0.0',
+    version: '1.3.0',
     endpoints: {
-      requirement: {
-        'POST /api/requirement/analyze': '分析用户需求',
-        'GET /api/requirement/templates': '获取需求模板列表',
-        'POST /api/requirement/supplement': '智能补充需求',
-        'POST /api/requirement/conflict-check': '需求冲突检测',
-        'POST /api/requirement/priority': '需求优先级评估',
-        'POST /api/requirement/document': '生成需求文档'
-      },
-      blueprint: {
-        'GET /api/blueprint/templates': '获取蓝图模板列表',
-        'POST /api/blueprint/generate': '生成User Stories',
-        'POST /api/blueprint/validate': '验证INVEST原则',
-        'POST /api/blueprint/criteria': '生成验收标准',
-        'POST /api/blueprint/flowchart': '生成流程图',
-        'POST /api/blueprint/document': '生成完整蓝图文档'
+      invoice: {
+        'POST /api/invoice/analyze': '分析发票与PO差异',
+        'POST /api/invoice/demo': '演示模式分析',
+        'POST /api/invoice/quick-check': '快速金额检查'
       }
     }
   });
@@ -94,19 +90,12 @@ app.get('/api', (req, res) => {
 // 错误处理
 app.use((err, req, res, next) => {
   logger.error('未处理的错误', { error: err.message, stack: err.stack });
-  res.status(500).json({ 
-    success: false,
-    error: 'Internal server error'
-  });
+  res.status(500).json({ success: false, error: 'Internal server error' });
 });
 
 // 404处理
 app.use((req, res) => {
-  res.status(404).json({ 
-    success: false,
-    error: 'Not found', 
-    path: req.path
-  });
+  res.status(404).json({ success: false, error: 'Not found', path: req.path });
 });
 
 // 初始化知识库
@@ -115,10 +104,7 @@ logger.info('知识库初始化完成');
 
 // 启动服务
 app.listen(PORT, () => {
-  logger.info('Ariba项目实施助手服务已启动', { 
-    port: PORT, 
-    env: process.env.NODE_ENV || 'development'
-  });
+  logger.info('Ariba项目实施助手服务已启动', { port: PORT, env: process.env.NODE_ENV || 'development' });
 });
 
 module.exports = app;
