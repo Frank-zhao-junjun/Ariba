@@ -17,6 +17,7 @@ const rfxRouter = require('./routes/rfx');
 const approvalRouter = require('./routes/approval');
 const guidedBuyingRouter = require('./routes/guided-buying');
 const chatbotRouter = require('./routes/chatbot');
+const supplierRiskRouter = require('./routes/supplierRisk');
 const knowledgeService = require('./services/knowledge');
 
 const app = express();
@@ -46,6 +47,7 @@ app.use('/api/rfx', rfxRouter);
 app.use('/api/approval', approvalRouter);
 app.use('/api/guided-buying', guidedBuyingRouter);
 app.use('/api/chatbot', chatbotRouter);
+app.use('/api/supplier-risk', supplierRiskRouter);
 
 // 页面路由
 app.get('/', (req, res) => { res.sendFile(path.join(__dirname, '../public/index.html')); });
@@ -54,6 +56,10 @@ app.get('/blueprint', (req, res) => { res.sendFile(path.join(__dirname, '../publ
 app.get('/invoice', (req, res) => { res.sendFile(path.join(__dirname, '../public/invoice.html')); });
 app.get('/contract-summary', (req, res) => { res.sendFile(path.join(__dirname, '../public/contract-summary.html')); });
 app.get('/approval', (req, res) => { res.sendFile(path.join(__dirname, '../public/approval.html')); });
+app.get('/supplier-risk', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/supplier-risk.html'));
+});
+
 app.get('/sourcing-optimizer', (req, res) => { res.sendFile(path.join(__dirname, '../public/sourcing-optimizer.html')); });
 
 // 健康检查
