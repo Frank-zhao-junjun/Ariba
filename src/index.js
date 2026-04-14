@@ -10,6 +10,7 @@ const logger = require('./utils/logger');
 const requirementRouter = require('./routes/requirement');
 const blueprintRouter = require('./routes/blueprint');
 const bidAnalysisRouter = require('./routes/bidAnalysis');
+const contractRouter = require('./routes/contract');
 const knowledgeService = require('./services/knowledge');
 
 const app = express();
@@ -36,6 +37,7 @@ app.use(express.static(path.join(__dirname, '../public')));
 app.use('/api/requirement', requirementRouter);
 app.use('/api/blueprint', blueprintRouter);
 app.use('/api/bid-analysis', bidAnalysisRouter);
+app.use('/api/contract', contractRouter);
 
 // 主页
 app.get('/', (req, res) => {

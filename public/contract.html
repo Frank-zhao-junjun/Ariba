@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>智能合同分析 - Ariba实施助手</title>
+  <link rel="stylesheet" href="https://unpkg.com/antd@5.12.8/dist/reset.css">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f0f2f5; }
+    .page-header { background: #fff; padding: 16px 24px; border-bottom: 1px solid #e8e8e8; }
+    .page-header h1 { font-size: 20px; color: #333; }
+    .page-header p { font-size: 14px; color: #666; margin-top: 4px; }
+    .main-container { max-width: 1400px; margin: 0 auto; padding: 24px; }
+    .content-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+    .panel { background: #fff; border-radius: 8px; padding: 24px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+    .panel-title { font-size: 16px; font-weight: 500; margin-bottom: 16px; color: #333; }
+    textarea { width: 100%; min-height: 300px; padding: 16px; border: 1px solid #d9d9d9; border-radius: 6px; font-size: 14px; resize: vertical; }
+    textarea:focus { outline: none; border-color: #1677ff; box-shadow: 0 0 0 2px rgba(22,119,255,0.1); }
+    .btn-group { margin-top: 16px; display: flex; gap: 12px; }
+    .btn { padding: 8px 24px; border-radius: 6px; font-size: 14px; cursor: pointer; border: none; }
+    .btn-primary { background: #1677ff; color: #fff; }
+    .btn-primary:hover { background: #4096ff; }
+    .btn-default { background: #fff; border: 1px solid #d9d9d9; color: #333; }
+    .btn-default:hover { border-color: #1677ff; color: #1677ff; }
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+    .empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 400px; color: #999; }
+    .empty-icon { font-size: 64px; margin-bottom: 16px; }
+    .report-section { height: 100%; overflow-y: auto; }
+    .summary-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+    .summary-card { background: #fafafa; padding: 16px; border-radius: 8px; text-align: center; }
+    .summary-card .value { font-size: 28px; font-weight: 600; color: #333; }
+    .summary-card .label { font-size: 12px; color: #666; margin-top: 4px; }
+    .risk-high { color: #ff4d4f; }
+    .risk-medium { color: #fa8c16; }
+    .risk-low { color: #52c41a; }
+    .section { margin-bottom: 20px; }
+    .section-title { font-size: 14px; font-weight: 500; margin-bottom: 12px; color: #333; }
+    .risk-item { background: #fff7e6; border-left: 3px solid #fa8c16; padding: 12px 16px; margin-bottom: 8px; border-radius: 0 4px 4px 0; }
+    .risk-item.high { background: #fff1f0; border-left-color: #ff4d4f; }
+    .clause-tag { display: inline-block; padding: 4px 12px; background: #e6f4ff; color: #1677ff; border-radius: 4px; margin: 4px; font-size: 12px; }
+    .suggestion { background: #f6ffed; border-left: 3px solid #52c41a; padding: 12px 16px; margin-bottom: 8px; border-radius: 0 4px 4px 0; }
+    .loading { display: flex; align-items: center; justify-content: center; height: 400px; }
+    @media (max-width: 1024px) { .content-grid { grid-template-columns: 1fr; } .summary-cards { grid-template-columns: repeat(2, 1fr); } }
+  </style>
+</head>
+<body>
+  <div class="page-header">
+    <h1>📄 智能合同分析助手</h1>
+    <p>基于AI的合同条款提取与风险识别</p>
+  </div>
+  
+  <div class="main-container">
+    <div class="content-grid">
+      <div class="panel">
+        <div class="panel-title">📋 合同文本输入</div>
+        <textarea id="contractText" placeholder="请粘贴合同文本内容...
+
+示例条款：
+- 合同当事人（甲方、乙方）
+- 合同金额与付款条款
+- 交付与验收标准
+- 质保与违约责任
+- 知识产权与保密条款"></textarea>
+        <div class="btn-group">
+          <button class="btn btn-primary" id="analyzeBtn" onclick="analyzeContract()">🔍 开始分析</button>
+          <button class="btn btn-default" onclick="loadDemo()">📝 加载演示</button>
+        </div>
+      </div>
+      
+      <div class="panel">
+        <div class="panel-title">📊 分析报告</div>
+        <div id="reportContainer">
+          <div class="empty-state">
+            <div class="empty-icon">📄</div>
+            <p>上传合同文本后，系统将自动分析</p>
+            <ul style="list-style:none; margin-top:16px; text-align:left;">
+              <li>✅ 关键条款提取</li>
+              <li>✅ 风险点识别</li>
+              <li>✅ 量化标准建议</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let loading = false;
+
+    const demoContract = `软件开发服务合同
+
+甲方（委托方）：某某科技有限公司
+乙方（受托方）：软件开发有限公司
+
+一、合同金额
+本合同总价为人民币500,000元整，含税。
+
+二、付款条款
+甲方应在乙方完成阶段性验收后30个工作日内支付相应款项。
+
+三、实施交付
+乙方应在合理时间内完成系统开发和部署，并提交交付物。
+
+四、验收标准
+系统应满足甲方的业务需求，达到预定功能要求。
+
+五、质保条款
+质保期为系统验收通过后12个月。
+
+六、违约责任
+任何一方违约，应承担相应的违约责任，赔偿对方因此产生的损失。
+
+七、保密条款
+双方应对合作过程中知悉的对方商业秘密予以保密。
+
+八、知识产权
+乙方开发的软件著作权归甲方所有。
+
+九、争议解决
+如双方发生争议，应友好协商解决；协商不成的，提交甲方所在地法院诉讼解决。`;
+
+    function loadDemo() {
+      document.getElementById('contractText').value = demoContract;
+    }
+
+    async function analyzeContract() {
+      const text = document.getElementById('contractText').value.trim();
+      if (text.length < 50) {
+        alert('请输入至少50个字符的合同文本');
+        return;
+      }
+
+      if (loading) return;
+      loading = true;
+      const btn = document.getElementById('analyzeBtn');
+      btn.disabled = true;
+      btn.textContent = '分析中...';
+
+      document.getElementById('reportContainer').innerHTML = '<div class="loading">加载中...</div>';
+
+      try {
+        const response = await fetch('/api/contract/analyze', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text })
+        });
+        const result = await response.json();
+        
+        if (result.success) {
+          renderReport(result.data);
+        } else {
+          document.getElementById('reportContainer').innerHTML = '<div class="empty-state"><p style="color:red">分析失败: ' + result.error + '</p></div>';
+        }
+      } catch (error) {
+        document.getElementById('reportContainer').innerHTML = '<div class="empty-state"><p style="color:red">请求失败: ' + error.message + '</p></div>';
+      } finally {
+        loading = false;
+        btn.disabled = false;
+        btn.textContent = '🔍 开始分析';
+      }
+    }
+
+    function renderReport(report) {
+      const { summary, clauseAnalysis, riskAnalysis, recommendations } = report;
+      
+      let html = '<div class="report-section">';
+      
+      // 概览卡片
+      html += '<div class="summary-cards">';
+      html += `<div class="summary-card"><div class="value">${summary.clauseCoverage}%</div><div class="label">条款覆盖率</div></div>`;
+      
+      const riskClass = summary.riskLevel === 'HIGH' ? 'risk-high' : summary.riskLevel === 'MEDIUM' ? 'risk-medium' : 'risk-low';
+      html += `<div class="summary-card"><div class="value ${riskClass}">${summary.riskScore}</div><div class="label">风险评分 (${summary.riskLevel})</div></div>`;
+      
+      html += `<div class="summary-card"><div class="value">${summary.foundClauses}</div><div class="label">发现条款</div></div>`;
+      html += `<div class="summary-card"><div class="value" style="color:#fa8c16">${summary.totalRisks}</div><div class="label">风险点</div></div>`;
+      html += '</div>';
+
+      // 条款分析
+      html += '<div class="section">';
+      html += '<div class="section-title">📋 条款分析</div>';
+      clauseAnalysis.foundClauses.forEach(clause => {
+        html += `<span class="clause-tag">${clause.name}</span>`;
+      });
+      if (clauseAnalysis.missingClauses.length > 0) {
+        html += '<div style="margin-top:12px; padding:12px; background:#fff7e6; border-radius:4px;">';
+        html += '<strong>⚠️ 缺失条款:</strong> ';
+        clauseAnalysis.missingClauses.forEach(c => {
+          html += `<span class="clause-tag" style="background:#fff7e6; color:#fa8c16; border:1px solid #fa8c16;">${c.name}</span>`;
+        });
+        html += '</div>';
+      }
+      html += '</div>';
+
+      // 风险分析
+      html += '<div class="section">';
+      html += '<div class="section-title">⚠️ 风险分析</div>';
+      if (riskAnalysis.risks.length === 0) {
+        html += '<div style="padding:16px; background:#f6ffed; border-radius:4px;">✅ 未发现明显风险点</div>';
+      } else {
+        riskAnalysis.risks.forEach(risk => {
+          const riskClass = risk.severity === 'HIGH' ? 'high' : '';
+          html += `<div class="risk-item ${riskClass}">`;
+          html += `<strong>[${risk.severity}] ${risk.keyword}</strong>`;
+          if (risk.contexts) {
+            risk.contexts.forEach(ctx => {
+              html += `<div style="font-size:12px; color:#666; margin-top:4px;">"${ctx.context}"</div>`;
+            });
+          }
+          if (risk.details) {
+            risk.details.forEach(d => {
+              if (d.suggestion) {
+                html += `<div style="font-size:12px; color:#52c41a; margin-top:4px;">💡 ${d.suggestion}</div>`;
+              }
+            });
+          }
+          html += '</div>';
+        });
+      }
+      html += '</div>';
+
+      // 建议
+      if (recommendations && recommendations.length > 0) {
+        html += '<div class="section">';
+        html += '<div class="section-title">💡 改进建议</div>';
+        recommendations.forEach(rec => {
+          html += `<div class="suggestion">${rec.message}</div>`;
+        });
+        html += '</div>';
+      }
+
+      html += '</div>';
+      document.getElementById('reportContainer').innerHTML = html;
+    }
+  </script>
+</body>
+</html>
