@@ -13,32 +13,6 @@ async function getBlueprintTemplates(industry) {
   return { success: true, templates };
 }
 
-async function generateUserStories(params) {
-  const { requirements, industry, processType } = params;
-  const template = knowledge.getBlueprintTemplate(industry, processType);
-  
-  const stories = (requirements || []).map((req, idx) => ({
-    id: `US-${Date.now()}-${idx + 1}`,
-    title: `实现${req.name || '功能'}`,
-    asA: getRoleForModule(req.module),
-    iWant: req.description || `实现${req.name}`,
-    soThat: getBenefitForModule(req.module),
-    acceptanceCriteria: generateBaseCriteria(),
-    priority: req.priority || 'P1',
-    estimatedHours: estimateHours(req.complexity || 5),
-    phase: template.phases?.[0]?.name || '通用',
-    requirementId: req.id,
-    principles: { independent: true, negotiable: true, valuable: true, estimable: true, small: (req.complexity || 5) <= 5, testable: true }
-  }));
-  
-  return {
-    success: true,
-    userStories: validateInvestPrinciples(stories),
-    template: { industry: template.industry, processType: template.processType, phases: template.phases?.map(p => p.name) || [] },
-    statistics: { totalStories: stories.length, totalEstimatedHours: stories.reduce((sum, s) => sum + s.estimatedHours, 0), averageInvestScore: 85 }
-  };
-}
-
 function getRoleForModule(module) {
   const roleMap = { '采购申请': '采购申请人员', '供应商管理': '采购经理', '合同管理': '法务人员', '采购订单': '采购员', '收货管理': '仓库管理员', '发票管理': '财务人员' };
   return roleMap[module] || '采购人员';
@@ -68,6 +42,32 @@ function validateInvestPrinciples(stories) {
   });
 }
 
+async function generateUserStories(params) {
+  const { requirements, industry, processType } = params;
+  const tmpl = knowledge.getBlueprintTemplate(industry, processType);
+  
+  const stories = (requirements || []).map((req, idx) => ({
+    id: `US-${Date.now()}-${idx + 1}`,
+    title: `实现${req.name || '功能'}`,
+    asA: getRoleForModule(req.module),
+    iWant: req.description || `实现${req.name}`,
+    soThat: getBenefitForModule(req.module),
+    acceptanceCriteria: generateBaseCriteria(),
+    priority: req.priority || 'P1',
+    estimatedHours: estimateHours(req.complexity || 5),
+    phase: tmpl.phases?.[0]?.name || '通用',
+    requirementId: req.id,
+    principles: { independent: true, negotiable: true, valuable: true, estimable: true, small: (req.complexity || 5) <= 5, testable: true }
+  }));
+  
+  return {
+    success: true,
+    userStories: validateInvestPrinciples(stories),
+    template: { industry: tmpl.industry, processType: tmpl.processType, phases: tmpl.phases?.map(p => p.name) || [] },
+    statistics: { totalStories: stories.length, totalEstimatedHours: stories.reduce((sum, s) => sum + s.estimatedHours, 0), averageInvestScore: 85 }
+  };
+}
+
 async function generateAcceptanceCriteria(params) {
   const { userStory } = params;
   return { success: true, criteria: generateBaseCriteria(), format: 'Given-When-Then' };
@@ -75,7 +75,7 @@ async function generateAcceptanceCriteria(params) {
 
 async function generateFlowchart(params) {
   const { processType, industry } = params;
-  const template = knowledge.getBlueprintTemplate(industry, processType);
+  const tmpl = knowledge.getBlueprintTemplate(industry, processType);
   
   let diagram = '```ascii\n';
   diagram += '┌─────────────────────────────────────┐\n';
@@ -84,11 +84,11 @@ async function generateFlowchart(params) {
   diagram += '                  │\n';
   diagram += '                  ▼\n';
   
-  (template.phases || []).forEach((phase, idx) => {
+  (tmpl.phases || []).forEach((phase, idx) => {
     diagram += '┌─────────────────────────────────────┐\n';
     diagram += `│ ${idx + 1}. ${phase.name.padEnd(31)} │\n`;
     diagram += '└─────────────────┬───────────────────┘\n';
-    if (idx < template.phases.length - 1) {
+    if (idx < tmpl.phases.length - 1) {
       diagram += '                  │\n';
       diagram += '                  ▼\n';
     }
@@ -100,11 +100,11 @@ async function generateFlowchart(params) {
   diagram += '```\n';
   
   let mermaid = '```mermaid\nflowchart TD\n    Start([开始]) --> ';
-  (template.phases || []).forEach((phase, idx) => {
+  (tmpl.phases || []).forEach((phase, idx) => {
     mermaid += `\n    P${idx + 1}[${phase.name}]`;
-    if (idx < template.phases.length - 1) mermaid += `\n    P${idx} --> P${idx + 1}`;
+    if (idx < tmpl.phases.length - 1) mermaid += `\n    P${idx + 1} --> P${idx + 2}`;
   });
-  mermaid += '\n    P' + template.phases.length + ' --> End([结束])\n```';
+  mermaid += '\n    P' + tmpl.phases.length + ' --> End([结束])\n```';
   
   return { success: true, flowchart: diagram, processType, industry, mermaid };
 }
@@ -114,6 +114,7 @@ async function generateBlueprintDocument(params) {
   
   const storiesResult = await generateUserStories({ requirements, industry, processType });
   const flowchartResult = await generateFlowchart({ processType, industry });
+  const tmpl = knowledge.getBlueprintTemplate(industry, processType);
   
   const docId = `BP-DOC-${Date.now()}`;
   let md = `# 蓝图设计文档\n\n> 文档ID: ${docId}\n> 行业: ${industry}\n> 流程类型: ${processType}\n\n## 统计概览\n\n| 指标 | 值 |\n|------|----|\n`;
@@ -136,7 +137,7 @@ async function generateBlueprintDocument(params) {
   
   return {
     success: true,
-    document: { id: docId, timestamp: new Date().toISOString(), userStories: storiesResult.userStories, flowchart: flowchartResult.flowchart, mermaidDiagram: flowchartResult.mermaid, phases: (template?.phases || []).map(p => p.name), statistics: storiesResult.statistics },
+    document: { id: docId, timestamp: new Date().toISOString(), userStories: storiesResult.userStories, flowchart: flowchartResult.flowchart, mermaidDiagram: flowchartResult.mermaid, phases: tmpl.phases?.map(p => p.name) || [], statistics: storiesResult.statistics },
     markdown: md
   };
 }
