@@ -1,0 +1,14 @@
+{
+  "name": "Ariba项目实施助手",
+  "type": "web",
+  "main": "src/index.js",
+  "port": 3001,
+  "framework": "express",
+  "build": {
+    "command": "npm install",
+    "outputDir": "."
+  },
+  "start": {
+    "command": "node src/index.js"
+  }
+}
