@@ -1,0 +1,25 @@
+# Ralph Progress Log
+
+## Codebase Patterns
+- 项目位置: ~/my-workspace/projects/ariba-assistant/
+- Harness模块: src/harness/
+- 测试: Node inline test
+- 编码规范: ES6+模块化
+
+## Key Files
+- src/harness/event-bus/event-bus.js: 事件总线核心模块
+
+## Conventions
+- 事件类型使用驼峰命名
+- 事件历史保留最近100条
+- 订阅返回unsubscribe函数
+
+## Progress History
+
+[2026-04-14 22:10] Ralph任务启动
+[2026-04-14 22:15] event-bus模块开始实现
+[2026-04-14 22:20] ✅ event-bus模块完成
+  - 功能：emit/on/off/once/history/getStats
+  - 测试：8个用例全部通过
+  - Commit: d5f009b
+[2026-04-14 22:20] 下一步：quality-assessor模块

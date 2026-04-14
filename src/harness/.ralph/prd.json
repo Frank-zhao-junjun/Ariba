@@ -1,0 +1,43 @@
+{
+  "project": "Ariba Harness Layer",
+  "modules": [
+    {
+      "name": "event-bus",
+      "description": "事件总线 - 发布订阅机制",
+      "status": "completed",
+      "priority": 1,
+      "commit": "d5f009b"
+    },
+    {
+      "name": "quality-assessor", 
+      "description": "质量评估器 - Ariba配置检查",
+      "status": "pending",
+      "priority": 2
+    },
+    {
+      "name": "behavior-guard",
+      "description": "行为规范器 - 权限控制、危险拦截",
+      "status": "pending",
+      "priority": 3
+    },
+    {
+      "name": "memory-governor",
+      "description": "记忆治理器 - 知识管理、检索优化",
+      "status": "pending",
+      "priority": 4
+    },
+    {
+      "name": "stability-monitor",
+      "description": "稳定保障器 - 异常监控、熔断机制",
+      "status": "pending",
+      "priority": 5
+    },
+    {
+      "name": "index",
+      "description": "主入口 - 整合四大模块",
+      "status": "pending",
+      "priority": 6
+    }
+  ],
+  "target": "生产可用代码 + 单元测试"
+}
