@@ -7,17 +7,19 @@
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
     body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
-    .container{background:white;border-radius:20px;box-shadow:0 20px 60px rgba(0,0,0,0.3);max-width:900px;width:100%;overflow:hidden}
+    .container{background:white;border-radius:20px;box-shadow:0 20px 60px rgba(0,0,0,0.3);max-width:1000px;width:100%;overflow:hidden}
     .header{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;padding:40px;text-align:center}
     .header h1{font-size:2.2em;margin-bottom:10px}
     .header p{font-size:1.1em;opacity:0.9}
     .version-badge{display:inline-block;background:rgba(255,255,255,0.2);padding:5px 15px;border-radius:20px;margin-top:15px;font-size:0.9em}
     .content{padding:40px}
-    .modules{display:grid;grid-template-columns:repeat(auto-fit,minmax(350px,1fr));gap:25px;margin-top:30px}
-    .module-card{background:#f8f9fa;border-radius:15px;padding:30px;transition:all 0.3s ease;border:2px solid transparent;cursor:pointer}
+    .modules{display:grid;grid-template-columns:repeat(auto-fit,minmax(380px,1fr));gap:25px;margin-top:30px}
+    .module-card{background:#f8f9fa;border-radius:15px;padding:30px;transition:all 0.3s ease;border:2px solid transparent;cursor:pointer;position:relative}
     .module-card:hover{transform:translateY(-5px);box-shadow:0 10px 30px rgba(0,0,0,0.1);border-color:#667eea}
+    .module-card.has-submenu:hover .submenu{display:block}
     .module-icon{font-size:3em;margin-bottom:15px}
-    .module-card h3{color:#333;font-size:1.4em;margin-bottom:10px}
+    .module-card h3{color:#333;font-size:1.4em;margin-bottom:10px;display:flex;align-items:center;gap:10px}
+    .module-card h3 .arrow{font-size:0.6em;color:#999;margin-left:auto}
     .module-card p{color:#666;line-height:1.6;margin-bottom:20px}
     .feature-list{text-align:left}
     .feature-item{display:flex;align-items:center;padding:8px 0;color:#555;font-size:0.95em}
@@ -39,6 +41,12 @@
     .roadmap-item.planned .status{background:#9e9e9e;color:white}
     .roadmap-item h4{font-size:0.95em;color:#333}
     .roadmap-item span{font-size:0.8em;color:#666}
+    .submenu{display:none;position:absolute;top:100%;left:0;right:0;background:white;border-radius:0 0 15px 15px;box-shadow:0 10px 30px rgba(0,0,0,0.15);z-index:100;padding:15px 0;margin-top:10px;border:2px solid #667eea;border-top:none}
+    .submenu-item{padding:12px 30px;color:#333;text-decoration:none;display:flex;align-items:center;gap:10px;transition:all 0.2s ease}
+    .submenu-item:hover{background:#f0f0f0;color:#667eea}
+    .submenu-item::before{content:'→';color:#667eea;font-weight:bold}
+    .tag{display:inline-block;background:#e3f2fd;color:#1976d2;padding:3px 10px;border-radius:10px;font-size:0.75em;margin-left:auto}
+    .tag.coming-soon{background:#fff3e0;color:#f57c00}
   </style>
 </head>
 <body>
@@ -64,6 +72,7 @@
           </div>
           <a href="/requirement" class="module-btn">立即使用 →</a>
         </div>
+        
         <div class="module-card" onclick="location.href='/blueprint'">
           <div class="module-icon">🏗️</div>
           <h3>蓝图设计与User Stories助手</h3>
@@ -76,14 +85,46 @@
           </div>
           <a href="/blueprint" class="module-btn">立即使用 →</a>
         </div>
+        
+        <div class="module-card has-submenu">
+          <div class="module-icon">📊</div>
+          <h3>项目管理 <span class="arrow">▼</span></h3>
+          <p>完整的Ariba项目实施项目管理工具，支持里程碑、任务、文档、团队协作</p>
+          <div class="feature-list">
+            <div class="feature-item">里程碑追踪</div>
+            <div class="feature-item">任务清单管理</div>
+            <div class="feature-item">文档模板库</div>
+            <div class="feature-item">团队协作功能</div>
+          </div>
+          <span class="tag coming-soon">即将上线</span>
+          <div class="submenu">
+            <a href="#" class="submenu-item">里程碑追踪</a>
+            <a href="#" class="submenu-item">任务清单</a>
+            <a href="#" class="submenu-item">文档模板</a>
+            <a href="#" class="submenu-item">团队协作</a>
+          </div>
+        </div>
+        
+        <div class="module-card">
+          <div class="module-icon">🔧</div>
+          <h3>运维助手 <span class="tag coming-soon">即将上线</span></h3>
+          <p>Ariba系统运维智能问答，提供故障诊断、性能优化、日常运维支持</p>
+          <div class="feature-list">
+            <div class="feature-item">故障诊断与分析</div>
+            <div class="feature-item">性能优化建议</div>
+            <div class="feature-item">日常运维问答</div>
+            <div class="feature-item">最佳实践指导</div>
+          </div>
+        </div>
       </div>
+      
       <div class="roadmap">
         <h3>📅 产品路线图</h3>
         <div class="roadmap-items">
           <div class="roadmap-item completed"><span class="status">已完成</span><h4>v1.0</h4><span>需求分析 + 蓝图设计</span></div>
-          <div class="roadmap-item in-progress"><span class="status">开发中</span><h4>v1.1</h4><span>接口定义 + 配置建议</span></div>
-          <div class="roadmap-item planned"><span class="status">规划中</span><h4>v2.0</h4><span>E2E测试 + UAT案例</span></div>
-          <div class="roadmap-item planned"><span class="status">规划中</span><h4>v3.0</h4><span>运维知识问答</span></div>
+          <div class="roadmap-item in-progress"><span class="status">开发中</span><h4>v1.1</h4><span>项目管理功能</span></div>
+          <div class="roadmap-item planned"><span class="status">规划中</span><h4>v1.2</h4><span>接口定义 + 配置建议</span></div>
+          <div class="roadmap-item planned"><span class="status">规划中</span><h4>v2.0</h4><span>运维助手功能</span></div>
         </div>
       </div>
     </div>
