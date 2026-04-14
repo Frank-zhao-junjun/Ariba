@@ -1,5 +1,5 @@
 /**
- * Ariba项目实施助手 v1.4
+ * Ariba项目实施助手 v1.5
  * 主入口文件
  */
 
@@ -14,6 +14,7 @@ const contractRouter = require('./routes/contract');
 const invoiceRouter = require('./routes/invoice');
 const rfxRouter = require('./routes/rfx');
 const approvalRouter = require('./routes/approval');
+const guidedBuyingRouter = require('./routes/guided-buying');
 const knowledgeService = require('./services/knowledge');
 
 const app = express();
@@ -40,6 +41,7 @@ app.use('/api/contract', contractRouter);
 app.use('/api/invoice', invoiceRouter);
 app.use('/api/rfx', rfxRouter);
 app.use('/api/approval', approvalRouter);
+app.use('/api/guided-buying', guidedBuyingRouter);
 
 // 页面路由
 app.get('/', (req, res) => { res.sendFile(path.join(__dirname, '../public/index.html')); });
