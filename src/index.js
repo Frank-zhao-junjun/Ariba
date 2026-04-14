@@ -1,5 +1,5 @@
 /**
- * Ariba项目实施助手 v1.5
+ * Ariba项目实施助手 v1.6
  * 主入口文件
  */
 
@@ -11,6 +11,7 @@ const requirementRouter = require('./routes/requirement');
 const blueprintRouter = require('./routes/blueprint');
 const bidAnalysisRouter = require('./routes/bidAnalysis');
 const contractRouter = require('./routes/contract');
+const contractSummaryRouter = require('./routes/contractSummary');
 const invoiceRouter = require('./routes/invoice');
 const rfxRouter = require('./routes/rfx');
 const approvalRouter = require('./routes/approval');
@@ -38,6 +39,7 @@ app.use('/api/requirement', requirementRouter);
 app.use('/api/blueprint', blueprintRouter);
 app.use('/api/bid-analysis', bidAnalysisRouter);
 app.use('/api/contract', contractRouter);
+app.use('/api/contract-summary', contractSummaryRouter);
 app.use('/api/invoice', invoiceRouter);
 app.use('/api/rfx', rfxRouter);
 app.use('/api/approval', approvalRouter);
@@ -48,6 +50,7 @@ app.get('/', (req, res) => { res.sendFile(path.join(__dirname, '../public/index.
 app.get('/requirement', (req, res) => { res.sendFile(path.join(__dirname, '../public/requirement.html')); });
 app.get('/blueprint', (req, res) => { res.sendFile(path.join(__dirname, '../public/blueprint.html')); });
 app.get('/invoice', (req, res) => { res.sendFile(path.join(__dirname, '../public/invoice.html')); });
+app.get('/contract-summary', (req, res) => { res.sendFile(path.join(__dirname, '../public/contract-summary.html')); });
 app.get('/approval', (req, res) => { res.sendFile(path.join(__dirname, '../public/approval.html')); });
 
 // 健康检查
