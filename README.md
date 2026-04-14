@@ -222,3 +222,32 @@ MIT License - see [LICENSE](LICENSE) for details.
 
 **Made with ❤️ by Frank Zhao**
 **Powered by Coze + GPT**
+
+---
+
+## 🆕 v1.2 新增：竞标分析代理 (Bid Analysis Agent)
+
+| 功能 | 描述 |
+|------|------|
+| 📊 **多维度报价解析** | 支持总报价、分项报价、交货期、付款条件等多维度数据 |
+| 🎯 **智能评分排序** | 基于多维度权重自动计算综合得分 |
+| 💰 **性价比分析** | 计算性价比指数，识别最佳方案 |
+| ⚠️ **异常检测** | 智能识别报价异常（过高/过低/分项不平衡） |
+| 📈 **权衡可视化** | ASCII矩阵展示多供应商对比 |
+| 📝 **报告生成** | 生成结构化比价分析报告 |
+
+**使用示例**:
+```
+输入: 3个供应商报价数据
+输出: 
+  🏆 综合推荐：华南供应商（74分）
+  📈 性价比最优：华南供应商
+  ⚠️ 异常提醒：设备B单价偏高(+10.4%)
+```
+
+**API接口**:
+- `POST /api/bid-analysis/analyze` - 执行完整竞标分析
+- `POST /api/bid-analysis/brief` - 简短回复（聊天场景）
+- `POST /api/bid-analysis/chat` - 聊天式交互
+- `GET /api/bid-analysis/demo/report` - 获取演示报告
+
