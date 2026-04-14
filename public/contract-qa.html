@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>合同智能问答助手 v1.6.1 - Ariba实施助手</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+    .container { max-width: 1000px; margin: 0 auto; }
+    .header { text-align: center; color: white; margin-bottom: 30px; }
+    .header h1 { font-size: 2rem; margin-bottom: 10px; }
+    .header p { opacity: 0.9; }
+    .card { background: white; border-radius: 16px; padding: 24px; margin-bottom: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); }
+    .nav { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+    .nav a { color: white; text-decoration: none; padding: 10px 20px; background: rgba(255,255,255,0.2); border-radius: 8px; transition: background 0.2s; }
+    .nav a:hover { background: rgba(255,255,255,0.3); }
+    .nav a.active { background: white; color: #667eea; }
+    .input-section h2, .chat-section h2 { font-size: 1.2rem; color: #333; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+    textarea { width: 100%; height: 150px; padding: 16px; border: 2px solid #e1e1e1; border-radius: 12px; font-size: 14px; resize: vertical; transition: border-color 0.3s; }
+    textarea:focus { outline: none; border-color: #667eea; }
+    .btn { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 12px 24px; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; }
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4); }
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+    .btn-secondary { background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%); }
+    .btn-group { display: flex; gap: 12px; margin-top: 16px; flex-wrap: wrap; }
+    .chat-container { height: 400px; overflow-y: auto; padding: 16px; background: #f8f9ff; border-radius: 12px; margin-bottom: 16px; }
+    .chat-message { margin-bottom: 16px; animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .user-message { background: #667eea; color: white; padding: 12px 16px; border-radius: 16px 16px 4px 16px; max-width: 80%; margin-left: auto; }
+    .ai-message { background: white; padding: 16px; border-radius: 16px 16px 16px 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); max-width: 85%; }
+    .ai-message .label { font-size: 12px; color: #667eea; font-weight: 600; margin-bottom: 8px; }
+    .ai-message .content { font-size: 14px; line-height: 1.7; color: #333; white-space: pre-wrap; }
+    .related-clauses { margin-top: 12px; padding-top: 12px; border-top: 1px solid #e1e1e1; }
+    .clause-tag { display: inline-block; background: #f0f4ff; color: #667eea; padding: 4px 10px; border-radius: 6px; font-size: 12px; margin: 4px 4px 4px 0; }
+    .input-row { display: flex; gap: 12px; }
+    .input-row input { flex: 1; padding: 14px 16px; border: 2px solid #e1e1e1; border-radius: 12px; font-size: 14px; transition: border-color 0.3s; }
+    .input-row input:focus { outline: none; border-color: #667eea; }
+    .suggestion-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+    .suggestion-tag { background: #f0f4ff; color: #333; padding: 8px 14px; border-radius: 20px; font-size: 13px; cursor: pointer; transition: all 0.2s; border: 1px solid #e1e1e1; }
+    .suggestion-tag:hover { background: #667eea; color: white; border-color: #667eea; }
+    .session-info { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: #f0f4ff; border-radius: 10px; margin-bottom: 16px; font-size: 13px; color: #666; }
+    .clear-btn { background: #e74c3c; color: white; border: none; padding: 8px 16px; border-radius: 8px; font-size: 12px; cursor: pointer; }
+    .loading { display: none; text-align: center; padding: 20px; color: #666; }
+    .loading.show { display: block; }
+    .spinner { width: 30px; height: 30px; border: 3px solid #e1e1e1; border-top-color: #667eea; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 10px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .error { background: #fee; color: #c00; padding: 16px; border-radius: 10px; margin-top: 16px; display: none; }
+    .error.show { display: block; }
+    .feature-highlight { background: linear-gradient(135deg, #f8f9ff 0%, #e8f4ff 100%); padding: 16px; border-radius: 12px; margin-top: 16px; }
+    .feature-highlight h4 { color: #667eea; font-size: 14px; margin-bottom: 8px; }
+    .feature-highlight ul { font-size: 13px; color: #666; padding-left: 20px; }
+    .feature-highlight li { margin-bottom: 4px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <nav class="nav">
+      <a href="/">首页</a>
+      <a href="/requirement">需求分析</a>
+      <a href="/blueprint">蓝图设计</a>
+      <a href="/invoice">发票分析</a>
+      <a href="/approval">审批助手</a>
+      <a href="/contract-summary">合同摘要</a>
+      <a href="/contract-qa" class="active">合同问答</a>
+    </nav>
+    
+    <header class="header">
+      <h1>合同智能问答助手 v1.6.1</h1>
+      <p>基于AI的合同内容问答，支持自然语言查询和智能追问</p>
+    </header>
+
+    <div class="card input-section">
+      <h2>合同文本输入</h2>
+      <textarea id="contractText" placeholder="请粘贴合同文本..."></textarea>
+      <div class="btn-group">
+        <button class="btn" onclick="saveContract()">保存合同</button>
+        <button class="btn btn-secondary" onclick="loadDemo()">加载演示</button>
+        <button class="btn btn-secondary" onclick="clearContract()">清空</button>
+      </div>
+      <div class="error" id="contractError"></div>
+      <div class="feature-highlight">
+        <h4>功能特点</h4>
+        <ul>
+          <li><strong>智能问答</strong>：用自然语言询问合同内容</li>
+          <li><strong>上下文理解</strong>：支持追问和追问的追问</li>
+          <li><strong>条款关联</strong>：自动标注回答引用的合同条款</li>
+          <li><strong>多合同对比</strong>：支持多份合同同时分析对比</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card chat-section">
+      <h2>问答对话</h2>
+      <div class="session-info">
+        <span id="sessionStatus">会话ID: default | 对话轮次: 0</span>
+        <button class="clear-btn" onclick="clearHistory()">清除对话历史</button>
+      </div>
+      <div class="chat-container" id="chatContainer">
+        <div class="chat-message ai-message">
+          <div class="label">AI助手</div>
+          <div class="content">您好！我是合同智能问答助手。请先输入或粘贴合同文本，然后就可以用自然语言询问合同相关问题啦！</div>
+        </div>
+      </div>
+      <div class="suggestion-tags">
+        <span class="suggestion-tag" onclick="askQuestion('合同的总金额是多少？')">合同的总金额是多少？</span>
+        <span class="suggestion-tag" onclick="askQuestion('付款方式是什么？')">付款方式是什么？</span>
+        <span class="suggestion-tag" onclick="askQuestion('有哪些潜在风险点？')">有哪些潜在风险点？</span>
+      </div>
+      <div class="loading" id="loading">
+        <div class="spinner"></div>
+        <p>正在思考，请稍候...</p>
+      </div>
+      <div class="input-row">
+        <input type="text" id="questionInput" placeholder="请输入您的问题... (按Enter发送)" onkeypress="handleKeyPress(event)">
+        <button class="btn" onclick="askQuestionFromInput()">发送</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let sessionId = 'qa-' + Date.now();
+    let savedContract = '';
+    
+    function saveContract() {
+      const text = document.getElementById('contractText').value.trim();
+      if (!text) { alert('请先输入合同文本'); return; }
+      savedContract = text;
+      alert('合同已保存，现在可以开始问答了！');
+    }
+    
+    function clearContract() {
+      document.getElementById('contractText').value = '';
+      savedContract = '';
+    }
+    
+    function loadDemo() {
+      document.getElementById('contractText').value = '软件采购合同\n\n甲方：某某科技有限公司\n乙方：软件开发有限公司\n\n一、合同金额：500,000元整，含税。\n二、付款：签订后5日付30%，验收后10日付60%，质保期满后10日付10%。\n三、交付：6个月内完成开发和部署。\n四、验收：满足业务需求，达到预定功能要求。\n五、质保：验收后12个月。\n六、违约：延迟交付每天0.5%违约金。';
+      savedContract = document.getElementById('contractText').value;
+    }
+    
+    function handleKeyPress(event) { if (event.key === 'Enter') askQuestionFromInput(); }
+    
+    async function askQuestionFromInput() {
+      const input = document.getElementById('questionInput');
+      const question = input.value.trim();
+      if (question) { askQuestion(question); input.value = ''; }
+    }
+    
+    async function askQuestion(question) {
+      if (!savedContract) { alert('请先保存合同文本或加载演示'); return; }
+      addMessage('user', question);
+      document.getElementById('loading').classList.add('show');
+      try {
+        const response = await fetch('/api/contract-qa/ask', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ contractText: savedContract, question, sessionId })
+        });
+        const result = await response.json();
+        document.getElementById('loading').classList.remove('show');
+        if (result.success) {
+          addAIMessage(result.data.answer, result.data.relatedClauses);
+          updateSessionStatus(result.data.historyLength);
+        } else { addAIMessage('抱歉，发生了错误：' + (result.error || '未知错误')); }
+      } catch (error) {
+        document.getElementById('loading').classList.remove('show');
+        addAIMessage('网络错误，请检查服务是否启动');
+      }
+    }
+    
+    function addMessage(type, content) {
+      const container = document.getElementById('chatContainer');
+      const div = document.createElement('div');
+      div.className = 'chat-message ' + type + '-message';
+      div.innerHTML = '<div class="content">' + escapeHtml(content) + '</div>';
+      container.appendChild(div);
+      container.scrollTop = container.scrollHeight;
+    }
+    
+    function addAIMessage(content, relatedClauses = []) {
+      const container = document.getElementById('chatContainer');
+      const div = document.createElement('div');
+      div.className = 'chat-message ai-message';
+      let clausesHtml = '';
+      if (relatedClauses && relatedClauses.length > 0) {
+        clausesHtml = '<div class="related-clauses">' + relatedClauses.map(c => '<span class="clause-tag">' + escapeHtml(c.clauseType || c.type) + '</span>').join('') + '</div>';
+      }
+      div.innerHTML = '<div class="label">AI助手</div><div class="content">' + content.replace(/\n/g, '<br>') + '</div>' + clausesHtml;
+      container.appendChild(div);
+      container.scrollTop = container.scrollHeight;
+    }
+    
+    function escapeHtml(text) { const div = document.createElement('div'); div.textContent = text; return div.innerHTML; }
+    function updateSessionStatus(count) { document.getElementById('sessionStatus').textContent = '会话ID: ' + sessionId.substring(0, 12) + '... | 对话轮次: ' + count; }
+    
+    async function clearHistory() {
+      try {
+        await fetch('/api/contract-qa/history?sessionId=' + sessionId, { method: 'DELETE' });
+        document.getElementById('chatContainer').innerHTML = '<div class="chat-message ai-message"><div class="label">AI助手</div><div class="content">对话历史已清除，请继续提问！</div></div>';
+        updateSessionStatus(0);
+      } catch (error) { console.error('清除历史失败:', error); }
+    }
+  </script>
+</body>
+</html>

@@ -1,5 +1,5 @@
 /**
- * Ariba项目实施助手 v1.6
+ * Ariba项目实施助手 v1.6.1
  * 主入口文件
  */
 
@@ -12,11 +12,13 @@ const blueprintRouter = require('./routes/blueprint');
 const bidAnalysisRouter = require('./routes/bidAnalysis');
 const contractRouter = require('./routes/contract');
 const contractSummaryRouter = require('./routes/contractSummary');
+const contractQARouter = require('./routes/contractQA');
 const invoiceRouter = require('./routes/invoice');
 const rfxRouter = require('./routes/rfx');
 const approvalRouter = require('./routes/approval');
 const guidedBuyingRouter = require('./routes/guided-buying');
 const chatbotRouter = require('./routes/chatbot');
+const sourcingOptimizerRouter = require('./routes/sourcingOptimizer');
 const supplierRiskRouter = require('./routes/supplierRisk');
 const knowledgeService = require('./services/knowledge');
 
@@ -42,42 +44,77 @@ app.use('/api/blueprint', blueprintRouter);
 app.use('/api/bid-analysis', bidAnalysisRouter);
 app.use('/api/contract', contractRouter);
 app.use('/api/contract-summary', contractSummaryRouter);
+app.use('/api/contract-qa', contractQARouter);
 app.use('/api/invoice', invoiceRouter);
 app.use('/api/rfx', rfxRouter);
 app.use('/api/approval', approvalRouter);
 app.use('/api/guided-buying', guidedBuyingRouter);
 app.use('/api/chatbot', chatbotRouter);
+app.use('/api/sourcing-optimizer', sourcingOptimizerRouter);
 app.use('/api/supplier-risk', supplierRiskRouter);
 
+// 主页
+app.get('/', (req, res) => {
+  const indexPath = path.join(__dirname, '../public/index.html');
+  res.sendFile(indexPath);
+});
+
 // 页面路由
-app.get('/', (req, res) => { res.sendFile(path.join(__dirname, '../public/index.html')); });
-app.get('/requirement', (req, res) => { res.sendFile(path.join(__dirname, '../public/requirement.html')); });
-app.get('/blueprint', (req, res) => { res.sendFile(path.join(__dirname, '../public/blueprint.html')); });
-app.get('/invoice', (req, res) => { res.sendFile(path.join(__dirname, '../public/invoice.html')); });
-app.get('/contract-summary', (req, res) => { res.sendFile(path.join(__dirname, '../public/contract-summary.html')); });
-app.get('/approval', (req, res) => { res.sendFile(path.join(__dirname, '../public/approval.html')); });
+app.get('/requirement', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/requirement.html'));
+});
+
+app.get('/blueprint', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/blueprint.html'));
+});
+
+app.get('/invoice', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/invoice.html'));
+});
+
+app.get('/contract-summary', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/contract-summary.html'));
+});
+
+app.get('/approval', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/approval.html'));
+});
+
 app.get('/supplier-risk', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/supplier-risk.html'));
 });
 
-app.get('/sourcing-optimizer', (req, res) => { res.sendFile(path.join(__dirname, '../public/sourcing-optimizer.html')); });
+app.get('/contract-qa', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/contract-qa.html'));
+});
+
+app.get('/sourcing-optimizer', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/sourcing-optimizer.html'));
+});
 
 // 健康检查
 app.get('/health', (req, res) => {
-  res.json({ status: 'healthy', service: 'Ariba项目实施助手', version: '1.4.0', uptime: process.uptime(), timestamp: new Date().toISOString() });
+  res.json({ 
+    status: 'healthy', 
+    service: 'Ariba项目实施助手', 
+    version: '1.6.1', 
+    uptime: process.uptime(), 
+    timestamp: new Date().toISOString() 
+  });
 });
 
 // API文档
 app.get('/api', (req, res) => {
   res.json({
     service: 'Ariba项目实施助手 API',
-    version: '1.4.0',
+    version: '1.6.1',
     endpoints: {
       requirement: { 'POST /api/requirement/analyze': '分析用户需求', 'GET /api/requirement/templates': '获取需求模板列表' },
       blueprint: { 'GET /api/blueprint/templates': '获取蓝图模板列表', 'POST /api/blueprint/generate': '生成User Stories' },
       invoice: { 'POST /api/invoice/analyze': '分析发票与PO差异' },
       rfx: { 'POST /api/rfx/generate': '生成RFx/RFP/RFI/RFB文档' },
-      approval: { 'GET /api/approval/pending': '获取待审批列表', 'POST /api/approval/process': '执行审批操作', 'POST /api/approval/batch': '批量审批', 'POST /api/approval/query': '自然语言查询' }
+      approval: { 'GET /api/approval/pending': '获取待审批列表', 'POST /api/approval/process': '执行审批操作', 'POST /api/approval/batch': '批量审批', 'POST /api/approval/query': '自然语言查询' },
+      'contract-qa': { 'POST /api/contract-qa/ask': '询问合同问题', 'POST /api/contract-qa/multi': '多合同对比问答', 'GET /api/contract-qa/suggestions': '获取推荐问题' }
     }
   });
 });
