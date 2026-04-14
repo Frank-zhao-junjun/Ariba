@@ -1,0 +1,39 @@
+{
+  "id": "wf-sourcing-standard-001",
+  "name": "标准寻源流程",
+  "version": "1.0.0",
+  "description": "适用于一般采购需求的完整寻源流程，从需求录入到合同创建",
+  "domain": "sourcing",
+  "metadata": {
+    "createdAt": "2024-04-14T00:00:00Z",
+    "author": "Ariba实施助手"
+  },
+  "nodes": [
+    { "id": "start", "type": "start", "name": "开始" },
+    { "id": "REQ-INPUT", "type": "task", "name": "需求录入", "nodeType": "SRM-REQ-INPUT" },
+    { "id": "SUPPLIER-SELECT", "type": "task", "name": "供应商筛选", "nodeType": "SRM-SUPPLIER-SELECT" },
+    { "id": "RFQ-SEND", "type": "task", "name": "发送询价单", "nodeType": "SRM-RFQ-SEND" },
+    { "id": "QUOTE-COLLECT", "type": "task", "name": "等待报价", "nodeType": "SRM-QUOTE-COLLECT" },
+    {
+      "id": "QUOTE-GATEWAY", "type": "gateway", "gatewayType": "exclusive",
+      "conditions": [
+        { "id": "enough", "expression": "variables.quoteCount >= 2", "targetNode": "AI-ANALYSIS" },
+        { "id": "retry", "expression": "variables.retryCount < 2", "targetNode": "RFQ-SEND" }
+      ]
+    },
+    { "id": "AI-ANALYSIS", "type": "task", "name": "AI竞标分析", "nodeType": "bid-analysis-agent" },
+    { "id": "DECISION", "type": "task", "name": "供应商决策", "nodeType": "SRM-DECISION" },
+    { "id": "end", "type": "end", "name": "结束" }
+  ],
+  "edges": [
+    { "from": "start", "to": "REQ-INPUT" },
+    { "from": "REQ-INPUT", "to": "SUPPLIER-SELECT" },
+    { "from": "SUPPLIER-SELECT", "to": "RFQ-SEND" },
+    { "from": "RFQ-SEND", "to": "QUOTE-COLLECT" },
+    { "from": "QUOTE-COLLECT", "to": "QUOTE-GATEWAY" },
+    { "from": "QUOTE-GATEWAY", "to": "AI-ANALYSIS", "condition": "enough" },
+    { "from": "QUOTE-GATEWAY", "to": "RFQ-SEND", "condition": "retry" },
+    { "from": "AI-ANALYSIS", "to": "DECISION" },
+    { "from": "DECISION", "to": "end" }
+  ]
+}
