@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI寻源场景优化器 - Ariba项目实施助手</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #f5f7fa;
+      color: #333;
+      line-height: 1.6;
+    }
+    
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 30px;
+      border-radius: 16px;
+      margin-bottom: 30px;
+    }
+    
+    header h1 {
+      font-size: 28px;
+      margin-bottom: 8px;
+    }
+    
+    header p {
+      opacity: 0.9;
+      font-size: 15px;
+    }
+    
+    .grid {
+      display: grid;
+      grid-template-columns: 380px 1fr;
+      gap: 24px;
+    }
+    
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+    
+    .card h3 {
+      margin-bottom: 20px;
+      color: #333;
+      font-size: 16px;
+    }
+    
+    .form-group {
+      margin-bottom: 16px;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 500;
+      color: #555;
+      font-size: 13px;
+    }
+    
+    .form-group input, .form-group select {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 14px;
+      transition: border-color 0.2s;
+    }
+    
+    .form-group input:focus, .form-group select:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+    
+    .weight-config {
+      background: #f8f9fa;
+      padding: 16px;
+      border-radius: 8px;
+      margin-top: 10px;
+    }
+    
+    .weight-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    
+    .weight-item span:first-child {
+      width: 60px;
+      font-size: 13px;
+      color: #666;
+    }
+    
+    .weight-item input[type="range"] {
+      flex: 1;
+      margin: 0 12px;
+    }
+    
+    .weight-value {
+      width: 40px;
+      text-align: right;
+      font-weight: 600;
+      color: #667eea;
+    }
+    
+    .btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .btn-primary {
+      width: 100%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+    
+    .btn-primary:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    .scenario-list {
+      margin-top: 20px;
+    }
+    
+    .scenario-item {
+      padding: 14px;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .scenario-item:hover {
+      border-color: #667eea;
+      background: #f8f9ff;
+    }
+    
+    .scenario-item.active {
+      border-color: #667eea;
+      background: #f0f2ff;
+    }
+    
+    .scenario-name {
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+    
+    .scenario-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: #888;
+    }
+    
+    .status-badge {
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-size: 11px;
+    }
+    
+    .status-pending { background: #fff3cd; color: #856404; }
+    .status-scored { background: #d4edda; color: #155724; }
+    .status-adopted { background: #cce5ff; color: #004085; }
+    
+    .tabs {
+      display: flex;
+      border-bottom: 2px solid #e0e0e0;
+      margin-bottom: 24px;
+    }
+    
+    .tab {
+      padding: 12px 24px;
+      background: none;
+      border: none;
+      font-size: 14px;
+      cursor: pointer;
+      color: #666;
+      position: relative;
+    }
+    
+    .tab.active {
+      color: #667eea;
+      font-weight: 600;
+    }
+    
+    .tab.active::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: #667eea;
+    }
+    
+    .recommended-card {
+      background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+      border: 2px solid #667eea30;
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+    
+    .recommended-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    
+    .recommended-supplier {
+      font-size: 22px;
+      font-weight: 700;
+      color: #333;
+    }
+    
+    .recommended-score {
+      font-size: 32px;
+      font-weight: 700;
+      color: #667eea;
+    }
+    
+    .score-breakdown {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    
+    .score-item {
+      background: white;
+      padding: 16px;
+      border-radius: 10px;
+      text-align: center;
+    }
+    
+    .score-item-label {
+      font-size: 12px;
+      color: #888;
+      margin-bottom: 8px;
+    }
+    
+    .score-item-value {
+      font-size: 20px;
+      font-weight: 700;
+      color: #333;
+    }
+    
+    .score-item-bar {
+      height: 4px;
+      background: #e0e0e0;
+      border-radius: 2px;
+      margin-top: 8px;
+      overflow: hidden;
+    }
+    
+    .score-item-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #667eea, #764ba2);
+      border-radius: 2px;
+    }
+    
+    .recommended-reason {
+      background: white;
+      padding: 16px;
+      border-radius: 8px;
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 20px;
+    }
+    
+    .btn-adopt {
+      width: 100%;
+      padding: 14px;
+      background: #28a745;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .btn-adopt:hover {
+      background: #218838;
+      transform: translateY(-2px);
+    }
+    
+    .table-container {
+      overflow-x: auto;
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    
+    th {
+      background: #f8f9fa;
+      padding: 14px 12px;
+      text-align: left;
+      font-weight: 600;
+      color: #555;
+      border-bottom: 2px solid #e0e0e0;
+    }
+    
+    td {
+      padding: 14px 12px;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    
+    tr:hover {
+      background: #f8f9fa;
+    }
+    
+    tr.recommended {
+      background: #f0f2ff;
+    }
+    
+    .rank {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      background: #667eea;
+      color: white;
+      border-radius: 50%;
+      font-weight: 600;
+      font-size: 13px;
+    }
+    
+    .rank-1 { background: linear-gradient(135deg, #ffd700, #ffb800); }
+    .rank-2 { background: linear-gradient(135deg, #c0c0c0, #a0a0a0); }
+    .rank-3 { background: linear-gradient(135deg, #cd7f32, #b06020); }
+    
+    .badge {
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+    
+    .badge-adopt { background: #d4edda; color: #155724; }
+    .badge-consider { background: #fff3cd; color: #856404; }
+    .badge-reject { background: #f8d7da; color: #721c24; }
+    
+    .btn-small {
+      padding: 6px 14px;
+      background: #667eea;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+    }
+    
+    .empty-icon {
+      font-size: 72px;
+      margin-bottom: 20px;
+    }
+    
+    .empty-state h3 {
+      font-size: 20px;
+      margin-bottom: 12px;
+    }
+    
+    .empty-state p {
+      color: #888;
+      margin-bottom: 24px;
+    }
+    
+    .feature-list {
+      list-style: none;
+      display: inline-block;
+      text-align: left;
+    }
+    
+    .feature-list li {
+      padding: 8px 0;
+      color: #666;
+    }
+    
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: #888;
+    }
+    
+    .alert {
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+    }
+    
+    .alert-success {
+      background: #d4edda;
+      color: #155724;
+    }
+    
+    .empty-list {
+      text-align: center;
+      padding: 30px;
+      color: #888;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🎯 AI寻源场景优化器</h1>
+      <p>智能多维度评分 · TCO总拥有成本分析 · 最优供应商推荐</p>
+    </header>
+    
+    <div class="grid">
+      <aside>
+        <div class="card">
+          <h3>📊 创建寻源场景</h3>
+          <form id="createForm">
+            <div class="form-group">
+              <label>场景名称</label>
+              <input type="text" id="scenarioName" placeholder="例如: 2026Q2电子元器件采购" required>
+            </div>
+            
+            <div class="form-group">
+              <label>采购申请ID</label>
+              <input type="text" id="purchaseReqId" placeholder="PR-2026-00123">
+            </div>
+            
+            <div class="form-group">
+              <label>物料数量</label>
+              <input type="number" id="quantity" value="100" min="1" required>
+            </div>
+            
+            <div class="form-group">
+              <label>供应商数量</label>
+              <select id="supplierCount">
+                <option value="3">3家供应商对比</option>
+                <option value="5">5家供应商对比</option>
+                <option value="7">7家供应商对比</option>
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label>评分权重配置</label>
+              <div class="weight-config">
+                <div class="weight-item">
+                  <span>💰 价格</span>
+                  <input type="range" id="weightPrice" min="0" max="100" value="30">
+                  <span class="weight-value" id="weightPriceVal">30%</span>
+                </div>
+                <div class="weight-item">
+                  <span>✅ 质量</span>
+                  <input type="range" id="weightQuality" min="0" max="100" value="30">
+                  <span class="weight-value" id="weightQualityVal">30%</span>
+                </div>
+                <div class="weight-item">
+                  <span>🚚 交期</span>
+                  <input type="range" id="weightDelivery" min="0" max="100" value="20">
+                  <span class="weight-value" id="weightDeliveryVal">20%</span>
+                </div>
+                <div class="weight-item">
+                  <span>⚠️ 风险</span>
+                  <input type="range" id="weightRisk" min="0" max="100" value="20">
+                  <span class="weight-value" id="weightRiskVal">20%</span>
+                </div>
+              </div>
+            </div>
+            
+            <button type="submit" class="btn btn-primary" id="submitBtn">
+              🚀 创建并分析
+            </button>
+          </form>
+        </div>
+        
+        <div class="card" style="margin-top: 20px;">
+          <h3>📋 寻源场景列表</h3>
+          <div id="scenarioList" class="scenario-list">
+            <div class="empty-list">暂无场景数据</div>
+          </div>
+        </div>
+      </aside>
+      
+      <main>
+        <div id="mainContent">
+          <div class="empty-state">
+            <div class="empty-icon">🎯</div>
+            <h3>开始智能寻源分析</h3>
+            <p>创建寻源场景，系统将自动进行多维度评分和TCO计算</p>
+            <ul class="feature-list">
+              <li>📊 多维度供应商评分 (价格/质量/交期/风险)</li>
+              <li>💰 总拥有成本(TCO)分析</li>
+              <li>🤖 AI智能推荐最优方案</li>
+              <li>📈 价格敏感性分析</li>
+            </ul>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+  
+  <script>
+    const API_BASE = '/api/sourcing-optimizer';
+    let scenarios = [];
+    let currentScenario = null;
+    
+    // 权重滑块联动
+    ['Price', 'Quality', 'Delivery', 'Risk'].forEach(type => {
+      const slider = document.getElementById('weight' + type);
+      const display = document.getElementById('weight' + type + 'Val');
+      slider.addEventListener('input', () => {
+        display.textContent = slider.value + '%';
+      });
+    });
+    
+    // 创建场景表单提交
+    document.getElementById('createForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const supplierCount = parseInt(document.getElementById('supplierCount').value);
+      const supplierIds = Array.from({length: supplierCount}, (_, i) => 'sup-' + (i + 1));
+      
+      const payload = {
+        name: document.getElementById('scenarioName').value,
+        purchaseReqId: document.getElementById('purchaseReqId').value || 'PR-AUTO-' + Date.now(),
+        items: [{ materialId: 'M001', quantity: parseInt(document.getElementById('quantity').value) }],
+        supplierIds: supplierIds,
+        weightConfig: {
+          price: parseInt(document.getElementById('weightPrice').value),
+          quality: parseInt(document.getElementById('weightQuality').value),
+          delivery: parseInt(document.getElementById('weightDelivery').value),
+          risk: parseInt(document.getElementById('weightRisk').value)
+        }
+      };
+      
+      const btn = document.getElementById('submitBtn');
+      btn.disabled = true;
+      btn.textContent = '⏳ 分析中...';
+      
+      try {
+        const response = await fetch(API_BASE + '/scenarios', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        
+        const result = await response.json();
+        if (result.success) {
+          alert('✅ 寻源场景创建成功！');
+          loadScenarios();
+        } else {
+          alert('❌ 创建失败: ' + result.error);
+        }
+      } catch (error) {
+        alert('❌ 请求失败: ' + error.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '🚀 创建并分析';
+      }
+    });
+    
+    // 加载场景列表
+    async function loadScenarios() {
+      try {
+        const response = await fetch(API_BASE + '/scenarios');
+        const data = await response.json();
+        if (data.success) {
+          scenarios = data.scenarios;
+          renderScenarioList();
+        }
+      } catch (error) {
+        console.error('加载场景失败:', error);
+      }
+    }
+    
+    // 渲染场景列表
+    function renderScenarioList() {
+      const container = document.getElementById('scenarioList');
+      
+      if (scenarios.length === 0) {
+        container.innerHTML = '<div class="empty-list">暂无场景数据</div>';
+        return;
+      }
+      
+      container.innerHTML = scenarios.map(s => `
+        <div class="scenario-item ${currentScenario?.id === s.id ? 'active' : ''}" onclick="selectScenario('${s.id}')">
+          <div class="scenario-name">${s.name}</div>
+          <div class="scenario-meta">
+            <span class="status-badge status-${s.status}">${getStatusLabel(s.status)}</span>
+            <span>${formatDate(s.createdAt)}</span>
+          </div>
+          ${s.recommendations?.recommended ? `<div style="margin-top:8px;font-size:12px;color:#667eea;">⭐ ${s.recommendations.recommended.supplierName}</div>` : ''}
+        </div>
+      `).join('');
+    }
+    
+    // 选择场景
+    async function selectScenario(id) {
+      try {
+        const response = await fetch(API_BASE + '/scenarios/' + id);
+        const data = await response.json();
+        if (data.success) {
+          currentScenario = data.scenario;
+          renderScenarioDetail();
+          renderScenarioList();
+        }
+      } catch (error) {
+        console.error('加载场景详情失败:', error);
+      }
+    }
+    
+    // 渲染场景详情
+    function renderScenarioDetail() {
+      if (!currentScenario || !currentScenario.scores || currentScenario.scores.length === 0) {
+        document.getElementById('mainContent').innerHTML = `
+          <div class="loading">加载评分数据中...</div>
+        `;
+        return;
+      }
+      
+      const scores = currentScenario.scores;
+      const recommended = currentScenario.recommendations?.recommended;
+      
+      let html = `
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;">
+            <h2 style="font-size:20px;">${currentScenario.name}</h2>
+            <span class="status-badge status-${currentScenario.status}">${getStatusLabel(currentScenario.status)}</span>
+          </div>
+          
+          ${recommended ? `
+          <div class="recommended-card">
+            <div class="recommended-header">
+              <span class="recommended-supplier">🏆 ${recommended.supplierName}</span>
+              <span class="recommended-score">${recommended.totalScore}分</span>
+            </div>
+            
+            <div class="score-breakdown">
+              <div class="score-item">
+                <div class="score-item-label">💰 价格</div>
+                <div class="score-item-value">${recommended.breakdown.priceScore.toFixed(1)}</div>
+                <div class="score-item-bar"><div class="score-item-bar-fill" style="width:${recommended.breakdown.priceScore}%"></div></div>
+              </div>
+              <div class="score-item">
+                <div class="score-item-label">✅ 质量</div>
+                <div class="score-item-value">${recommended.breakdown.qualityScore.toFixed(1)}</div>
+                <div class="score-item-bar"><div class="score-item-bar-fill" style="width:${recommended.breakdown.qualityScore}%"></div></div>
+              </div>
+              <div class="score-item">
+                <div class="score-item-label">🚚 交期</div>
+                <div class="score-item-value">${recommended.breakdown.deliveryScore.toFixed(1)}</div>
+                <div class="score-item-bar"><div class="score-item-bar-fill" style="width:${recommended.breakdown.deliveryScore}%"></div></div>
+              </div>
+              <div class="score-item">
+                <div class="score-item-label">⚠️ 风险</div>
+                <div class="score-item-value">${recommended.breakdown.riskScore.toFixed(1)}</div>
+                <div class="score-item-bar"><div class="score-item-bar-fill" style="width:${recommended.breakdown.riskScore}%"></div></div>
+              </div>
+            </div>
+            
+            <div class="recommended-reason">
+              <strong>📝 分析结论:</strong> ${recommended.reason}
+            </div>
+            
+            <button class="btn-adopt" onclick="adoptRecommendation('${recommended.supplierId}')">
+              ✅ 采纳此推荐方案
+            </button>
+          </div>
+          ` : ''}
+          
+          <h3 style="margin-bottom:16px;">📊 供应商评分对比</h3>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>排名</th>
+                  <th>供应商</th>
+                  <th>综合得分</th>
+                  <th>价格</th>
+                  <th>质量</th>
+                  <th>交期</th>
+                  <th>风险</th>
+                  <th>推荐</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${scores.map(s => `
+                  <tr class="${s.recommendation === 'adopt' ? 'recommended' : ''}">
+                    <td><span class="rank ${'rank-' + s.rank}">${s.rank}</span></td>
+                    <td><strong>${s.supplierName}</strong></td>
+                    <td><strong>${s.totalScore}</strong></td>
+                    <td>${s.breakdown.priceScore.toFixed(1)}</td>
+                    <td>${s.breakdown.qualityScore.toFixed(1)}</td>
+                    <td>${s.breakdown.deliveryScore.toFixed(1)}</td>
+                    <td>${s.breakdown.riskScore.toFixed(1)}</td>
+                    <td><span class="badge badge-${s.recommendation}">${getRecLabel(s.recommendation)}</span></td>
+                    <td>
+                      ${s.recommendation === 'adopt' ? `<button class="btn-small" onclick="adoptRecommendation('${s.supplierId}')">采纳</button>` : '-'}
+                    </td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+      
+      document.getElementById('mainContent').innerHTML = html;
+    }
+    
+    // 采纳推荐
+    async function adoptRecommendation(supplierId) {
+      if (!confirm('确认采纳此推荐方案吗？')) return;
+      
+      try {
+        const response = await fetch(API_BASE + '/scenarios/' + currentScenario.id + '/adopt', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ recommendedScenarioId: supplierId })
+        });
+        
+        const data = await response.json();
+        if (data.success) {
+          alert('✅ 推荐方案已采纳！');
+          loadScenarios();
+          selectScenario(currentScenario.id);
+        } else {
+          alert('❌ ' + data.error);
+        }
+      } catch (error) {
+        alert('❌ ' + error.message);
+      }
+    }
+    
+    // 辅助函数
+    function getStatusLabel(status) {
+      const labels = { pending: '待分析', scored: '已评分', adopted: '已采纳' };
+      return labels[status] || status;
+    }
+    
+    function getRecLabel(rec) {
+      const labels = { adopt: '推荐', consider: '考虑', reject: '不推荐' };
+      return labels[rec] || rec;
+    }
+    
+    function formatDate(dateStr) {
+      const date = new Date(dateStr);
+      return `${date.getMonth() + 1}/${date.getDate()} ${date.getHours()}:${String(date.getMinutes()).padStart(2, '0')}`;
+    }
+    
+    // 页面加载时获取场景列表
+    loadScenarios();
+  </script>
+</body>
+</html>

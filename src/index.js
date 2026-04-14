@@ -54,6 +54,7 @@ app.get('/blueprint', (req, res) => { res.sendFile(path.join(__dirname, '../publ
 app.get('/invoice', (req, res) => { res.sendFile(path.join(__dirname, '../public/invoice.html')); });
 app.get('/contract-summary', (req, res) => { res.sendFile(path.join(__dirname, '../public/contract-summary.html')); });
 app.get('/approval', (req, res) => { res.sendFile(path.join(__dirname, '../public/approval.html')); });
+app.get('/sourcing-optimizer', (req, res) => { res.sendFile(path.join(__dirname, '../public/sourcing-optimizer.html')); });
 
 // 健康检查
 app.get('/health', (req, res) => {
