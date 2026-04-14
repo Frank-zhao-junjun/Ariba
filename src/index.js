@@ -12,6 +12,7 @@ const blueprintRouter = require('./routes/blueprint');
 const bidAnalysisRouter = require('./routes/bidAnalysis');
 const contractRouter = require('./routes/contract');
 const invoiceRouter = require('./routes/invoice');
+const rfxRouter = require('./routes/rfx');
 const knowledgeService = require('./services/knowledge');
 
 const app = express();
@@ -40,6 +41,7 @@ app.use('/api/blueprint', blueprintRouter);
 app.use('/api/bid-analysis', bidAnalysisRouter);
 app.use('/api/contract', contractRouter);
 app.use('/api/invoice', invoiceRouter);
+app.use('/api/rfx', rfxRouter);
 
 // 主页
 app.get('/', (req, res) => {
@@ -81,7 +83,13 @@ app.get('/api', (req, res) => {
       invoice: {
         'POST /api/invoice/analyze': '分析发票与PO差异',
         'POST /api/invoice/demo': '演示模式分析',
-        'POST /api/invoice/quick-check': '快速金额检查'
+      },
+      rfx: {
+        'POST /api/rfx/generate': '生成RFx文档',
+        'GET /api/rfx/types': '获取RFx类型',
+        'GET /api/rfx/categories': '获取采购品类',
+        'GET /api/rfx/example': '获取使用示例',
+        'GET /api/rfx/template/:type': '获取模板结构'
       }
     }
   });
