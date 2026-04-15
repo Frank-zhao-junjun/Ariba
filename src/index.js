@@ -1,5 +1,5 @@
 /**
- * Ariba项目实施助手 v1.6.1
+ * Ariba项目实施助手 v1.7.0
  * 主入口文件
  */
 
@@ -20,6 +20,7 @@ const guidedBuyingRouter = require('./routes/guided-buying');
 const chatbotRouter = require('./routes/chatbot');
 const sourcingOptimizerRouter = require('./routes/sourcingOptimizer');
 const supplierRiskRouter = require('./routes/supplierRisk');
+const bidComparisonRouter = require('./routes/bid-comparison');
 const knowledgeService = require('./services/knowledge');
 
 const app = express();
@@ -52,6 +53,7 @@ app.use('/api/guided-buying', guidedBuyingRouter);
 app.use('/api/chatbot', chatbotRouter);
 app.use('/api/sourcing-optimizer', sourcingOptimizerRouter);
 app.use('/api/supplier-risk', supplierRiskRouter);
+app.use('/api/bid-comparison', bidComparisonRouter);
 
 // 主页
 app.get('/', (req, res) => {
@@ -92,12 +94,16 @@ app.get('/sourcing-optimizer', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/sourcing-optimizer.html'));
 });
 
+app.get('/bid-comparison', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/bid-comparison.html'));
+});
+
 // 健康检查
 app.get('/health', (req, res) => {
   res.json({ 
     status: 'healthy', 
     service: 'Ariba项目实施助手', 
-    version: '1.6.1', 
+    version: '1.7.0', 
     uptime: process.uptime(), 
     timestamp: new Date().toISOString() 
   });
@@ -107,14 +113,15 @@ app.get('/health', (req, res) => {
 app.get('/api', (req, res) => {
   res.json({
     service: 'Ariba项目实施助手 API',
-    version: '1.6.1',
+    version: '1.7.0',
     endpoints: {
       requirement: { 'POST /api/requirement/analyze': '分析用户需求', 'GET /api/requirement/templates': '获取需求模板列表' },
       blueprint: { 'GET /api/blueprint/templates': '获取蓝图模板列表', 'POST /api/blueprint/generate': '生成User Stories' },
       invoice: { 'POST /api/invoice/analyze': '分析发票与PO差异' },
       rfx: { 'POST /api/rfx/generate': '生成RFx/RFP/RFI/RFB文档' },
       approval: { 'GET /api/approval/pending': '获取待审批列表', 'POST /api/approval/process': '执行审批操作', 'POST /api/approval/batch': '批量审批', 'POST /api/approval/query': '自然语言查询' },
-      'contract-qa': { 'POST /api/contract-qa/ask': '询问合同问题', 'POST /api/contract-qa/multi': '多合同对比问答', 'GET /api/contract-qa/suggestions': '获取推荐问题' }
+      'contract-qa': { 'POST /api/contract-qa/ask': '询问合同问题', 'POST /api/contract-qa/multi': '多合同对比问答', 'GET /api/contract-qa/suggestions': '获取推荐问题' },
+      'bid-comparison': { 'POST /api/bid-comparison/upload': '上传报价文件', 'POST /api/bid-comparison/compare': '生成比价矩阵', 'POST /api/bid-comparison/recommend': 'AI推荐最优供应商', 'GET /api/bid-comparison/export': '导出比价报告' }
     }
   });
 });

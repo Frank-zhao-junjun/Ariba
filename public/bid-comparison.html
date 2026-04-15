@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI询价比价助手 - Ariba实施助手</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    .hero-section {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 2rem 0;
+      margin-bottom: 2rem;
+    }
+    .feature-card {
+      border: none;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      transition: transform 0.3s;
+    }
+    .feature-card:hover {
+      transform: translateY(-5px);
+    }
+    .upload-zone {
+      border: 2px dashed #667eea;
+      border-radius: 12px;
+      padding: 3rem;
+      text-align: center;
+      background: #f8f9fa;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .upload-zone:hover, .upload-zone.dragover {
+      background: #e9ecef;
+      border-color: #764ba2;
+    }
+    .comparison-table {
+      font-size: 0.9rem;
+    }
+    .comparison-table th {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      font-weight: 500;
+    }
+    .recommended {
+      background: #d4edda !important;
+      font-weight: bold;
+    }
+    .nav-link {
+      color: #495057;
+    }
+    .nav-link:hover {
+      color: #667eea;
+    }
+  </style>
+</head>
+<body>
+  <!-- 导航栏 -->
+  <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
+    <div class="container">
+      <a class="navbar-brand fw-bold" href="/">
+        <span style="color: #667eea;">Ariba</span>实施助手
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item"><a class="nav-link" href="/">首页</a></li>
+          <li class="nav-item"><a class="nav-link" href="/requirement">需求分析</a></li>
+          <li class="nav-item"><a class="nav-link" href="/blueprint">蓝图设计</a></li>
+          <li class="nav-item"><a class="nav-link" href="/contract-qa">合同问答</a></li>
+          <li class="nav-item"><a class="nav-link active" href="/bid-comparison">询价比价</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <div class="hero-section">
+    <div class="container text-center">
+      <h1 class="display-5 fw-bold mb-3">🤖 AI询价比价助手</h1>
+      <p class="lead">自动解析供应商报价，智能生成比价分析报告</p>
+      <div class="mt-3">
+        <span class="badge bg-warning text-dark me-2">⏱️ 30秒完成比价</span>
+        <span class="badge bg-info text-white me-2">📊 多格式支持</span>
+        <span class="badge bg-success text-white">🎯 智能推荐</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="container my-4">
+    <!-- 功能说明 -->
+    <div class="row mb-4">
+      <div class="col-md-4">
+        <div class="card feature-card h-100">
+          <div class="card-body text-center">
+            <h4>📤</h4>
+            <h6 class="card-title">批量上传</h6>
+            <p class="card-text small text-muted">支持PDF、Excel、Word格式的报价文件，一次性批量上传</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card feature-card h-100">
+          <div class="card-body text-center">
+            <h4>🔍</h4>
+            <h6 class="card-title">智能解析</h6>
+            <p class="card-text small text-muted">AI自动识别报价中的供应商、物料、单价、交期等关键信息</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card feature-card h-100">
+          <div class="card-body text-center">
+            <h4>📊</h4>
+            <h6 class="card-title">比价矩阵</h6>
+            <p class="card-text small text-muted">自动生成标准比价分析表，一目了然对比所有供应商</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 上传区域 -->
+    <div class="card mb-4">
+      <div class="card-header bg-white">
+        <h5 class="mb-0">📤 上传供应商报价</h5>
+      </div>
+      <div class="card-body">
+        <div class="upload-zone" id="uploadZone">
+          <input type="file" id="fileInput" multiple accept=".pdf,.xlsx,.xls" style="display: none;">
+          <div class="mb-3">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#667eea" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="17 8 12 3 7 8"/>
+              <line x1="12" y1="3" x2="12" y2="15"/>
+            </svg>
+          </div>
+          <h5>点击或拖拽上传报价文件</h5>
+          <p class="text-muted mb-0">支持 PDF、Excel 格式，最多10个文件</p>
+        </div>
+        
+        <!-- 已上传文件列表 -->
+        <div id="fileList" class="mt-3"></div>
+        
+        <div class="mt-3 text-end">
+          <button class="btn btn-primary" id="parseBtn" disabled>
+            <span id="parseBtnText">🔍 解析报价</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 解析结果 -->
+    <div id="parseResult" class="card mb-4" style="display: none;">
+      <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">📋 解析结果</h5>
+        <span id="parseSummary" class="badge bg-success"></span>
+      </div>
+      <div class="card-body">
+        <div id="parsedQuotesList" class="row"></div>
+      </div>
+    </div>
+
+    <!-- 评分设置 -->
+    <div id="scoringSection" class="card mb-4" style="display: none;">
+      <div class="card-header bg-white">
+        <h5 class="mb-0">⚖️ 评分权重设置</h5>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-3">
+            <label class="form-label">价格权重 (%)</label>
+            <input type="number" class="form-control" id="priceWeight" value="40" min="0" max="100">
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">质量权重 (%)</label>
+            <input type="number" class="form-control" id="qualityWeight" value="30" min="0" max="100">
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">交期权重 (%)</label>
+            <input type="number" class="form-control" id="deliveryWeight" value="20" min="0" max="100">
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">付款条款权重 (%)</label>
+            <input type="number" class="form-control" id="paymentWeight" value="10" min="0" max="100">
+          </div>
+        </div>
+        <div class="mt-3 text-end">
+          <button class="btn btn-success" id="compareBtn">
+            <span id="compareBtnText">📊 生成比价报告</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 比价结果 -->
+    <div id="comparisonResult" class="card mb-4" style="display: none;">
+      <div class="card-header bg-white">
+        <h5 class="mb-0">📊 比价分析报告</h5>
+      </div>
+      <div class="card-body">
+        <!-- 分析摘要 -->
+        <div class="alert alert-info" id="analysisSummary"></div>
+        
+        <!-- 排名表格 -->
+        <h6 class="mt-4">🏆 供应商排名</h6>
+        <table class="table table-bordered comparison-table" id="rankingTable">
+          <thead></thead>
+          <tbody></tbody>
+        </table>
+        
+        <!-- 比价矩阵 -->
+        <h6 class="mt-4">📈 价格对比明细</h6>
+        <table class="table table-bordered comparison-table" id="matrixTable">
+          <thead></thead>
+          <tbody></tbody>
+        </table>
+        
+        <!-- 风险提示 -->
+        <div id="riskSection" class="mt-4" style="display: none;">
+          <h6>⚠️ 风险提示</h6>
+          <div id="riskList"></div>
+        </div>
+        
+        <!-- 操作按钮 -->
+        <div class="mt-4 text-end">
+          <button class="btn btn-outline-primary" id="exportBtn">
+            📥 导出Excel报告
+          </button>
+          <button class="btn btn-outline-success" id="recommendBtn">
+            🎯 AI智能推荐
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- AI推荐结果 -->
+    <div id="recommendResult" class="card mb-4" style="display: none;">
+      <div class="card-header bg-success text-white">
+        <h5 class="mb-0">🎯 AI推荐结果</h5>
+      </div>
+      <div class="card-body">
+        <div id="recommendContent"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 页脚 -->
+  <footer class="bg-light py-4 mt-5">
+    <div class="container text-center text-muted">
+      <p class="mb-0">Ariba项目实施助手 v1.7.0 | © 2026 Frank Zhao</p>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    const API_BASE = window.location.origin;
+    let uploadedFiles = [];
+    let parsedQuotes = [];
+    let comparisonData = null;
+
+    // 上传区域事件
+    const uploadZone = document.getElementById('uploadZone');
+    const fileInput = document.getElementById('fileInput');
+
+    uploadZone.addEventListener('click', () => fileInput.click());
+    uploadZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      uploadZone.classList.add('dragover');
+    });
+    uploadZone.addEventListener('dragleave', () => {
+      uploadZone.classList.remove('dragover');
+    });
+    uploadZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      uploadZone.classList.remove('dragover');
+      handleFiles(e.dataTransfer.files);
+    });
+    fileInput.addEventListener('change', (e) => handleFiles(e.target.files));
+
+    function handleFiles(files) {
+      const validFiles = Array.from(files).filter(f => {
+        const ext = f.name.split('.').pop().toLowerCase();
+        return ['pdf', 'xlsx', 'xls'].includes(ext);
+      });
+      
+      uploadedFiles = [...uploadedFiles, ...validFiles];
+      renderFileList();
+    }
+
+    function renderFileList() {
+      const list = document.getElementById('fileList');
+      if (uploadedFiles.length === 0) {
+        list.innerHTML = '';
+        document.getElementById('parseBtn').disabled = true;
+        return;
+      }
+      
+      list.innerHTML = uploadedFiles.map((f, i) => `
+        <div class="d-flex justify-content-between align-items-center bg-light rounded p-2 mb-2">
+          <span>📄 ${f.name}</span>
+          <button class="btn btn-sm btn-outline-danger" onclick="removeFile(${i})">✕</button>
+        </div>
+      `).join('');
+      document.getElementById('parseBtn').disabled = false;
+    }
+
+    function removeFile(index) {
+      uploadedFiles.splice(index, 1);
+      renderFileList();
+    }
+
+    // 解析报价
+    document.getElementById('parseBtn').addEventListener('click', async () => {
+      const btn = document.getElementById('parseBtn');
+      const btnText = document.getElementById('parseBtnText');
+      
+      btn.disabled = true;
+      btnText.textContent = '⏳ 解析中...';
+      
+      try {
+        const formData = new FormData();
+        uploadedFiles.forEach(f => formData.append('files', f));
+        
+        const response = await fetch(`${API_BASE}/api/bid-comparison/upload`, {
+          method: 'POST',
+          body: formData
+        });
+        
+        const result = await response.json();
+        if (result.success) {
+          parsedQuotes = result.parsedQuotes;
+          renderParseResult(result);
+        } else {
+          alert('解析失败: ' + result.error);
+        }
+      } catch (error) {
+        alert('解析出错: ' + error.message);
+      } finally {
+        btn.disabled = false;
+        btnText.textContent = '🔍 解析报价';
+      }
+    });
+
+    function renderParseResult(result) {
+      const container = document.getElementById('parseResult');
+      const listContainer = document.getElementById('parsedQuotesList');
+      const summary = document.getElementById('parseSummary');
+      
+      const successCount = parsedQuotes.filter(q => q.success).length;
+      summary.textContent = `${successCount}/${parsedQuotes.length} 解析成功`;
+      
+      listContainer.innerHTML = parsedQuotes.map(q => `
+        <div class="col-md-6 mb-3">
+          <div class="card ${q.success ? '' : 'border-danger'}">
+            <div class="card-header d-flex justify-content-between align-items-center">
+              <strong>${q.vendor}</strong>
+              <span class="badge ${q.success ? 'bg-success' : 'bg-danger'}">
+                ${q.success ? '✓ 成功' : '✗ 失败'}
+              </span>
+            </div>
+            <div class="card-body">
+              ${q.success ? `
+                <small class="text-muted">
+                  ${q.lineItems?.length ? `📦 ${q.lineItems.length} 个行项目` : '📦 数据已提取'}
+                </small>
+              ` : `
+                <small class="text-danger">${q.error}</small>
+              `}
+            </div>
+          </div>
+        </div>
+      `).join('');
+      
+      container.style.display = 'block';
+      document.getElementById('scoringSection').style.display = 'block';
+    }
+
+    // 生成比价报告
+    document.getElementById('compareBtn').addEventListener('click', async () => {
+      const btn = document.getElementById('compareBtn');
+      const btnText = document.getElementById('compareBtnText');
+      
+      const validQuotes = parsedQuotes.filter(q => q.success);
+      if (validQuotes.length < 2) {
+        alert('请至少上传2个有效的报价文件');
+        return;
+      }
+      
+      btn.disabled = true;
+      btnText.textContent = '⏳ 生成中...';
+      
+      try {
+        const response = await fetch(`${API_BASE}/api/bid-comparison/compare`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            parsedQuotes: validQuotes,
+            scoringRules: {
+              price: parseInt(document.getElementById('priceWeight').value),
+              quality: parseInt(document.getElementById('qualityWeight').value),
+              delivery: parseInt(document.getElementById('deliveryWeight').value),
+              payment: parseInt(document.getElementById('paymentWeight').value)
+            }
+          })
+        });
+        
+        const result = await response.json();
+        if (result.success) {
+          comparisonData = result.matrix;
+          renderComparisonResult(result);
+        } else {
+          alert('生成失败: ' + result.error);
+        }
+      } catch (error) {
+        alert('生成出错: ' + error.message);
+      } finally {
+        btn.disabled = false;
+        btnText.textContent = '📊 生成比价报告';
+      }
+    });
+
+    function renderComparisonResult(result) {
+      const container = document.getElementById('comparisonResult');
+      const matrix = result.matrix;
+      
+      // 分析摘要
+      document.getElementById('analysisSummary').textContent = matrix.analysis?.summary || '';
+      
+      // 排名表格
+      const rankingTableHead = document.querySelector('#rankingTable thead');
+      const rankingTableBody = document.querySelector('#rankingTable tbody');
+      
+      if (matrix.scored) {
+        rankingTableHead.innerHTML = `
+          <tr>
+            <th>排名</th>
+            <th>供应商</th>
+            <th>总价</th>
+            <th>价格分</th>
+            <th>质量分</th>
+            <th>交期分</th>
+            <th>付款分</th>
+            <th>综合得分</th>
+          </tr>
+        `;
+        rankingTableBody.innerHTML = matrix.scored.rankings.map(r => `
+          <tr class="${r.rank === 1 ? 'recommended' : ''}">
+            <td>${r.rank === 1 ? '🥇' : r.rank === 2 ? '🥈' : r.rank === 3 ? '🥉' : r.rank}</td>
+            <td>${r.vendor}</td>
+            <td>¥${(matrix.summary.totalPrices[r.vendor] || 0).toLocaleString()}</td>
+            <td>${r.priceScore}</td>
+            <td>${r.qualityScore}</td>
+            <td>${r.deliveryScore}</td>
+            <td>${r.paymentScore}</td>
+            <td><strong>${r.totalScore}</strong></td>
+          </tr>
+        `).join('');
+      } else {
+        const sorted = Object.entries(matrix.summary.totalPrices)
+          .sort((a, b) => a[1] - b[1]);
+        rankingTableHead.innerHTML = `
+          <tr><th>排名</th><th>供应商</th><th>总价</th><th>备注</th></tr>
+        `;
+        rankingTableBody.innerHTML = sorted.map(([vendor, price], index) => `
+          <tr class="${index === 0 ? 'recommended' : ''}">
+            <td>${index === 0 ? '🥇' : index + 1}</td>
+            <td>${vendor}</td>
+            <td>¥${price.toLocaleString()}</td>
+            <td>${index === 0 ? '★ 推荐' : ''}</td>
+          </tr>
+        `).join('');
+      }
+      
+      // 比价矩阵
+      const matrixTableHead = document.querySelector('#matrixTable thead');
+      const matrixTableBody = document.querySelector('#matrixTable tbody');
+      
+      matrixTableHead.innerHTML = `
+        <tr><th>物料</th>${matrix.vendors.map(v => `<th>${v}</th>`).join('')}</tr>
+      `;
+      matrixTableBody.innerHTML = matrix.items.map(item => `
+        <tr>
+          <td>${item.item}</td>
+          ${matrix.vendors.map(v => {
+            const vd = item.quantities[v];
+            return `<td>${vd ? '¥' + vd.totalPrice.toLocaleString() : '-'}</td>`;
+          }).join('')}
+        </tr>
+      `).join('');
+      
+      // 风险提示
+      if (matrix.analysis?.risks?.length > 0) {
+        document.getElementById('riskSection').style.display = 'block';
+        document.getElementById('riskList').innerHTML = matrix.analysis.risks.map(r => `
+          <div class="alert alert-${r.level === 'high' ? 'danger' : 'warning'} mb-2">
+            <strong>${r.type}</strong> ${r.message}
+          </div>
+        `).join('');
+      }
+      
+      container.style.display = 'block';
+    }
+
+    // 导出报告
+    document.getElementById('exportBtn').addEventListener('click', () => {
+      if (!comparisonData) return;
+      
+      const encoded = btoa(JSON.stringify(comparisonData));
+      window.open(`${API_BASE}/api/bid-comparison/export?matrix=${encoded}`, '_blank');
+    });
+
+    // AI推荐
+    document.getElementById('recommendBtn').addEventListener('click', async () => {
+      if (!comparisonData) return;
+      
+      const btn = document.getElementById('recommendBtn');
+      btn.disabled = true;
+      btn.textContent = '⏳ AI分析中...';
+      
+      try {
+        const response = await fetch(`${API_BASE}/api/bid-comparison/recommend`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ matrix: comparisonData })
+        });
+        
+        const result = await response.json();
+        if (result.success) {
+          renderRecommendResult(result.recommendation);
+        } else {
+          alert('推荐生成失败: ' + result.error);
+        }
+      } catch (error) {
+        alert('推荐出错: ' + error.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '🎯 AI智能推荐';
+      }
+    });
+
+    function renderRecommendResult(rec) {
+      const container = document.getElementById('recommendResult');
+      const content = document.getElementById('recommendContent');
+      
+      content.innerHTML = `
+        <div class="alert alert-success">
+          <h5>🏆 推荐供应商: ${rec.primary.vendor}</h5>
+          <p class="mb-0">${rec.primary.reason}</p>
+        </div>
+        
+        ${rec.alternatives?.length ? `
+          <div class="alert alert-info">
+            <h6>备选供应商:</h6>
+            ${rec.alternatives.map(a => `<p class="mb-0">• ${a.vendor} - ${a.reason}</p>`).join('')}
+          </div>
+        ` : ''}
+        
+        ${rec.factors?.length ? `
+          <h6>决策因素:</h6>
+          <ul>
+            ${rec.factors.map(f => `<li><strong>${f.name}:</strong> ${f.value || f.note}</li>`).join('')}
+          </ul>
+        ` : ''}
+      `;
+      
+      container.style.display = 'block';
+    }
+  </script>
+</body>
+</html>
