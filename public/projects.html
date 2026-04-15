@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>项目背景管理 - Ariba实施助手</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+    .container { max-width: 1400px; margin: 0 auto; }
+    .header { background: white; border-radius: 12px; padding: 24px; margin-bottom: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; }
+    .header h1 { color: #333; font-size: 24px; }
+    .btn { padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 500; transition: all 0.3s; }
+    .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(102,126,234,0.4); }
+    .btn-secondary { background: #f0f0f0; color: #666; }
+    .btn-secondary:hover { background: #e0e0e0; }
+    .btn-danger { background: #ff4757; color: white; }
+    .btn-danger:hover { background: #ff3344; }
+    .btn-small { padding: 6px 12px; font-size: 12px; }
+    .card { background: white; border-radius: 12px; padding: 24px; margin-bottom: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+    .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid #eee; }
+    .card-title { font-size: 18px; color: #333; font-weight: 600; }
+    .project-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 20px; }
+    .project-card { background: #f8f9fa; border-radius: 10px; padding: 20px; border: 1px solid #e9ecef; transition: all 0.3s; }
+    .project-card:hover { border-color: #667eea; box-shadow: 0 4px 12px rgba(102,126,234,0.2); }
+    .project-name { font-size: 18px; font-weight: 600; color: #333; margin-bottom: 12px; }
+    .project-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+    .tag { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 500; }
+    .tag-industry { background: #e7f3ff; color: #2196f3; }
+    .tag-module { background: #fff3e0; color: #ff9800; }
+    .tag-erp { background: #e8f5e9; color: #4caf50; }
+    .project-info { font-size: 13px; color: #666; line-height: 1.6; }
+    .project-actions { display: flex; gap: 8px; margin-top: 16px; padding-top: 16px; border-top: 1px solid #e9ecef; }
+    .empty-state { text-align: center; padding: 60px 20px; color: #999; }
+    .empty-state-icon { font-size: 64px; margin-bottom: 20px; }
+    .empty-state h3 { font-size: 20px; margin-bottom: 10px; color: #666; }
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
+    .modal-overlay.active { display: flex; }
+    .modal { background: white; border-radius: 12px; width: 90%; max-width: 700px; max-height: 90vh; overflow-y: auto; animation: slideUp 0.3s ease; }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .modal-header { padding: 20px 24px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
+    .modal-header h2 { font-size: 20px; color: #333; }
+    .modal-close { background: none; border: none; font-size: 24px; cursor: pointer; color: #999; }
+    .modal-body { padding: 24px; }
+    .form-group { margin-bottom: 20px; }
+    .form-label { display: block; margin-bottom: 8px; font-size: 14px; font-weight: 500; color: #333; }
+    .form-label .required { color: #ff4757; }
+    .form-input { width: 100%; padding: 10px 14px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; }
+    .form-input:focus { outline: none; border-color: #667eea; }
+    .form-select { width: 100%; padding: 10px 14px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; background: white; cursor: pointer; }
+    .form-select:focus { outline: none; border-color: #667eea; }
+    .form-textarea { width: 100%; padding: 10px 14px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; min-height: 100px; resize: vertical; font-family: inherit; }
+    .form-textarea:focus { outline: none; border-color: #667eea; }
+    .checkbox-group { display: flex; flex-wrap: wrap; gap: 12px; }
+    .checkbox-item { display: flex; align-items: center; gap: 6px; cursor: pointer; }
+    .checkbox-item input { cursor: pointer; }
+    .modal-footer { padding: 16px 24px; border-top: 1px solid #eee; display: flex; justify-content: flex-end; gap: 12px; }
+    .loading { text-align: center; padding: 40px; color: #666; }
+    .toast { position: fixed; bottom: 20px; right: 20px; padding: 12px 24px; border-radius: 8px; color: white; font-size: 14px; z-index: 2000; animation: slideIn 0.3s ease; }
+    .toast-success { background: #4caf50; }
+    .toast-error { background: #ff4757; }
+    @keyframes slideIn { from { opacity: 0; transform: translateX(100px); } to { opacity: 1; transform: translateX(0); } }
+    .detail-modal .modal { max-width: 900px; }
+    .detail-section { margin-bottom: 24px; }
+    .detail-section h3 { font-size: 16px; color: #667eea; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid #667eea; }
+    .detail-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+    .detail-item { padding: 12px; background: #f8f9fa; border-radius: 8px; }
+    .detail-item-label { font-size: 12px; color: #999; margin-bottom: 4px; }
+    .detail-item-value { font-size: 14px; color: #333; font-weight: 500; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>📋 项目背景管理</h1>
+      <button class="btn btn-primary" onclick="openCreateModal()">+ 创建项目</button>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">项目列表</span>
+        <span id="projectCount" style="color: #666; font-size: 14px;">共 0 个项目</span>
+      </div>
+      <div id="projectList" class="project-list"><div class="loading">加载中...</div></div>
+    </div>
+  </div>
+  
+  <!-- 创建/编辑项目弹窗 -->
+  <div id="projectModal" class="modal-overlay">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 id="modalTitle">创建项目</h2>
+        <button class="modal-close" onclick="closeModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="projectForm">
+          <input type="hidden" id="projectId">
+          <div class="form-group">
+            <label class="form-label">项目名称 <span class="required">*</span></label>
+            <input type="text" class="form-input" id="projectName" placeholder="请输入项目名称" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">行业 <span class="required">*</span></label>
+            <select class="form-select" id="industry" required>
+              <option value="">请选择行业</option>
+              <option value="制造业">制造业</option>
+              <option value="零售业">零售业</option>
+              <option value="服务业">服务业</option>
+              <option value="金融业">金融业</option>
+              <option value="医疗健康">医疗健康</option>
+              <option value="能源行业">能源行业</option>
+              <option value="政府机构">政府机构</option>
+              <option value="其他">其他</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Ariba版本 <span class="required">*</span></label>
+            <select class="form-select" id="aribaVersion" required>
+              <option value="">请选择Ariba版本</option>
+              <option value="Next-Gen">Next-Gen</option>
+              <option value="Cloud">Cloud</option>
+              <option value="On-Premise">On-Premise</option>
+              <option value="Hybrid">Hybrid（混合部署）</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">启用模块 <span class="required">*</span></label>
+            <div class="checkbox-group">
+              <label class="checkbox-item"><input type="checkbox" name="modules" value="Buying"> Buying</label>
+              <label class="checkbox-item"><input type="checkbox" name="modules" value="Sourcing"> Sourcing</label>
+              <label class="checkbox-item"><input type="checkbox" name="modules" value="Supplier Management"> Supplier Management</label>
+              <label class="checkbox-item"><input type="checkbox" name="modules" value="Contract Management"> Contract Management</label>
+              <label class="checkbox-item"><input type="checkbox" name="modules" value="Invoice Management"> Invoice Management</label>
+              <label class="checkbox-item"><input type="checkbox" name="modules" value="P2P"> P2P (Procurement to Pay)</label>
+              <label class="checkbox-item"><input type="checkbox" name="modules" value="Spending Analysis"> Spending Analysis</label>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">ERP系统</label>
+            <select class="form-select" id="erpSystem">
+              <option value="">请选择ERP系统</option>
+              <option value="SAP S/4HANA">SAP S/4HANA</option>
+              <option value="SAP ECC">SAP ECC</option>
+              <option value="Oracle ERP">Oracle ERP</option>
+              <option value="Microsoft Dynamics">Microsoft Dynamics</option>
+              <option value="无ERP集成">无ERP集成</option>
+              <option value="其他">其他</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">集成平台</label>
+            <select class="form-select" id="integrationPlatform">
+              <option value="">请选择集成平台</option>
+              <option value="SAP CIG">SAP CIG</option>
+              <option value="SAP CPI">SAP CPI</option>
+              <option value="MuleSoft">MuleSoft</option>
+              <option value="Dell Boomi">Dell Boomi</option>
+              <option value="自定义API">自定义API</option>
+              <option value="无集成">无集成</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">项目描述</label>
+            <textarea class="form-textarea" id="description" placeholder="请输入项目描述（可选）"></textarea>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal()">取消</button>
+        <button class="btn btn-primary" onclick="saveProject()">保存</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- 项目详情弹窗 -->
+  <div id="detailModal" class="modal-overlay detail-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 id="detailTitle">项目详情</h2>
+        <button class="modal-close" onclick="closeDetailModal()">&times;</button>
+      </div>
+      <div class="modal-body" id="detailContent"></div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeDetailModal()">关闭</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = '/api/v1/projects';
+    
+    async function loadProjects() {
+      const projectList = document.getElementById('projectList');
+      projectList.innerHTML = '<div class="loading">加载中...</div>';
+      try {
+        const response = await fetch(API_BASE);
+        const result = await response.json();
+        if (result.success) {
+          const projects = result.data;
+          document.getElementById('projectCount').textContent = '共 ' + projects.length + ' 个项目';
+          if (projects.length === 0) {
+            projectList.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📋</div><h3>暂无项目</h3><p>点击右上角按钮创建第一个项目</p></div>';
+          } else {
+            projectList.innerHTML = projects.map(p => '<div class="project-card"><div class="project-name">' + escapeHtml(p.name) + '</div><div class="project-meta"><span class="tag tag-industry">' + escapeHtml(p.industry) + '</span><span class="tag tag-module">' + escapeHtml(p.aribaVersion) + '</span>' + (p.modules ? p.modules.map(m => '<span class="tag tag-module">' + escapeHtml(m) + '</span>').join('') : '') + '</div><div class="project-info"><p>ERP: ' + (p.erpSystem || '未设置') + ' | 集成: ' + (p.integrationPlatform || '未设置') + '</p><p>创建时间: ' + formatDate(p.createdAt) + '</p></div><div class="project-actions"><button class="btn btn-secondary btn-small" onclick="viewProject(\'' + p.id + '\')">查看详情</button><button class="btn btn-secondary btn-small" onclick="editProject(\'' + p.id + '\')">编辑</button><button class="btn btn-danger btn-small" onclick="deleteProject(\'' + p.id + '\')">删除</button></div></div>').join('');
+          }
+        }
+      } catch (error) {
+        projectList.innerHTML = '<div class="empty-state"><h3>加载失败</h3><p>' + error.message + '</p></div>';
+        showToast('加载项目列表失败', 'error');
+      }
+    }
+    
+    function openCreateModal() {
+      document.getElementById('modalTitle').textContent = '创建项目';
+      document.getElementById('projectForm').reset();
+      document.getElementById('projectId').value = '';
+      document.getElementById('projectModal').classList.add('active');
+    }
+    
+    function closeModal() { document.getElementById('projectModal').classList.remove('active'); }
+    function closeDetailModal() { document.getElementById('detailModal').classList.remove('active'); }
+    
+    async function saveProject() {
+      const projectId = document.getElementById('projectId').value;
+      const name = document.getElementById('projectName').value.trim();
+      const industry = document.getElementById('industry').value;
+      const aribaVersion = document.getElementById('aribaVersion').value;
+      const modules = Array.from(document.querySelectorAll('input[name="modules"]:checked')).map(cb => cb.value);
+      const erpSystem = document.getElementById('erpSystem').value;
+      const integrationPlatform = document.getElementById('integrationPlatform').value;
+      const description = document.getElementById('description').value.trim();
+      
+      if (!name) { showToast('请输入项目名称', 'error'); return; }
+      if (!industry) { showToast('请选择行业', 'error'); return; }
+      if (!aribaVersion) { showToast('请选择Ariba版本', 'error'); return; }
+      if (modules.length === 0) { showToast('请至少选择一个模块', 'error'); return; }
+      
+      const projectData = { name, industry, aribaVersion, modules, erpSystem, integrationPlatform, description };
+      try {
+        const response = await fetch(API_BASE + (projectId ? '/' + projectId : ''), {
+          method: projectId ? 'PUT' : 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(projectData)
+        });
+        const result = await response.json();
+        if (result.success) {
+          closeModal();
+          loadProjects();
+          showToast(projectId ? '项目更新成功' : '项目创建成功', 'success');
+        } else {
+          showToast(result.error || '保存失败', 'error');
+        }
+      } catch (error) { showToast('保存失败: ' + error.message, 'error'); }
+    }
+    
+    async function viewProject(id) {
+      try {
+        const response = await fetch(API_BASE + '/' + id);
+        const result = await response.json();
+        if (result.success) {
+          const p = result.data;
+          document.getElementById('detailTitle').textContent = p.name;
+          document.getElementById('detailContent').innerHTML = '<div class="detail-section"><h3>基本信息</h3><div class="detail-grid"><div class="detail-item"><div class="detail-item-label">项目ID</div><div class="detail-item-value">' + escapeHtml(p.id) + '</div></div><div class="detail-item"><div class="detail-item-label">行业</div><div class="detail-item-value">' + escapeHtml(p.industry) + '</div></div><div class="detail-item"><div class="detail-item-label">Ariba版本</div><div class="detail-item-value">' + escapeHtml(p.aribaVersion) + '</div></div><div class="detail-item"><div class="detail-item-label">ERP系统</div><div class="detail-item-value">' + escapeHtml(p.erpSystem || '未设置') + '</div></div></div></div><div class="detail-section"><h3>启用模块</h3><div class="detail-grid">' + (p.modules ? p.modules.map(m => '<div class="detail-item"><div class="detail-item-value">✓ ' + escapeHtml(m) + '</div></div>').join('') : '<div class="detail-item"><div class="detail-item-value">暂无</div></div>') + '</div></div><div class="detail-section"><h3>集成信息</h3><div class="detail-grid"><div class="detail-item"><div class="detail-item-label">集成平台</div><div class="detail-item-value">' + escapeHtml(p.integrationPlatform || '未设置') + '</div></div></div></div>' + (p.description ? '<div class="detail-section"><h3>项目描述</h3><div style="background: #f8f9fa; padding: 16px; border-radius: 8px; line-height: 1.8;">' + escapeHtml(p.description) + '</div></div>' : '') + '<div class="detail-section"><h3>时间信息</h3><div class="detail-grid"><div class="detail-item"><div class="detail-item-label">创建时间</div><div class="detail-item-value">' + formatDate(p.createdAt) + '</div></div><div class="detail-item"><div class="detail-item-label">更新时间</div><div class="detail-item-value">' + formatDate(p.updatedAt) + '</div></div></div></div>';
+          document.getElementById('detailModal').classList.add('active');
+        }
+      } catch (error) { showToast('加载项目详情失败', 'error'); }
+    }
+    
+    async function editProject(id) {
+      try {
+        const response = await fetch(API_BASE + '/' + id);
+        const result = await response.json();
+        if (result.success) {
+          const p = result.data;
+          document.getElementById('modalTitle').textContent = '编辑项目';
+          document.getElementById('projectId').value = p.id;
+          document.getElementById('projectName').value = p.name;
+          document.getElementById('industry').value = p.industry;
+          document.getElementById('aribaVersion').value = p.aribaVersion;
+          document.getElementById('erpSystem').value = p.erpSystem || '';
+          document.getElementById('integrationPlatform').value = p.integrationPlatform || '';
+          document.getElementById('description').value = p.description || '';
+          document.querySelectorAll('input[name="modules"]').forEach(cb => { cb.checked = p.modules && p.modules.includes(cb.value); });
+          document.getElementById('projectModal').classList.add('active');
+        }
+      } catch (error) { showToast('加载项目失败', 'error'); }
+    }
+    
+    async function deleteProject(id) {
+      if (!confirm('确定要删除这个项目吗？此操作不可恢复。')) return;
+      try {
+        const response = await fetch(API_BASE + '/' + id, { method: 'DELETE' });
+        const result = await response.json();
+        if (result.success) {
+          loadProjects();
+          showToast('项目删除成功', 'success');
+        } else {
+          showToast(result.error || '删除失败', 'error');
+        }
+      } catch (error) { showToast('删除失败: ' + error.message, 'error'); }
+    }
+    
+    function escapeHtml(text) { if (!text) return ''; const div = document.createElement('div'); div.textContent = text; return div.innerHTML; }
+    function formatDate(dateStr) { if (!dateStr) return '-'; return new Date(dateStr).toLocaleString('zh-CN'); }
+    function showToast(message, type) { const toast = document.createElement('div'); toast.className = 'toast toast-' + type; toast.textContent = message; document.body.appendChild(toast); setTimeout(() => toast.remove(), 3000); }
+    
+    document.getElementById('projectModal').addEventListener('click', function(e) { if (e.target === this) closeModal(); });
+    document.getElementById('detailModal').addEventListener('click', function(e) { if (e.target === this) closeDetailModal(); });
+    document.addEventListener('DOMContentLoaded', loadProjects);
+  </script>
+</body>
+</html>

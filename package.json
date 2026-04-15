@@ -1,6 +1,6 @@
 {
   "name": "ariba-assistant",
-  "version": "1.0.0",
+  "version": "1.7.0",
   "description": "Ariba智能审批状态查询助手 - 基于Coze平台的商业软件实施助手",
   "main": "src/index.js",
   "scripts": {
@@ -19,11 +19,16 @@
   "license": "MIT",
   "dependencies": {
     "axios": "^1.6.0",
+    "cors": "^2.8.6",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
+    "express-rate-limit": "^8.3.2",
+    "express-validator": "^7.3.2",
+    "helmet": "^8.1.0",
     "multer": "^2.1.1",
     "pdf-parse": "^2.4.5",
     "uuid": "^13.0.0",
+    "winston": "^3.19.0",
     "xlsx": "^0.18.5"
   },
   "engines": {

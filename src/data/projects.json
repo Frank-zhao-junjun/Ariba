@@ -1,0 +1,27 @@
+{
+  "projects": [
+    {
+      "id": "mnzkfsa8715ituanp",
+      "name": "汽车制造A项目",
+      "industry": "制造业",
+      "aribaVersion": "Next-Gen",
+      "modules": [
+        "Buying",
+        "Sourcing",
+        "Supplier Management"
+      ],
+      "erpSystem": "SAP S/4HANA",
+      "integrationPlatform": "SAP CIG",
+      "description": "某汽车制造商的Ariba采购管理平台实施项目，涵盖采购到付款全流程",
+      "createdAt": "2026-04-15T04:44:08.816Z",
+      "updatedAt": "2026-04-15T04:44:08.816Z"
+    },
+    {
+      "id": "mnzygnqpmtg64oybi",
+      "name": "测试项目",
+      "description": "测试描述",
+      "createdAt": "2026-04-15T11:16:44.209Z",
+      "updatedAt": "2026-04-15T11:16:44.209Z"
+    }
+  ]
+}

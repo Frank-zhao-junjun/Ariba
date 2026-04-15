@@ -1,0 +1,229 @@
+{
+  "version": "1.0.0",
+  "description": "Ariba实施访谈问题模板 - 嵌入5W2H和SCQA框架",
+  "stages": [
+    {
+      "id": "stage_background",
+      "name": "背景调研",
+      "description": "了解项目背景和基本信息",
+      "framework": "SCQA-Situation",
+      "questions": [
+        {
+          "id": "BG001",
+          "text": "请介绍一下贵公司目前采购管理的整体情况？包括采购规模、品类结构和组织架构。",
+          "category": "background",
+          "framework": "Situation",
+          "keywords": ["采购规模", "品类", "组织架构"],
+          "followUps": ["BG001_F1"]
+        },
+        {
+          "id": "BG001_F1",
+          "text": "目前采购团队有多少人？是如何分工的？",
+          "category": "background",
+          "parentId": "BG001",
+          "condition": "answered"
+        },
+        {
+          "id": "BG002",
+          "text": "贵公司目前使用什么系统进行采购管理？有哪些痛点？",
+          "category": "pain_points",
+          "framework": "Complication",
+          "keywords": ["系统现状", "痛点", "问题"]
+        },
+        {
+          "id": "BG003",
+          "text": "实施Ariba的主要动因是什么？期望解决哪些核心业务问题？",
+          "category": "motivation",
+          "framework": "Complication",
+          "keywords": ["实施动因", "核心问题", "期望"]
+        }
+      ]
+    },
+    {
+      "id": "stage_requirement",
+      "name": "需求识别",
+      "description": "深入了解业务需求",
+      "framework": "5W2H",
+      "questions": [
+        {
+          "id": "REQ001",
+          "text": "您希望通过Ariba实现什么（What）？具体包括哪些功能模块？",
+          "category": "what",
+          "framework": "What",
+          "keywords": ["功能模块", "具体功能"],
+          "required": true
+        },
+        {
+          "id": "REQ002",
+          "text": "为什么需要这些功能（Why）？它们能解决什么业务问题或带来什么价值？",
+          "category": "why",
+          "framework": "Why",
+          "keywords": ["业务价值", "解决问题", "收益"]
+        },
+        {
+          "id": "REQ003",
+          "text": "哪些角色会使用这个系统（Who）？他们的职责和权限需求是什么？",
+          "category": "who",
+          "framework": "Who",
+          "keywords": ["用户角色", "职责", "权限"]
+        },
+        {
+          "id": "REQ003_F1",
+          "text": "不同角色的用户数量大约是多少？",
+          "category": "who",
+          "parentId": "REQ003",
+          "condition": "answered"
+        },
+        {
+          "id": "REQ004",
+          "text": "这些功能预计什么时候（When）需要上线使用？有没有关键时间节点？",
+          "category": "when",
+          "framework": "When",
+          "keywords": ["上线时间", "关键节点", "时间计划"]
+        },
+        {
+          "id": "REQ005",
+          "text": "这些功能在哪里（Where）使用？是总部使用还是分支机构也需要？",
+          "category": "where",
+          "framework": "Where",
+          "keywords": ["使用范围", "总部", "分支机构", "多站点"]
+        },
+        {
+          "id": "REQ006",
+          "text": "您打算如何（How）实施这些功能？是一次性上线还是分阶段？",
+          "category": "how",
+          "framework": "How",
+          "keywords": ["实施方式", "上线策略", "分阶段"]
+        },
+        {
+          "id": "REQ007",
+          "text": "这个项目的预算范围（How much）是多少？包括哪些费用项？",
+          "category": "how_much",
+          "framework": "How much",
+          "keywords": ["预算", "费用", "投资"]
+        }
+      ]
+    },
+    {
+      "id": "stage_capability",
+      "name": "能力匹配",
+      "description": "评估Ariba能力与需求的匹配度",
+      "framework": "SCQA-Question",
+      "questions": [
+        {
+          "id": "CAP001",
+          "text": "在您提到的需求中，哪些是Ariba标准功能可以满足的？",
+          "category": "native_capability",
+          "framework": "Question",
+          "keywords": ["标准功能", "原生能力"],
+          "autoMatch": true
+        },
+        {
+          "id": "CAP002",
+          "text": "哪些需求需要与现有系统（如ERP、财务系统）进行集成？",
+          "category": "integration",
+          "framework": "Question",
+          "keywords": ["集成", "ERP", "系统对接"]
+        },
+        {
+          "id": "CAP003",
+          "text": "有没有需要定制开发的功能需求？",
+          "category": "customization",
+          "framework": "Question",
+          "keywords": ["定制开发", "个性化需求"]
+        },
+        {
+          "id": "CAP004",
+          "text": "您对供应商自助门户有什么具体需求？",
+          "category": "supplier_portal",
+          "framework": "Question",
+          "keywords": ["供应商门户", "自助服务"]
+        }
+      ]
+    },
+    {
+      "id": "stage_priority",
+      "name": "优先级排序",
+      "description": "确定需求优先级",
+      "framework": "SCQA-Answer",
+      "questions": [
+        {
+          "id": "PRI001",
+          "text": "如果必须选择一个核心功能优先上线，您会选择哪个？为什么？",
+          "category": "priority_core",
+          "framework": "Answer",
+          "keywords": ["核心功能", "优先上线"],
+          "required": true
+        },
+        {
+          "id": "PRI002",
+          "text": "哪些功能是必须有的（基本型需求）？",
+          "category": "must_have",
+          "framework": "KANO-基本型",
+          "keywords": ["必须", "基本需求", "核心"]
+        },
+        {
+          "id": "PRI003",
+          "text": "哪些功能是有了更好的（期望型需求）？",
+          "category": "nice_to_have",
+          "framework": "KANO-期望型",
+          "keywords": ["期望", "加分项"]
+        },
+        {
+          "id": "PRI004",
+          "text": "有没有什么功能是超出您预期的（兴奋型需求）？",
+          "category": "exciting",
+          "framework": "KANO-兴奋型",
+          "keywords": ["超出预期", "惊喜"]
+        },
+        {
+          "id": "PRI005",
+          "text": "每个功能大约涉及多少用户？覆盖范围有多大？",
+          "category": "reach",
+          "framework": "RICE-Reach",
+          "keywords": ["用户数", "覆盖范围"]
+        },
+        {
+          "id": "PRI006",
+          "text": "每个功能对业务的影响力有多大？",
+          "category": "impact",
+          "framework": "RICE-Impact",
+          "keywords": ["影响力", "业务价值"]
+        },
+        {
+          "id": "PRI007",
+          "text": "每个功能的实施难度和工作量如何？",
+          "category": "effort",
+          "framework": "RICE-Effort",
+          "keywords": ["工作量", "实施难度", "复杂度"]
+        }
+      ]
+    }
+  ],
+  "scqaFramework": {
+    "Situation": "描述当前状态和背景",
+    "Complication": "识别问题和挑战",
+    "Question": "明确核心问题",
+    "Answer": "提供解决方案"
+  },
+  "fiveWtwoHFramework": {
+    "What": "具体要实现什么功能",
+    "Why": "为什么要实现，有何价值",
+    "Who": "谁会使用，角色和权限",
+    "When": "什么时候需要，时间线",
+    "Where": "在哪里使用，范围",
+    "How": "如何实现，实施方式",
+    "HowMuch": "投入多少，预算"
+  },
+  "kanoModel": {
+    "基本型需求": "必须有，不满足会导致严重不满",
+    "期望型需求": "越多越好，满足程度与满意度成正比",
+    "兴奋型需求": "超出预期，带来惊喜和满意度"
+  },
+  "riceModel": {
+    "Reach": "覆盖范围 - 一段时间内受影响的人数",
+    "Impact": "影响程度 - 对该指标的潜在影响",
+    "Confidence": "置信度 - 对估计的确定性",
+    "Effort": "工作量 - 团队需要的人月数"
+  }
+}
