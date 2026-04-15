@@ -68,6 +68,7 @@ authRoutes.use('/blueprint', require('./routes/blueprint'));
 authRoutes.use('/requirement', require('./routes/requirement'));
 authRoutes.use('/chatbot', require('./routes/chatbot'));
 authRoutes.use('/knowledge', require('./routes/knowledge'));
+authRoutes.use('/supplier', require('./modules/supplier-risk/api/supplierRoutes'));
 app.use('/api', authRoutes);
 
 // 页面路由
