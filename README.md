@@ -445,3 +445,33 @@ curl -X POST http://localhost:3001/api/chatbot/chat \
 - `GET /api/chatbot/vendor/search?q=品类` - 搜索供应商
 - `GET /api/chatbot/pr/status?q=关键词` - 查询申请状态
 - `GET /api/chatbot/budget/:部门` - 查询部门预算
+
+---
+
+## 🚀 最新功能
+
+### v1.7.0 - AI询价比价助手 (2026-04-15) 🆕
+
+| 功能 | 描述 |
+|------|------|
+| 📤 **批量上传** | 支持PDF、Excel、Word格式报价文件 |
+| 🔍 **智能解析** | AI自动识别供应商、物料、单价、交期等关键信息 |
+| 📊 **比价矩阵** | 自动生成标准比价分析表 |
+| ⚖️ **权重评分** | 自定义价格/质量/交期/付款权重 |
+| 🎯 **AI推荐** | 智能推荐最优供应商并说明原因 |
+| 📥 **报告导出** | 一键导出Excel比价报告 |
+
+**使用示例**:
+```bash
+# 上传报价文件
+curl -X POST http://localhost:3001/api/bid-comparison/upload \
+  -F "files=@供应商A报价.pdf" \
+  -F "files=@供应商B报价.xlsx"
+
+# 生成比价报告
+curl -X POST http://localhost:3001/api/bid-comparison/compare \
+  -H "Content-Type: application/json" \
+  -d '{"parsedQuotes": [...], "scoringRules": {"price": 40, "quality": 30, "delivery": 20, "payment": 10}}'
+```
+
+**访问页面**: http://localhost:3001/bid-comparison
