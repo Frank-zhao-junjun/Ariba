@@ -1,0 +1,80 @@
+{
+  "scenarioTypes": [
+    {
+      "type": "询价采购",
+      "code": "INQUIRY",
+      "threshold": { "min": 0, "max": 50000 },
+      "description": "适用于小额标准品采购，快速获取报价",
+      "timeline": { "invitation": 1, "response": 3, "evaluation": 1, "total": 5 },
+      "weight": { "price": 50, "quality": 25, "delivery": 15, "service": 10 }
+    },
+    {
+      "type": "竞价采购",
+      "code": "BIDDING",
+      "threshold": { "min": 50000, "max": 500000 },
+      "description": "适用于中等金额采购，多轮竞价获取最优价",
+      "timeline": { "invitation": 2, "response": 5, "evaluation": 2, "total": 9 },
+      "weight": { "price": 45, "quality": 30, "delivery": 15, "service": 10 }
+    },
+    {
+      "type": "招标采购",
+      "code": "TENDER",
+      "threshold": { "min": 500000, "max": 999999999 },
+      "description": "适用于大额关键采购，规范化流程确保公平透明",
+      "timeline": { "invitation": 7, "response": 14, "evaluation": 5, "total": 26 },
+      "weight": { "price": 35, "quality": 35, "delivery": 15, "service": 15 }
+    },
+    {
+      "type": "框架协议",
+      "code": "BLANKET",
+      "threshold": { "min": 0, "max": 999999999 },
+      "description": "适用于长期重复性采购，建立战略合作关系",
+      "timeline": { "invitation": 7, "response": 14, "evaluation": 7, "total": 28 },
+      "weight": { "price": 40, "quality": 30, "delivery": 15, "service": 15 }
+    }
+  ],
+  "categoryRules": {
+    "IT设备": {
+      "weight": { "price": 40, "quality": 35, "delivery": 15, "service": 10 },
+      "required": ["原厂授权", "质保期"],
+      "preferred": ["本地供应商", "快速响应"]
+    },
+    "生产物料": {
+      "weight": { "price": 35, "quality": 40, "delivery": 15, "service": 10 },
+      "required": ["质量认证", "产能证明"],
+      "preferred": ["稳定交期", "VMI支持"]
+    },
+    "办公用品": {
+      "weight": { "price": 50, "quality": 25, "delivery": 15, "service": 10 },
+      "required": ["品牌授权"],
+      "preferred": ["电商配送", "月结支持"]
+    },
+    "专业服务": {
+      "weight": { "price": 30, "quality": 20, "delivery": 20, "service": 30 },
+      "required": ["资质证书", "案例展示"],
+      "preferred": ["行业经验", "本地团队"]
+    },
+    "工程建设": {
+      "weight": { "price": 30, "quality": 35, "delivery": 20, "service": 15 },
+      "required": ["施工资质", "安全认证"],
+      "preferred": ["本地业绩", "项目管理"]
+    }
+  },
+  "urgencyMultiplier": {
+    "urgent": { "delivery": 1.5, "timeline": 0.5 },
+    "normal": { "delivery": 1.0, "timeline": 1.0 },
+    "low": { "delivery": 0.8, "timeline": 1.5 }
+  },
+  "supplierPool": [
+    { "name": "华通科技有限公司", "category": "IT设备", "rating": 4.5, "location": "本地", "advantages": ["原厂授权", "快速响应"] },
+    { "name": "中科创达电子", "category": "IT设备", "rating": 4.3, "location": "本地", "advantages": ["价格优势", "库存充足"] },
+    { "name": "信泰供应链", "category": "IT设备", "rating": 4.6, "location": "异地", "advantages": ["品牌齐全", "全国联保"] },
+    { "name": "东方物料有限公司", "category": "生产物料", "rating": 4.4, "location": "本地", "advantages": ["质量稳定", "准时交付"] },
+    { "name": "金桥供应商", "category": "生产物料", "rating": 4.2, "location": "本地", "advantages": ["价格优惠", "VMI支持"] },
+    { "name": "鑫源工业", "category": "生产物料", "rating": 4.5, "location": "异地", "advantages": ["产能充足", "技术领先"] },
+    { "name": "办公伙伴", "category": "办公用品", "rating": 4.3, "location": "本地", "advantages": ["配送快捷", "品类齐全"] },
+    { "name": "得力文具集团", "category": "办公用品", "rating": 4.6, "location": "异地", "advantages": ["品牌保障", "批量优惠"] },
+    { "name": "博达咨询服务", "category": "专业服务", "rating": 4.7, "location": "本地", "advantages": ["行业专家", "定制方案"] },
+    { "name": "中睿数据科技", "category": "专业服务", "rating": 4.4, "location": "异地", "advantages": ["技术领先", "持续支持"] }
+  ]
+}

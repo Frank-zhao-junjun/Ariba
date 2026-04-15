@@ -1,5 +1,5 @@
 /**
- * Ariba项目实施助手 v1.7.0
+ * Ariba项目实施助手 v1.8.0
  * 主入口文件
  */
 
@@ -21,6 +21,7 @@ const chatbotRouter = require('./routes/chatbot');
 const sourcingOptimizerRouter = require('./routes/sourcingOptimizer');
 const supplierRiskRouter = require('./routes/supplierRisk');
 const bidComparisonRouter = require('./routes/bid-comparison');
+const sourcingScenarioRouter = require('./routes/sourcingScenario');
 const knowledgeService = require('./services/knowledge');
 
 const app = express();
@@ -54,6 +55,7 @@ app.use('/api/chatbot', chatbotRouter);
 app.use('/api/sourcing-optimizer', sourcingOptimizerRouter);
 app.use('/api/supplier-risk', supplierRiskRouter);
 app.use('/api/bid-comparison', bidComparisonRouter);
+app.use('/api/sourcing-scenario', sourcingScenarioRouter);
 
 // 主页
 app.get('/', (req, res) => {
@@ -90,6 +92,10 @@ app.get('/contract-qa', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/contract-qa.html'));
 });
 
+app.get('/sourcing-scenario', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/sourcing-scenario.html'));
+});
+
 app.get('/sourcing-optimizer', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/sourcing-optimizer.html'));
 });
@@ -103,7 +109,7 @@ app.get('/health', (req, res) => {
   res.json({ 
     status: 'healthy', 
     service: 'Ariba项目实施助手', 
-    version: '1.7.0', 
+    version: '1.8.0', 
     uptime: process.uptime(), 
     timestamp: new Date().toISOString() 
   });
@@ -113,7 +119,7 @@ app.get('/health', (req, res) => {
 app.get('/api', (req, res) => {
   res.json({
     service: 'Ariba项目实施助手 API',
-    version: '1.7.0',
+    version: '1.8.0',
     endpoints: {
       requirement: { 'POST /api/requirement/analyze': '分析用户需求', 'GET /api/requirement/templates': '获取需求模板列表' },
       blueprint: { 'GET /api/blueprint/templates': '获取蓝图模板列表', 'POST /api/blueprint/generate': '生成User Stories' },

@@ -1,4 +1,4 @@
-# Ariba项目实施助手 v1.5
+# Ariba项目实施助手 v1.8.0
 
 > 🎯 专为SAP Ariba项目实施顾问打造的智能化工具
 
@@ -475,3 +475,78 @@ curl -X POST http://localhost:3001/api/bid-comparison/compare \
 ```
 
 **访问页面**: http://localhost:3001/bid-comparison
+
+---
+
+## 🚀 最新功能
+
+### v1.8.0 - 智能寻源场景推荐助手 (2026-04-15) 🆕
+
+| 功能 | 描述 |
+|------|------|
+| 🎯 **智能场景识别** | 根据金额和品类自动推荐寻源方式（询价/竞价/招标/框架） |
+| 📊 **评分规则配置** | AI自动生成品类专属评分维度权重 |
+| 👥 **供应商匹配** | 智能推荐合格供应商并排序 |
+| ⏱️ **周期预测** | 自动计算各阶段时间节点 |
+| 💡 **寻源建议** | 提供专业采购策略建议 |
+
+**适用场景**:
+- 不知道选择哪种寻源方式
+- 不确定邀请哪些供应商
+- 不知道怎么设置评分规则
+- 需要缩短紧急采购周期
+
+**使用示例**:
+```bash
+# 生成寻源场景推荐
+curl -X POST http://localhost:3001/api/sourcing-scenario/generate \
+  -H "Content-Type: application/json" \
+  -d '{
+    "category": "IT设备",
+    "amount": 500000,
+    "deliveryDate": "2026-05-01",
+    "urgency": "normal",
+    "requirements": ["本地供应商优先", "需要原厂授权"]
+  }'
+
+# 获取品类供应商推荐
+curl -X GET "http://localhost:3001/api/sourcing-scenario/suppliers/IT设备?amount=100000"
+
+# 获取评分权重
+curl -X GET "http://localhost:3001/api/sourcing-scenario/weights/IT设备"
+```
+
+**响应示例**:
+```json
+{
+  "success": true,
+  "data": {
+    "scenarioType": {
+      "type": "竞价采购",
+      "code": "BIDDING",
+      "description": "适用于中等金额采购，多轮竞价获取最优价",
+      "reason": "金额较大，竞价可获取最优价格"
+    },
+    "timeline": {
+      "invitationDays": 2,
+      "responseDays": 5,
+      "totalDays": 9,
+      "milestones": [...]
+    },
+    "scoringRules": {
+      "dimensions": [
+        {"name": "价格", "weight": 40},
+        {"name": "质量", "weight": 35},
+        {"name": "交期", "weight": 15},
+        {"name": "服务", "weight": 10}
+      ]
+    },
+    "recommendedSuppliers": [
+      {"name": "华通科技有限公司", "rating": 4.5, "matchScore": 90}
+    ],
+    "confidence": 0.92
+  }
+}
+```
+
+**访问页面**: http://localhost:3001/sourcing-scenario
