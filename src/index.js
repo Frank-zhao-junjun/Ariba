@@ -68,12 +68,14 @@ authRoutes.use('/blueprint', require('./routes/blueprint'));
 authRoutes.use('/requirement', require('./routes/requirement'));
 authRoutes.use('/chatbot', require('./routes/chatbot'));
 authRoutes.use('/knowledge', require('./routes/knowledge'));
+authRoutes.use('/report', require('./routes/report'));
 authRoutes.use('/supplier', require('./modules/supplier-risk/api/supplierRoutes'));
 app.use('/api', authRoutes);
 
 // 页面路由
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, '../public/index.html')));
 app.get('/projects', (req, res) => res.sendFile(path.join(__dirname, '../public/projects.html')));
+app.get('/report', (req, res) => res.sendFile(path.join(__dirname, '../public/report.html')));
 
 // 健康检查
 app.get('/health', (req, res) => {

@@ -1,0 +1,571 @@
+{
+  "metadata": {
+    "name": "SAP Ariba 能力库",
+    "version": "2.0.0",
+    "lastUpdated": "2026-04-15",
+    "description": "SAP Ariba 各模块能力清单，包含功能点、流程和集成能力"
+  },
+  "modules": {
+    "buying": {
+      "id": "buying",
+      "name": "采购管理 (Buying)",
+      "nameEn": "SAP Ariba Buying",
+      "description": "企业采购核心管理模块，支持采购申请到付款全流程",
+      "capabilities": {
+        "requisition_management": {
+          "name": "采购申请管理",
+          "features": [
+            "自助请购",
+            "多层级审批流",
+            "预算关联",
+            "成本中心分配",
+            "审批规则引擎",
+            "移动端审批",
+            "邮件通知",
+            "草稿保存",
+            "申请模板",
+            "批量申请"
+          ],
+          "standardProcesses": [
+            "员工自助请购",
+            "经理审批",
+            "采购部门确认",
+            "订单创建"
+          ]
+        },
+        "purchase_order": {
+          "name": "采购订单管理",
+          "features": [
+            "标准PO创建",
+            "订单审批",
+            "订单变更",
+            "订单确认",
+            "订单分发",
+            "订单状态跟踪",
+            "订单打印",
+            "订单归档",
+            "多币种支持",
+            "税率计算"
+          ],
+          "standardProcesses": [
+            "PO创建→审批→发送供应商",
+            "供应商确认",
+            "交期跟踪",
+            "收货确认"
+          ]
+        },
+        "receipts_invoicing": {
+          "name": "收货与发票管理",
+          "features": [
+            "到货检验",
+            "数量差异处理",
+            "质量验收",
+            "发票匹配(两方/三方)",
+            "差异处理",
+            "自动记账",
+            "支付计划",
+            "早付折扣",
+            "付款条件",
+            "冲销处理"
+          ],
+          "standardProcesses": [
+            "收货→验收→发票匹配→付款"
+          ]
+        }
+      }
+    },
+    "sourcing": {
+      "id": "sourcing",
+      "name": "寻源管理 (Sourcing)",
+      "nameEn": "SAP Ariba Sourcing",
+      "description": "战略寻源与供应商协同平台",
+      "capabilities": {
+        "strategic_sourcing": {
+          "name": "战略寻源",
+          "features": [
+            "项目创建与管理",
+            "多轮竞价",
+            "反向竞拍(Reverse Auction)",
+            "提案评估",
+            "成本分析",
+            "供应商评分",
+            "合同条款库",
+            "谈判工具",
+            "节约额计算",
+            "项目模板"
+          ],
+          "standardProcesses": [
+            "定义需求→邀请供应商→收集提案→评估分析→谈判→授予"
+          ]
+        },
+        "contract_management": {
+          "name": "合同管理",
+          "features": [
+            "合同模板库",
+            "合同起草",
+            "多级审批",
+            "版本控制",
+            "电子签章",
+            "到期提醒",
+            "条款提取",
+            "风险提示",
+            "自动续约",
+            "合同分析"
+          ],
+          "standardProcesses": [
+            "模板选择→条款填充→法务审批→电子签署→归档管理"
+          ]
+        },
+        "rfx_management": {
+          "name": "询价管理",
+          "features": [
+            "RFI问卷管理",
+            "RFP提案请求",
+            "RFQ报价请求",
+            "多语言支持",
+            "文件上传下载",
+            "在线协作",
+            "评分模板",
+            "比较分析",
+            "加权评分",
+            "历史参考"
+          ],
+          "standardProcesses": [
+            "创建RFX→选择供应商→发送请求→收集回复→评分比价→决策"
+          ]
+        }
+      }
+    },
+    "contract": {
+      "id": "contract",
+      "name": "合同管理 (Contract Management)",
+      "nameEn": "SAP Ariba Contract Management",
+      "description": "企业合同全生命周期管理",
+      "capabilities": {
+        "contract_authoring": {
+          "name": "合同起草",
+          "features": [
+            "智能模板",
+            "条款库",
+            "变量填充",
+            "多语言",
+            "协作编辑",
+            "版本追踪",
+            "草稿管理",
+            "附件支持",
+            "元数据管理",
+            "草稿锁定"
+          ],
+          "standardProcesses": [
+            "选择模板→填充变量→内部审阅→提交审批"
+          ]
+        },
+        "contract_negotiation": {
+          "name": "合同谈判",
+          "features": [
+            "在线谈判室",
+            "条款对比",
+            "变更追踪",
+            "批注协作",
+            "历史版本",
+            "谈判计时",
+            "参与方管理",
+            "文件共享",
+            "消息通知",
+            "决策支持"
+          ],
+          "standardProcesses": [
+            "发起谈判→条款讨论→变更确认→达成一致→签署"
+          ]
+        },
+        "contract_execution": {
+          "name": "合同执行",
+          "features": [
+            "电子签章",
+            "多渠道签署",
+            "签署状态",
+            "签署凭证",
+            "自动归档",
+            "执行监控",
+            "变更管理",
+            "合规检查",
+            "审计追踪",
+            "通知提醒"
+          ],
+          "standardProcesses": [
+            "审批通过→发送签署→各方签署→归档生效→执行监控"
+          ]
+        }
+      }
+    },
+    "catalog": {
+      "id": "catalog",
+      "name": "目录管理 (Catalog)",
+      "nameEn": "SAP Ariba Catalog",
+      "description": "采购目录与供应商门户",
+      "capabilities": {
+        "content_management": {
+          "name": "内容管理",
+          "features": [
+            "商品目录",
+            "服务目录",
+            "供应商门户",
+            "内容审核",
+            "图片管理",
+            "规格属性",
+            "分类体系",
+            "多层级",
+            "搜索优化",
+            "批量导入"
+          ],
+          "standardProcesses": [
+            "创建目录→上传内容→审核发布→用户采购"
+          ]
+        },
+        "punchout": {
+          "name": "Punchout目录",
+          "features": [
+            "OBI连接",
+            "cXML集成",
+            "实时数据",
+            "购物车同步",
+            "供应商维护",
+            "订单回传",
+            "价格更新",
+            "库存查询",
+            "多供应商",
+            "统一体验"
+          ],
+          "standardProcesses": [
+            "选商品→Punchout跳转→供应商系统→选商品→返回订单"
+          ]
+        },
+        "guided_buying": {
+          "name": "引导式采购",
+          "features": [
+            "智能推荐",
+            "最近采购",
+            "常用商品",
+            "预算提示",
+            "合规检查",
+            "替代建议",
+            "快速重订",
+            "收藏夹",
+            "购物车",
+            "批量操作"
+          ],
+          "standardProcesses": [
+            "登录→浏览/搜索→选择商品→加入购物车→提交申请"
+          ]
+        }
+      }
+    },
+    "supplier_management": {
+      "id": "supplier_management",
+      "name": "供应商管理 (Supplier Management)",
+      "nameEn": "SAP Ariba Supplier Management",
+      "description": "供应商全生命周期管理",
+      "capabilities": {
+        "supplier_registration": {
+          "name": "供应商注册",
+          "features": [
+            "自助注册",
+            "信息采集",
+            "资质上传",
+            "问卷调查",
+            "联系人管理",
+            "银行信息",
+            "税务信息",
+            "证照管理",
+            "地址验证",
+            "状态追踪"
+          ],
+          "standardProcesses": [
+            "供应商注册→信息审核→资质评估→准入批准→账号激活"
+          ]
+        },
+        "supplier_risk": {
+          "name": "供应商风险管理",
+          "features": [
+            "风险评分",
+            "监控预警",
+            "事件追踪",
+            "第三方数据",
+            "财务健康",
+            "运营风险",
+            "合规检查",
+            "黑名单管理",
+            "风险报告",
+            "缓解措施"
+          ],
+          "standardProcesses": [
+            "定义风险指标→数据采集→评分计算→风险预警→应对处理"
+          ]
+        },
+        "supplier_performance": {
+          "name": "供应商绩效管理",
+          "features": [
+            "评分模型",
+            "KPI跟踪",
+            "评价模板",
+            "自动评分",
+            "人工评价",
+            "绩效报告",
+            "趋势分析",
+            "改进建议",
+            "等级管理",
+            "奖励惩罚"
+          ],
+          "standardProcesses": [
+            "定义指标→数据收集→评分计算→报告分析→改进跟踪"
+          ]
+        },
+        "supplier_discovery": {
+          "name": "供应商发现",
+          "features": [
+            "Discovery Network",
+            "供应商推荐",
+            "资质匹配",
+            "能力验证",
+            "地理位置",
+            "行业分类",
+            "认证筛选",
+            "评价查看",
+            "联系邀请",
+            "竞争分析"
+          ],
+          "standardProcesses": [
+            "搜索需求→筛选供应商→评估资质→发起合作→正式认证"
+          ]
+        }
+      }
+    },
+    "invoicing": {
+      "id": "invoicing",
+      "name": "发票管理 (Invoicing)",
+      "nameEn": "SAP Ariba Invoicing",
+      "description": "电子发票与付款流程",
+      "capabilities": {
+        "e_invoicing": {
+          "name": "电子发票",
+          "features": [
+            "多格式支持",
+            "PDF发票",
+            "cXML",
+            "EDI",
+            "自动验证",
+            "格式转换",
+            "批量处理",
+            "异常处理",
+            "状态追踪",
+            "归档管理"
+          ],
+          "standardProcesses": [
+            "接收发票→格式验证→数据提取→匹配审批→过账处理"
+          ]
+        },
+        "invoice_matching": {
+          "name": "发票匹配",
+          "features": [
+            "两方匹配",
+            "三方匹配",
+            "数量容差",
+            "价格容差",
+            "自动差异处理",
+            "手动审批",
+            "支持申请",
+            "收货关联",
+            "合同关联",
+            "统计分析"
+          ],
+          "standardProcesses": [
+            "发票到达→基础验证→与PO/收货匹配→处理差异→批准/拒绝"
+          ]
+        },
+        "payment": {
+          "name": "付款管理",
+          "features": [
+            "付款计划",
+            "资金预测",
+            "早付折扣",
+            "付款优先级",
+            "银行集成",
+            "支付方式",
+            "付款审批",
+            "付款通知",
+            "对账处理",
+            "回款跟踪"
+          ],
+          "standardProcesses": [
+            "发票批准→付款计划→审批→执行付款→供应商通知→对账"
+          ]
+        }
+      }
+    },
+    "scc": {
+      "id": "scc",
+      "name": "供应链协作 (SCC)",
+      "nameEn": "SAP Ariba Supply Chain Collaboration",
+      "description": "与供应商的供应链协同",
+      "capabilities": {
+        "order_collaboration": {
+          "name": "订单协同",
+          "features": [
+            "订单可视化",
+            "确认回执",
+            "ASN预告",
+            "交期确认",
+            "变更通知",
+            "状态共享",
+            "例外预警",
+            "供应商门户",
+            "多渠道通知",
+            "历史追踪"
+          ],
+          "standardProcesses": [
+            "发送订单→供应商确认→交期承诺→发货通知→收货确认"
+          ]
+        },
+        "forecast_collaboration": {
+          "name": "预测协同",
+          "features": [
+            "需求预测",
+            "预测发布",
+            "预测响应",
+            "承诺供应",
+            "差异分析",
+            "供需平衡",
+            "库存优化",
+            "能力共享",
+            "协同计划",
+            "例外处理"
+          ],
+          "standardProcesses": [
+            "发布预测→供应商响应→协商调整→确认承诺→执行跟踪"
+          ]
+        },
+        "inventory_collaboration": {
+          "name": "库存协同",
+          "features": [
+            "VMI管理",
+            "补货建议",
+            "库存可视化",
+            "最小库存",
+            "最大库存",
+            "补货规则",
+            "订单触发",
+            "绩效监控",
+            "成本分析",
+            "协议管理"
+          ],
+          "standardProcesses": [
+            "定义规则→监控库存→生成建议→审批执行→补货完成"
+          ]
+        }
+      }
+    }
+  },
+  "integrationCapabilities": {
+    "erp": {
+      "name": "ERP集成",
+      "systems": [
+        { "id": "s4hana", "name": "SAP S/4HANA", "type": "native", "bidirectional": true },
+        { "id": "ecc", "name": "SAP ECC", "type": "native", "bidirectional": true },
+        { "id": "oracle_erp", "name": "Oracle ERP Cloud", "type": "certified", "bidirectional": true },
+        { "id": "workday", "name": "Workday", "type": "certified", "bidirectional": true },
+        { "id": "dynamics", "name": "Microsoft Dynamics 365", "type": "certified", "bidirectional": true }
+      ],
+      "protocols": ["cXML", "EDI", "REST API", "IDoc", "SOAP"]
+    },
+    "finance": {
+      "name": "财务系统集成",
+      "systems": [
+        { "id": "sap_fi", "name": "SAP FI/CO", "type": "native" },
+        { "id": "oracle_finance", "name": "Oracle Fusion Financials", "type": "certified" },
+        { "id": "concur", "name": "SAP Concur", "type": "native" }
+      ]
+    },
+    "hrm": {
+      "name": "HR系统集成",
+      "systems": [
+        { "id": "successfactors", "name": "SAP SuccessFactors", "type": "native" },
+        { "id": "workday_hcm", "name": "Workday HCM", "type": "certified" }
+      ]
+    },
+    "network": {
+      "name": "商业网络",
+      "capabilities": [
+        "Ariba Network",
+        "SAP Business Network",
+        "Supplier Portal",
+        "Buyer Portal",
+        "Trading Partner Management"
+      ]
+    }
+  },
+  "industrySolutions": {
+    "manufacturing": {
+      "name": "制造业",
+      "focus": ["战略寻源", "供应商管理", "供应链协同", "成本控制"],
+      "recommendations": ["MRO采购优化", "VMI实施", "供应商风险管控", "合同合规"]
+    },
+    "retail": {
+      "name": "零售业",
+      "focus": ["目录采购", "供应链可视化", "促销采购", "门店配送"],
+      "recommendations": ["Punchout集成", "合同店运营", "快速补货", "促销管理"]
+    },
+    "healthcare": {
+      "name": "医疗健康",
+      "focus": ["合规采购", "供应商资质", "GSP管理", "成本分析"],
+      "recommendations": ["资质管理增强", "合规审批流", "成本透明化", "供应商审计"]
+    },
+    "energy": {
+      "name": "能源行业",
+      "focus": ["大额采购", "战略寻源", "合同管理", "供应商绩效"],
+      "recommendations": ["长期合同管理", "价格风险管理", "供应商分级", "战略采购"]
+    },
+    "government": {
+      "name": "政府机构",
+      "focus": ["合规采购", "透明化", "预算控制", "审计追踪"],
+      "recommendations": ["合规审批流", "预算集成", "全审计追踪", "阳光采购"]
+    },
+    "financial": {
+      "name": "金融行业",
+      "focus": ["供应商风险", "合规管理", "成本控制", "服务采购"],
+      "recommendations": ["供应商风险评估", "SLA管理", "专业服务采购", "合规审计"]
+    }
+  },
+  "deploymentOptions": {
+    "cloud": {
+      "name": "云部署",
+      "products": ["Ariba Cloud", "Ariba Network"],
+      "benefits": ["快速上线", "免维护", "自动升级", "按需扩展"]
+    },
+    "hybrid": {
+      "name": "混合部署",
+      "products": ["Ariba Cloud + On-premise ERP"],
+      "benefits": ["灵活架构", "数据主权", "平滑迁移", "渐进转型"]
+    },
+    "private": {
+      "name": "私有云部署",
+      "products": ["Ariba Private Cloud"],
+      "benefits": ["企业级安全", "合规要求", "定制化", "SLA保障"]
+    }
+  },
+  "roiBenchmarks": {
+    "by_module": {
+      "buying": { "avgSavings": 5, "range": "3-8%", "paybackMonths": 12 },
+      "sourcing": { "avgSavings": 10, "range": "6-15%", "paybackMonths": 18 },
+      "contract": { "avgSavings": 8, "range": "5-12%", "paybackMonths": 15 },
+      "supplier_management": { "avgSavings": 4, "range": "2-7%", "paybackMonths": 12 }
+    },
+    "by_industry": {
+      "manufacturing": { "avgSavings": 8, "range": "5-12%" },
+      "retail": { "avgSavings": 6, "range": "4-10%" },
+      "healthcare": { "avgSavings": 5, "range": "3-8%" },
+      "energy": { "avgSavings": 12, "range": "8-18%" },
+      "government": { "avgSavings": 4, "range": "2-7%" },
+      "financial": { "avgSavings": 6, "range": "4-9%" }
+    }
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "sessionId": "test-session-001",
+  "interviewData": {
+    "enterprise": {
+      "name": "测试企业",
+      "industry": "制造业",
+      "scale": "中型",
+      "locations": ["上海", "北京"]
+    },
+    "business": {
+      "procurementType": "直接物料采购",
+      "annualSpend": "5000万",
+      "supplierCount": "200",
+      "approvalLevels": "三级"
+    },
+    "processes": [
+      {
+        "name": "采购申请流程",
+        "steps": ["员工提交申请", "经理审批", "采购部门确认", "创建订单"],
+        "painPoints": ["审批流程长", "信息不透明"]
+      }
+    ],
+    "requirements": {
+      "modules": ["Buying", "Sourcing", "Contract"],
+      "integrations": ["SAP S/4HANA"],
+      "features": [
+        {"name": "自助请购", "required": true, "priority": "high"},
+        {"name": "多级审批", "required": true, "priority": "high"},
+        {"name": "ERP集成", "required": true, "priority": "critical"}
+      ]
+    },
+    "technical": {
+      "erp": "SAP S/4HANA",
+      "deployment": "云端"
+    },
+    "compliance": {
+      "industry": ["SOX", "ISO9001"],
+      "dataProtection": ["数据本地化"]
+    }
+  }
+}

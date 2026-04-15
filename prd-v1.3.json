@@ -1,0 +1,73 @@
+{
+  "branchName": "feature/supplier-intelligence-agent",
+  "featureName": "供应商智能评估代理 v1.3",
+  "featureId": "FR-013",
+  "status": "development_complete",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "单供应商快速评估",
+      "description": "作为采购顾问，我希望输入供应商信息后快速获得评估报告",
+      "acceptanceCriteria": [
+        "系统在30秒内返回完整评估结果",
+        "支持按供应商ID或名称查询",
+        "返回包含评分、风险点、建议的完整报告"
+      ],
+      "priority": 1,
+      "passes": true,
+      "notes": "核心功能已完成"
+    },
+    {
+      "id": "US-002",
+      "title": "批量供应商评估",
+      "description": "作为项目经理，我希望批量评估多家供应商以加快项目进度",
+      "acceptanceCriteria": [
+        "支持上传Excel批量处理",
+        "返回排名结果和汇总统计",
+        "高风险供应商预警"
+      ],
+      "priority": 1,
+      "passes": true,
+      "notes": "API已完成，需前端支持Excel导入"
+    },
+    {
+      "id": "US-003",
+      "title": "详细合规检查报告",
+      "description": "作为合规专员，我希望查看详细的合规检查结果",
+      "acceptanceCriteria": [
+        "报告包含完整的合规项检查",
+        "列出所有风险点和缓解建议"
+      ],
+      "priority": 2,
+      "passes": true,
+      "notes": "已包含在评估结果中"
+    },
+    {
+      "id": "US-004",
+      "title": "风险监控配置",
+      "description": "作为采购经理，我希望配置风险监控并定期收到预警",
+      "acceptanceCriteria": [
+        "支持设置监控频率",
+        "支持设置通知方式"
+      ],
+      "priority": 2,
+      "passes": true,
+      "notes": "API已完成，需后台任务支持"
+    },
+    {
+      "id": "US-005",
+      "title": "评估报告导出",
+      "description": "作为实施顾问，我希望导出标准格式的评估报告",
+      "acceptanceCriteria": [
+        "支持PDF格式导出",
+        "支持Word格式导出"
+      ],
+      "priority": 3,
+      "passes": false,
+      "notes": "待后续版本实现"
+    }
+  ],
+  "createdAt": "2026-04-15T19:40:00+08:00",
+  "completedAt": "2026-04-15T19:55:00+08:00",
+  "gitCommit": "db2b900"
+}
