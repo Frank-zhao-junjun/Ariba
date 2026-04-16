@@ -13,6 +13,10 @@ import {
   Plus,
   Activity,
   ChevronRight,
+  RefreshCw,
+  Bell,
+  Settings,
+  ExternalLink,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -38,6 +42,12 @@ import {
   dashboardStats,
   allTasks,
 } from '@/lib/data';
+import {
+  Tooltip as TooltipUI,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 
 // 任务趋势数据
 const taskTrendData = [
@@ -105,8 +115,69 @@ function AnimatedNumber({ value, suffix = '' }: { value: number; suffix?: string
   );
 }
 
+function StatCard({
+  title,
+  value,
+  suffix,
+  icon: Icon,
+  iconBg,
+  iconColor,
+  description,
+  trend,
+  trendUp,
+  onClick,
+}: {
+  title: string;
+  value: number;
+  suffix?: string;
+  icon: React.ElementType;
+  iconBg: string;
+  iconColor: string;
+  description?: string;
+  trend?: string;
+  trendUp?: boolean;
+  onClick?: () => void;
+}) {
+  return (
+    <TooltipProvider>
+      <Card className="card-hover cursor-pointer relative overflow-hidden" onClick={onClick}>
+        <CardContent className="p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">{title}</p>
+              <p className="text-3xl font-bold mt-2">
+                <AnimatedNumber value={value} suffix={suffix} />
+              </p>
+            </div>
+            <div className={cn('h-12 w-12 rounded-full flex items-center justify-center', iconBg)}>
+              <Icon className={cn('h-6 w-6', iconColor)} />
+            </div>
+          </div>
+          {description && (
+            <div className="mt-4 flex items-center justify-between">
+              {trend && (
+                <div className={cn('flex items-center text-sm', trendUp ? 'text-[#10B981]' : 'text-[#EF4444]')}>
+                  <TrendingUp className={cn('h-4 w-4 mr-1', !trendUp && 'rotate-180')} />
+                  <span>{trend}</span>
+                </div>
+              )}
+              <p className="text-sm text-muted-foreground ml-auto">{description}</p>
+            </div>
+          )}
+        </CardContent>
+        {/* 状态指示器 */}
+        <div className="absolute top-0 right-0 w-2 h-2 m-2">
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#10B981] opacity-75"></span>
+          <span className="relative inline-flex rounded-full h-2 w-2 bg-[#10B981]"></span>
+        </div>
+      </Card>
+    </TooltipProvider>
+  );
+}
+
 export default function DashboardPage() {
   const [mounted, setMounted] = useState(false);
+  const [lastUpdate, setLastUpdate] = useState(new Date());
 
   useEffect(() => {
     setMounted(true);
@@ -128,9 +199,25 @@ export default function DashboardPage() {
           </h1>
           <p className="text-muted-foreground mt-1">
             以下是您项目的实时状态概览
+            <span className="ml-2 inline-flex items-center text-xs">
+              <span className="h-2 w-2 rounded-full bg-[#10B981] mr-1 animate-pulse"></span>
+              数据更新时间: {lastUpdate.toLocaleTimeString()}
+            </span>
           </p>
         </div>
         <div className="flex gap-2">
+          <TooltipProvider>
+            <TooltipUI>
+              <TooltipTrigger asChild>
+                <Button variant="outline" onClick={() => setLastUpdate(new Date())}>
+                  <RefreshCw className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>刷新数据</p>
+              </TooltipContent>
+            </TooltipUI>
+          </TooltipProvider>
           <Button variant="outline" asChild>
             <Link href="/projects">
               <Target className="mr-2 h-4 w-4" />
@@ -148,81 +235,48 @@ export default function DashboardPage() {
 
       {/* 统计卡片 */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="card-hover">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">项目总数</p>
-                <p className="text-3xl font-bold mt-2">
-                  {mounted && <AnimatedNumber value={dashboardStats.totalProjects} />}
-                </p>
-              </div>
-              <div className="h-12 w-12 rounded-full bg-[#6366F1]/10 flex items-center justify-center">
-                <Target className="h-6 w-6 text-[#6366F1]" />
-              </div>
-            </div>
-            <div className="mt-4 flex items-center text-sm text-[#10B981]">
-              <TrendingUp className="h-4 w-4 mr-1" />
-              <span>{dashboardStats.inProgressProjects} 个进行中</span>
-            </div>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="项目总数"
+          value={dashboardStats.totalProjects}
+          icon={Target}
+          iconBg="bg-[#6366F1]/10"
+          iconColor="text-[#6366F1]"
+          description={`${dashboardStats.inProgressProjects} 个进行中`}
+          trend="+2 本月"
+          trendUp={true}
+          onClick={() => window.location.href = '/projects'}
+        />
 
-        <Card className="card-hover">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">任务完成率</p>
-                <p className="text-3xl font-bold mt-2">
-                  {mounted && <AnimatedNumber value={dashboardStats.overallProgress} suffix="%" />}
-                  </p>
-              </div>
-              <div className="h-12 w-12 rounded-full bg-[#10B981]/10 flex items-center justify-center">
-                <CheckSquare className="h-6 w-6 text-[#10B981]" />
-              </div>
-            </div>
-            <Progress value={dashboardStats.overallProgress} className="mt-4 h-2" />
-          </CardContent>
-        </Card>
+        <StatCard
+          title="任务完成率"
+          value={dashboardStats.overallProgress}
+          suffix="%"
+          icon={CheckSquare}
+          iconBg="bg-[#10B981]/10"
+          iconColor="text-[#10B981]"
+          onClick={() => window.location.href = '/tasks'}
+        />
 
-        <Card className="card-hover">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">待处理任务</p>
-                <p className="text-3xl font-bold mt-2">
-                  {mounted && <AnimatedNumber value={dashboardStats.pendingTasks} />}
-                </p>
-              </div>
-              <div className="h-12 w-12 rounded-full bg-[#F59E0B]/10 flex items-center justify-center">
-                <Clock className="h-6 w-6 text-[#F59E0B]" />
-              </div>
-            </div>
-            <p className="mt-4 text-sm text-muted-foreground">
-              {dashboardStats.blockedTasks} 个任务被阻塞
-            </p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="待处理任务"
+          value={dashboardStats.pendingTasks}
+          icon={Clock}
+          iconBg="bg-[#F59E0B]/10"
+          iconColor="text-[#F59E0B]"
+          description={`${dashboardStats.blockedTasks} 个被阻塞`}
+          onClick={() => window.location.href = '/tasks'}
+        />
 
-        <Card className="card-hover">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">里程碑进度</p>
-                <p className="text-3xl font-bold mt-2">
-                  {mounted && <AnimatedNumber value={milestones.filter((m) => m.status === 'completed').length} />}
-                  /{milestones.length}
-                </p>
-              </div>
-              <div className="h-12 w-12 rounded-full bg-[#06B6D4]/10 flex items-center justify-center">
-                <Calendar className="h-6 w-6 text-[#06B6D4]" />
-              </div>
-            </div>
-            <p className="mt-4 text-sm text-muted-foreground">
-              {dashboardStats.upcomingMilestones} 个即将到期
-            </p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="里程碑进度"
+          value={milestones.filter((m) => m.status === 'completed').length}
+          suffix={`/${milestones.length}`}
+          icon={Calendar}
+          iconBg="bg-[#06B6D4]/10"
+          iconColor="text-[#06B6D4]"
+          description={`${dashboardStats.upcomingMilestones} 个即将到期`}
+          onClick={() => window.location.href = '/milestones'}
+        />
       </div>
 
       {/* 图表区域 */}
@@ -230,7 +284,10 @@ export default function DashboardPage() {
         {/* 任务趋势 */}
         <Card className="lg:col-span-2">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-lg font-medium">任务完成趋势</CardTitle>
+            <CardTitle className="text-lg font-medium flex items-center gap-2">
+              <Activity className="h-5 w-5 text-[#6366F1]" />
+              任务完成趋势
+            </CardTitle>
             <Badge variant="outline" className="text-[#10B981] border-[#10B981]/30">
               <Activity className="h-3 w-3 mr-1" />
               本周
@@ -285,7 +342,10 @@ export default function DashboardPage() {
         {/* 任务分布 */}
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-lg font-medium">任务状态分布</CardTitle>
+            <CardTitle className="text-lg font-medium flex items-center gap-2">
+              <CheckSquare className="h-5 w-5 text-[#6366F1]" />
+              任务状态分布
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="h-[200px]">
@@ -329,7 +389,10 @@ export default function DashboardPage() {
         {/* 最近任务 */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-lg font-medium">最近任务</CardTitle>
+            <CardTitle className="text-lg font-medium flex items-center gap-2">
+              <Clock className="h-5 w-5 text-[#6366F1]" />
+              最近任务
+            </CardTitle>
             <Button variant="ghost" size="sm" asChild>
               <Link href="/tasks" className="text-[#6366F1]">
                 查看全部
@@ -337,17 +400,37 @@ export default function DashboardPage() {
               </Link>
             </Button>
           </CardHeader>
-          <CardContent className="space-y-4">
-            {recentTasks.map((task) => (
+          <CardContent className="space-y-3">
+            {recentTasks.map((task, index) => (
               <div
                 key={task.id}
-                className="flex items-center gap-4 p-3 rounded-lg hover:bg-muted/50 transition-colors cursor-pointer"
+                className="flex items-center gap-4 p-3 rounded-lg hover:bg-muted/50 transition-colors cursor-pointer group"
+                style={{ animationDelay: `${index * 50}ms` }}
               >
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium truncate">{task.title}</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    {task.assignee ? task.assignee.name : '未分配'}
+                  <p className="text-sm font-medium truncate group-hover:text-[#6366F1] transition-colors">
+                    {task.title}
                   </p>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    {task.assignee ? (
+                      <div className="flex items-center gap-1">
+                        <Avatar className="h-4 w-4">
+                          <AvatarFallback className="text-[8px] bg-[#6366F1] text-white">
+                            {task.assignee.name.charAt(0)}
+                          </AvatarFallback>
+                        </Avatar>
+                        <span className="text-xs text-muted-foreground">{task.assignee.name}</span>
+                      </div>
+                    ) : (
+                      <span className="text-xs text-muted-foreground">未分配</span>
+                    )}
+                    {task.dueDate && (
+                      <span className="text-xs text-muted-foreground">
+                        <Clock className="h-3 w-3 inline mr-1" />
+                        {task.dueDate}
+                      </span>
+                    )}
+                  </div>
                 </div>
                 <div className="flex items-center gap-2">
                   <Badge
@@ -381,7 +464,10 @@ export default function DashboardPage() {
         {/* 里程碑进度 */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-lg font-medium">里程碑进度</CardTitle>
+            <CardTitle className="text-lg font-medium flex items-center gap-2">
+              <Calendar className="h-5 w-5 text-[#6366F1]" />
+              里程碑进度
+            </CardTitle>
             <Button variant="ghost" size="sm" asChild>
               <Link href="/milestones" className="text-[#6366F1]">
                 查看全部
@@ -389,7 +475,7 @@ export default function DashboardPage() {
               </Link>
             </Button>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-3">
             {activeMilestones.map((milestone) => (
               <div
                 key={milestone.id}
@@ -427,6 +513,10 @@ export default function DashboardPage() {
                   </div>
                 </div>
                 <Progress value={milestone.progress} className="mt-3 h-2" />
+                <div className="flex items-center justify-between mt-2 text-xs text-muted-foreground">
+                  <span>{milestone.tasks.length} 个任务</span>
+                  <span>{milestone.tasks.filter((t) => t.status === 'completed').length} 已完成</span>
+                </div>
               </div>
             ))}
           </CardContent>
@@ -436,7 +526,10 @@ export default function DashboardPage() {
       {/* 项目概览 */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between pb-2">
-          <CardTitle className="text-lg font-medium">项目概览</CardTitle>
+          <CardTitle className="text-lg font-medium flex items-center gap-2">
+            <Target className="h-5 w-5 text-[#6366F1]" />
+            项目概览
+          </CardTitle>
           <Button variant="ghost" size="sm" asChild>
             <Link href="/projects" className="text-[#6366F1]">
               管理项目
@@ -450,11 +543,13 @@ export default function DashboardPage() {
               <Link
                 key={project.id}
                 href={`/projects/${project.id}`}
-                className="p-4 rounded-lg border border-border hover:border-[#6366F1]/30 hover:shadow-md transition-all"
+                className="p-4 rounded-lg border border-border hover:border-[#6366F1]/30 hover:shadow-md transition-all group"
               >
                 <div className="flex items-start justify-between">
                   <div>
-                    <h3 className="font-medium text-sm">{project.name}</h3>
+                    <h3 className="font-medium text-sm group-hover:text-[#6366F1] transition-colors">
+                      {project.name}
+                    </h3>
                     <p className="text-xs text-muted-foreground mt-1">{project.client}</p>
                   </div>
                   <Badge
@@ -490,9 +585,10 @@ export default function DashboardPage() {
                       </div>
                     )}
                   </div>
-                  <span className="text-xs text-muted-foreground">
-                    {project.endDate} 截止
-                  </span>
+                  <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                    <Calendar className="h-3 w-3" />
+                    {project.endDate}
+                  </div>
                 </div>
               </Link>
             ))}
