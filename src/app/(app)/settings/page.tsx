@@ -1,18 +1,16 @@
 'use client';
 
+import { useState } from 'react';
 import {
   Settings,
   User,
   Bell,
   Shield,
   Palette,
-  Database,
-  Key,
-  Globe,
   Save,
+  CheckCircle2,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
@@ -27,6 +25,51 @@ import {
 import { Separator } from '@/components/ui/separator';
 
 export default function SettingsPage() {
+  // 个人资料表单
+  const [profile, setProfile] = useState({
+    name: '张实施顾问',
+    email: 'zhang.consultant@company.com',
+    phone: '138****8888',
+    position: '项目经理',
+  });
+  const [profileSaved, setProfileSaved] = useState(false);
+
+  // 通知设置
+  const [notifications, setNotifications] = useState({
+    taskAssignment: true,
+    comments: true,
+    milestones: true,
+    email: false,
+  });
+  const [notifSaved, setNotifSaved] = useState(false);
+
+  // 安全设置
+  const [twoFactor, setTwoFactor] = useState(false);
+
+  // 系统设置
+  const [systemPrefs, setSystemPrefs] = useState({
+    language: 'zh-CN',
+    timezone: 'Asia/Shanghai',
+    darkMode: false,
+    dateFormat: 'YYYY-MM-DD',
+  });
+  const [systemSaved, setSystemSaved] = useState(false);
+
+  const handleSaveProfile = () => {
+    setProfileSaved(true);
+    setTimeout(() => setProfileSaved(false), 3000);
+  };
+
+  const handleSaveNotifications = () => {
+    setNotifSaved(true);
+    setTimeout(() => setNotifSaved(false), 3000);
+  };
+
+  const handleSaveSystem = () => {
+    setSystemSaved(true);
+    setTimeout(() => setSystemSaved(false), 3000);
+  };
+
   return (
     <div className="space-y-6">
       {/* 页面头部 */}
@@ -70,13 +113,10 @@ export default function SettingsPage() {
             <CardContent className="space-y-6">
               <div className="flex items-center gap-4">
                 <div className="h-20 w-20 rounded-full bg-gradient-to-br from-[#6366F1] to-[#8B5CF6] flex items-center justify-center text-white text-2xl font-bold">
-                  张
+                  {profile.name.charAt(0)}
                 </div>
                 <div>
-                  <Button variant="outline" size="sm">
-                    更换头像
-                  </Button>
-                  <p className="text-xs text-muted-foreground mt-2">
+                  <p className="text-xs text-muted-foreground">
                     支持 JPG、PNG 格式，最大 2MB
                   </p>
                 </div>
@@ -87,24 +127,43 @@ export default function SettingsPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label className="text-sm font-medium">姓名</label>
-                  <Input defaultValue="张实施顾问" />
+                  <Input
+                    value={profile.name}
+                    onChange={(e) => setProfile({ ...profile, name: e.target.value })}
+                  />
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-medium">邮箱</label>
-                  <Input defaultValue="zhang.consultant@company.com" />
+                  <Input
+                    value={profile.email}
+                    onChange={(e) => setProfile({ ...profile, email: e.target.value })}
+                  />
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-medium">手机</label>
-                  <Input defaultValue="138****8888" />
+                  <Input
+                    value={profile.phone}
+                    onChange={(e) => setProfile({ ...profile, phone: e.target.value })}
+                  />
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-medium">职位</label>
-                  <Input defaultValue="项目经理" />
+                  <Input
+                    value={profile.position}
+                    onChange={(e) => setProfile({ ...profile, position: e.target.value })}
+                  />
                 </div>
               </div>
 
-              <div className="flex justify-end">
-                <Button>
+              <div className="flex items-center justify-between">
+                {profileSaved && (
+                  <div className="flex items-center gap-2 text-[#10B981] text-sm">
+                    <CheckCircle2 className="h-4 w-4" />
+                    保存成功
+                  </div>
+                )}
+                <div className="flex-1" />
+                <Button onClick={handleSaveProfile}>
                   <Save className="mr-2 h-4 w-4" />
                   保存更改
                 </Button>
@@ -128,7 +187,12 @@ export default function SettingsPage() {
                     当有新任务分配给您时发送通知
                   </p>
                 </div>
-                <Switch defaultChecked />
+                <Switch
+                  checked={notifications.taskAssignment}
+                  onCheckedChange={(checked) =>
+                    setNotifications({ ...notifications, taskAssignment: checked })
+                  }
+                />
               </div>
 
               <Separator />
@@ -140,7 +204,12 @@ export default function SettingsPage() {
                     当有人回复您的评论时发送通知
                   </p>
                 </div>
-                <Switch defaultChecked />
+                <Switch
+                  checked={notifications.comments}
+                  onCheckedChange={(checked) =>
+                    setNotifications({ ...notifications, comments: checked })
+                  }
+                />
               </div>
 
               <Separator />
@@ -152,7 +221,12 @@ export default function SettingsPage() {
                     里程碑到期前发送提醒
                   </p>
                 </div>
-                <Switch defaultChecked />
+                <Switch
+                  checked={notifications.milestones}
+                  onCheckedChange={(checked) =>
+                    setNotifications({ ...notifications, milestones: checked })
+                  }
+                />
               </div>
 
               <Separator />
@@ -164,7 +238,28 @@ export default function SettingsPage() {
                     通过邮件接收重要通知
                   </p>
                 </div>
-                <Switch />
+                <Switch
+                  checked={notifications.email}
+                  onCheckedChange={(checked) =>
+                    setNotifications({ ...notifications, email: checked })
+                  }
+                />
+              </div>
+
+              <Separator />
+
+              <div className="flex items-center justify-between">
+                {notifSaved && (
+                  <div className="flex items-center gap-2 text-[#10B981] text-sm">
+                    <CheckCircle2 className="h-4 w-4" />
+                    保存成功
+                  </div>
+                )}
+                <div className="flex-1" />
+                <Button onClick={handleSaveNotifications}>
+                  <Save className="mr-2 h-4 w-4" />
+                  保存通知设置
+                </Button>
               </div>
             </CardContent>
           </Card>
@@ -180,39 +275,35 @@ export default function SettingsPage() {
             <CardContent className="space-y-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-medium">修改密码</p>
-                  <p className="text-sm text-muted-foreground">
-                    定期更换密码可以保护账户安全
-                  </p>
-                </div>
-                <Button variant="outline">
-                  <Key className="mr-2 h-4 w-4" />
-                  修改密码
-                </Button>
-              </div>
-
-              <Separator />
-
-              <div className="flex items-center justify-between">
-                <div>
                   <p className="font-medium">两步验证</p>
                   <p className="text-sm text-muted-foreground">
                     启用后登录需要输入手机验证码
                   </p>
                 </div>
-                <Switch />
+                <Switch
+                  checked={twoFactor}
+                  onCheckedChange={setTwoFactor}
+                />
               </div>
 
               <Separator />
 
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-medium">登录日志</p>
+                  <p className="font-medium">当前状态</p>
                   <p className="text-sm text-muted-foreground">
-                    查看最近的登录记录
+                    {twoFactor ? '两步验证已启用' : '两步验证未启用'}
                   </p>
                 </div>
-                <Button variant="outline">查看日志</Button>
+                <span
+                  className={`text-xs px-2 py-1 rounded ${
+                    twoFactor
+                      ? 'bg-[#10B981]/10 text-[#10B981]'
+                      : 'bg-muted text-muted-foreground'
+                  }`}
+                >
+                  {twoFactor ? '已启用' : '未启用'}
+                </span>
               </div>
             </CardContent>
           </Card>
@@ -228,7 +319,12 @@ export default function SettingsPage() {
             <CardContent className="space-y-6">
               <div className="space-y-2">
                 <label className="text-sm font-medium">语言</label>
-                <Select defaultValue="zh-CN">
+                <Select
+                  value={systemPrefs.language}
+                  onValueChange={(value) =>
+                    setSystemPrefs({ ...systemPrefs, language: value })
+                  }
+                >
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -243,7 +339,12 @@ export default function SettingsPage() {
 
               <div className="space-y-2">
                 <label className="text-sm font-medium">时区</label>
-                <Select defaultValue="Asia/Shanghai">
+                <Select
+                  value={systemPrefs.timezone}
+                  onValueChange={(value) =>
+                    setSystemPrefs({ ...systemPrefs, timezone: value })
+                  }
+                >
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -263,14 +364,24 @@ export default function SettingsPage() {
                     切换系统显示主题
                   </p>
                 </div>
-                <Switch />
+                <Switch
+                  checked={systemPrefs.darkMode}
+                  onCheckedChange={(checked) =>
+                    setSystemPrefs({ ...systemPrefs, darkMode: checked })
+                  }
+                />
               </div>
 
               <Separator />
 
               <div className="space-y-2">
                 <label className="text-sm font-medium">日期格式</label>
-                <Select defaultValue="YYYY-MM-DD">
+                <Select
+                  value={systemPrefs.dateFormat}
+                  onValueChange={(value) =>
+                    setSystemPrefs({ ...systemPrefs, dateFormat: value })
+                  }
+                >
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -280,6 +391,22 @@ export default function SettingsPage() {
                     <SelectItem value="MM/DD/YYYY">04/15/2024</SelectItem>
                   </SelectContent>
                 </Select>
+              </div>
+
+              <Separator />
+
+              <div className="flex items-center justify-between">
+                {systemSaved && (
+                  <div className="flex items-center gap-2 text-[#10B981] text-sm">
+                    <CheckCircle2 className="h-4 w-4" />
+                    保存成功
+                  </div>
+                )}
+                <div className="flex-1" />
+                <Button onClick={handleSaveSystem}>
+                  <Save className="mr-2 h-4 w-4" />
+                  保存系统设置
+                </Button>
               </div>
             </CardContent>
           </Card>

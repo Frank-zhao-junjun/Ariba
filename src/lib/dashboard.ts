@@ -27,7 +27,7 @@ export function refreshDashboardState(
 
 export function formatDashboardUpdateLabel(
   lastUpdatedAt: Date | null,
-  { locale = 'zh-CN', timeZone }: DashboardLabelOptions = {}
+  { locale = 'zh-CN', timeZone = 'Asia/Shanghai' }: DashboardLabelOptions = {}
 ): string {
   if (!lastUpdatedAt) {
     return `数据更新时间: ${DASHBOARD_TIME_PLACEHOLDER}`;
@@ -38,6 +38,6 @@ export function formatDashboardUpdateLabel(
     minute: '2-digit',
     second: '2-digit',
     hour12: false,
-    ...(timeZone ? { timeZone } : {}),
+    timeZone,
   })}`;
 }

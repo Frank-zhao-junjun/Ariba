@@ -41,10 +41,10 @@
   ],
   "baseline": {
     "install": "pass",
-    "lint": "fail",
+    "lint": "pass",
     "typecheck": "pass",
     "build": "pass",
-    "tests": "missing"
+    "tests": "pass"
   },
   "stories": [
     {
@@ -233,7 +233,7 @@
       "deployPlan": [
         "pnpm exec next start --port 5000"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "US-008",
@@ -257,7 +257,7 @@
       "deployPlan": [
         "pnpm exec next start --port 5000"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "US-009",
@@ -281,7 +281,7 @@
       "deployPlan": [
         "pnpm exec next start --port 5000"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "US-010",
@@ -310,7 +310,7 @@
         "pnpm exec next build",
         "pnpm exec next start --port 5000"
       ],
-      "passes": false
+      "passes": true
     }
   ]
 }

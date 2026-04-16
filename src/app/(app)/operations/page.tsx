@@ -1,21 +1,16 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import {
   Wrench,
   Activity,
   Server,
-  Database,
-  Cloud,
   AlertTriangle,
   CheckCircle2,
   Clock,
   RefreshCw,
-  Download,
   Search,
-  Filter,
   Bell,
-  Settings,
   HardDrive,
   Wifi,
   Cpu,
@@ -51,14 +46,14 @@ const statusConfig = {
   warning: { label: '警告', icon: AlertTriangle, color: 'text-[#F59E0B]', bgColor: 'bg-[#F59E0B]/10' },
   error: { label: '异常', icon: AlertTriangle, color: 'text-[#EF4444]', bgColor: 'bg-[#EF4444]/10' },
   offline: { label: '离线', icon: Server, color: 'text-muted-foreground', bgColor: 'bg-muted' },
-};
+} as const;
 
 const logLevelConfig = {
   info: { label: '信息', color: 'text-[#3B82F6]', bgColor: 'bg-[#3B82F6]/10' },
   warning: { label: '警告', color: 'text-[#F59E0B]', bgColor: 'bg-[#F59E0B]/10' },
   error: { label: '错误', color: 'text-[#EF4444]', bgColor: 'bg-[#EF4444]/10' },
   success: { label: '成功', color: 'text-[#10B981]', bgColor: 'bg-[#10B981]/10' },
-};
+} as const;
 
 // 模拟系统指标历史数据
 const metricsHistory = [
@@ -81,9 +76,52 @@ const alerts = [
 export default function OperationsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [logLevel, setLogLevel] = useState<string>('all');
+  const [serviceFilter, setServiceFilter] = useState<string>('all');
 
   const overallHealth = systemStatus.services.filter((s) => s.status === 'healthy').length;
   const totalServices = systemStatus.services.length;
+
+  const filteredServices = useMemo(() => {
+    return systemStatus.services.filter((service) => {
+      const matchesSearch =
+        searchQuery === '' ||
+        service.name.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesStatus = serviceFilter === 'all' || service.status === serviceFilter;
+      return matchesSearch && matchesStatus;
+    });
+  }, [searchQuery, serviceFilter]);
+
+  const filteredLogs = useMemo(() => {
+    return systemStatus.logs.filter((log) => {
+      const matchesLevel = logLevel === 'all' || log.level === logLevel;
+      const matchesSearch =
+        searchQuery === '' ||
+        log.message.toLowerCase().includes(searchQuery.toLowerCase());
+      return matchesLevel && matchesSearch;
+    });
+  }, [searchQuery, logLevel]);
+
+  const filteredAlerts = useMemo(() => {
+    return alerts.filter((alert) => {
+      const matchesSearch =
+        searchQuery === '' ||
+        alert.service.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        alert.message.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesLevel = logLevel === 'all' || alert.level === logLevel;
+      return matchesSearch && matchesLevel;
+    });
+  }, [searchQuery, logLevel]);
+
+  const activeFilterLabels: string[] = [];
+  if (searchQuery) activeFilterLabels.push(`搜索: ${searchQuery}`);
+  if (serviceFilter !== 'all') {
+    const cfg = statusConfig[serviceFilter as keyof typeof statusConfig];
+    if (cfg) activeFilterLabels.push(`状态: ${cfg.label}`);
+  }
+  if (logLevel !== 'all') {
+    const cfg = logLevelConfig[logLevel as keyof typeof logLevelConfig];
+    if (cfg) activeFilterLabels.push(`级别: ${cfg.label}`);
+  }
 
   return (
     <div className="space-y-6">
@@ -98,17 +136,73 @@ export default function OperationsPage() {
             <p className="text-sm text-muted-foreground">系统监控与运维管理</p>
           </div>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline">
-            <RefreshCw className="mr-2 h-4 w-4" />
-            刷新状态
-          </Button>
-          <Button variant="outline">
-            <Download className="mr-2 h-4 w-4" />
-            导出报告
-          </Button>
-        </div>
+        <Button variant="outline">
+          <RefreshCw className="mr-2 h-4 w-4" />
+          刷新状态
+        </Button>
       </div>
+
+      {/* 全局搜索与筛选 */}
+      <Card>
+        <CardContent className="p-4">
+          <div className="flex items-center gap-4">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="搜索服务、日志或告警..."
+                className="pl-10"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+            <Select value={serviceFilter} onValueChange={setServiceFilter}>
+              <SelectTrigger className="w-[140px]">
+                <SelectValue placeholder="服务状态" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">全部状态</SelectItem>
+                <SelectItem value="healthy">正常</SelectItem>
+                <SelectItem value="warning">警告</SelectItem>
+                <SelectItem value="error">异常</SelectItem>
+                <SelectItem value="offline">离线</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={logLevel} onValueChange={setLogLevel}>
+              <SelectTrigger className="w-[140px]">
+                <SelectValue placeholder="日志级别" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">全部级别</SelectItem>
+                <SelectItem value="info">信息</SelectItem>
+                <SelectItem value="warning">警告</SelectItem>
+                <SelectItem value="error">错误</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          {activeFilterLabels.length > 0 && (
+            <div className="flex items-center gap-2 mt-3 flex-wrap">
+              <span className="text-xs text-muted-foreground">当前筛选:</span>
+              {activeFilterLabels.map((label) => (
+                <Badge key={label} variant="secondary" className="text-xs">
+                  {label}
+                </Badge>
+              ))}
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-6 text-xs"
+                onClick={() => {
+                  setSearchQuery('');
+                  setServiceFilter('all');
+                  setLogLevel('all');
+                }}
+              >
+                清除
+              </Button>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {/* 系统健康概览 */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -180,7 +274,7 @@ export default function OperationsPage() {
         </Card>
       </div>
 
-      {/* 服务状态 */}
+      {/* 服务状态 + 日志 + 告警 */}
       <Tabs defaultValue="services" className="w-full">
         <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="services">
@@ -202,53 +296,59 @@ export default function OperationsPage() {
           <Card>
             <CardHeader>
               <CardTitle className="text-lg">服务健康检查</CardTitle>
-              <CardDescription>实时监控系统各组件状态</CardDescription>
+              <CardDescription>
+                实时监控系统各组件状态
+                {filteredServices.length !== systemStatus.services.length &&
+                  ` (显示 ${filteredServices.length} / ${systemStatus.services.length})`}
+              </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {systemStatus.services.map((service) => {
-                  const config = statusConfig[service.status as keyof typeof statusConfig];
-                  const Icon = config.icon;
+              {filteredServices.length === 0 ? (
+                <div className="p-8 text-center text-muted-foreground">
+                  没有找到匹配的服务
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {filteredServices.map((service) => {
+                    const config = statusConfig[service.status as keyof typeof statusConfig];
+                    if (!config) return null;
+                    const Icon = config.icon;
 
-                  return (
-                    <div
-                      key={service.name}
-                      className="p-4 rounded-lg border border-border hover:border-[#6366F1]/30 transition-colors"
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <div className={cn('h-10 w-10 rounded-lg flex items-center justify-center', config.bgColor)}>
-                            <Icon className={cn('h-5 w-5', config.color)} />
+                    return (
+                      <div
+                        key={service.name}
+                        className="p-4 rounded-lg border border-border hover:border-[#6366F1]/30 transition-colors"
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className={cn('h-10 w-10 rounded-lg flex items-center justify-center', config.bgColor)}>
+                              <Icon className={cn('h-5 w-5', config.color)} />
+                            </div>
+                            <div>
+                              <h4 className="font-medium text-sm">{service.name}</h4>
+                              <p className="text-xs text-muted-foreground">
+                                最后检查: {service.lastCheck}
+                              </p>
+                            </div>
                           </div>
-                          <div>
-                            <h4 className="font-medium text-sm">{service.name}</h4>
-                            <p className="text-xs text-muted-foreground">
-                              最后检查: {service.lastCheck}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2">
                           <Badge
                             variant="outline"
                             className={cn('text-xs', config.color, config.bgColor)}
                           >
                             {config.label}
                           </Badge>
-                          <Button variant="ghost" size="icon" className="h-8 w-8">
-                            <RefreshCw className="h-4 w-4" />
-                          </Button>
+                        </div>
+                        <div className="mt-4 pt-4 border-t border-border">
+                          <div className="flex items-center justify-between text-xs">
+                            <span className="text-muted-foreground">可用率</span>
+                            <span className="font-medium">{service.uptime}</span>
+                          </div>
                         </div>
                       </div>
-                      <div className="mt-4 pt-4 border-t border-border">
-                        <div className="flex items-center justify-between text-xs">
-                          <span className="text-muted-foreground">可用率</span>
-                          <span className="font-medium">{service.uptime}</span>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
+                    );
+                  })}
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
@@ -360,63 +460,50 @@ export default function OperationsPage() {
             <CardHeader className="flex flex-row items-center justify-between">
               <div>
                 <CardTitle className="text-lg">运维日志</CardTitle>
-                <CardDescription>系统运行日志和告警记录</CardDescription>
-              </div>
-              <div className="flex items-center gap-2">
-                <Select value={logLevel} onValueChange={setLogLevel}>
-                  <SelectTrigger className="w-[120px]">
-                    <SelectValue placeholder="日志级别" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">全部</SelectItem>
-                    <SelectItem value="info">信息</SelectItem>
-                    <SelectItem value="warning">警告</SelectItem>
-                    <SelectItem value="error">错误</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Button variant="outline">
-                  <Download className="mr-2 h-4 w-4" />
-                  导出
-                </Button>
+                <CardDescription>
+                  系统运行日志和告警记录
+                  {filteredLogs.length !== systemStatus.logs.length &&
+                    ` (显示 ${filteredLogs.length} / ${systemStatus.logs.length})`}
+                </CardDescription>
               </div>
             </CardHeader>
             <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-[100px]">级别</TableHead>
-                    <TableHead>时间</TableHead>
-                    <TableHead>消息</TableHead>
-                    <TableHead className="w-[100px]">操作</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {systemStatus.logs.map((log) => {
-                    const config = logLevelConfig[log.level as keyof typeof logLevelConfig];
-                    const Icon = config ? AlertTriangle : Clock;
+              {filteredLogs.length === 0 ? (
+                <div className="p-8 text-center text-muted-foreground">
+                  没有找到匹配的日志
+                </div>
+              ) : (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-[100px]">级别</TableHead>
+                      <TableHead>时间</TableHead>
+                      <TableHead>消息</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredLogs.map((log) => {
+                      const config = logLevelConfig[log.level as keyof typeof logLevelConfig];
+                      const Icon = config ? AlertTriangle : Clock;
 
-                    return (
-                      <TableRow key={log.id}>
-                        <TableCell>
-                          <Badge className={cn('text-xs', config?.color, config?.bgColor)}>
-                            <Icon className="h-3 w-3 mr-1" />
-                            {config?.label}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-sm text-muted-foreground">
-                          {log.timestamp}
-                        </TableCell>
-                        <TableCell className="text-sm">{log.message}</TableCell>
-                        <TableCell>
-                          <Button variant="ghost" size="sm" className="h-7 text-xs">
-                            详情
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
+                      return (
+                        <TableRow key={log.id}>
+                          <TableCell>
+                            <Badge className={cn('text-xs', config?.color, config?.bgColor)}>
+                              <Icon className="h-3 w-3 mr-1" />
+                              {config?.label}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-sm text-muted-foreground">
+                            {log.timestamp}
+                          </TableCell>
+                          <TableCell className="text-sm">{log.message}</TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              )}
             </CardContent>
           </Card>
 
@@ -426,40 +513,46 @@ export default function OperationsPage() {
               <CardTitle className="text-lg flex items-center gap-2">
                 <Bell className="h-5 w-5" />
                 告警记录
+                {filteredAlerts.length !== alerts.length &&
+                  ` (${filteredAlerts.length} / ${alerts.length})`}
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                {alerts.map((alert) => {
-                  const config = logLevelConfig[alert.level as keyof typeof logLevelConfig];
+              {filteredAlerts.length === 0 ? (
+                <div className="p-8 text-center text-muted-foreground">
+                  没有找到匹配的告警
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {filteredAlerts.map((alert) => {
+                    const config = logLevelConfig[alert.level as keyof typeof logLevelConfig];
+                    if (!config) return null;
 
-                  return (
-                    <div
-                      key={alert.id}
-                      className="flex items-center gap-4 p-4 rounded-lg border border-border hover:bg-muted/50 transition-colors"
-                    >
-                      <div className={cn('h-10 w-10 rounded-lg flex items-center justify-center', config.bgColor)}>
-                        <AlertTriangle className={cn('h-5 w-5', config.color)} />
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2">
-                          <h4 className="font-medium text-sm">{alert.service}</h4>
-                          <Badge className={cn('text-xs', config.color, config.bgColor)}>
-                            {config.label}
-                          </Badge>
+                    return (
+                      <div
+                        key={alert.id}
+                        className="flex items-center gap-4 p-4 rounded-lg border border-border hover:bg-muted/50 transition-colors"
+                      >
+                        <div className={cn('h-10 w-10 rounded-lg flex items-center justify-center', config.bgColor)}>
+                          <AlertTriangle className={cn('h-5 w-5', config.color)} />
                         </div>
-                        <p className="text-sm text-muted-foreground mt-0.5">
-                          {alert.message}
-                        </p>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <h4 className="font-medium text-sm">{alert.service}</h4>
+                            <Badge className={cn('text-xs', config.color, config.bgColor)}>
+                              {config.label}
+                            </Badge>
+                          </div>
+                          <p className="text-sm text-muted-foreground mt-0.5">
+                            {alert.message}
+                          </p>
+                        </div>
+                        <span className="text-xs text-muted-foreground">{alert.time}</span>
                       </div>
-                      <span className="text-xs text-muted-foreground">{alert.time}</span>
-                      <Button variant="outline" size="sm" className="h-8">
-                        处理
-                      </Button>
-                    </div>
-                  );
-                })}
-              </div>
+                    );
+                  })}
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
