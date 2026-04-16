@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import Link from 'next/link';
 import {
   BookOpen,
   Search,
@@ -9,7 +8,6 @@ import {
   Code,
   Lightbulb,
   HelpCircle,
-  Star,
   Clock,
   Eye,
   ChevronRight,
@@ -17,7 +15,6 @@ import {
   FolderOpen,
   Layers,
   Settings,
-  Users,
   Building2,
   Filter,
   SortAsc,
@@ -27,7 +24,6 @@ import {
   ExternalLink,
   RefreshCw,
   Tag,
-  Calendar,
   User,
   Download,
   Upload,
@@ -40,6 +36,13 @@ import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
 import { knowledgeArticles, documentTemplates } from '@/lib/data';
+import {
+  buildKnowledgeFilterFeedback,
+  filterKnowledgeArticles,
+  getKnowledgeSortLabel,
+  getKnowledgeVisibleTags,
+  type KnowledgeSortOption,
+} from '@/lib/knowledge';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -141,43 +144,73 @@ export default function KnowledgePage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
-  const [sortBy, setSortBy] = useState<'views' | 'date' | 'title'>('views');
+  const [sortBy, setSortBy] = useState<KnowledgeSortOption>('views');
   const [bookmarkedOnly, setBookmarkedOnly] = useState(false);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
 
-  // 过滤和排序文章
+  const visibleTags = useMemo(
+    () => getKnowledgeVisibleTags(knowledgeArticles),
+    []
+  );
+
   const filteredArticles = useMemo(() => {
-    let articles = knowledgeArticles;
-
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
-      articles = articles.filter(
-        (a) =>
-          a.title.toLowerCase().includes(query) ||
-          a.content.toLowerCase().includes(query) ||
-          a.tags.some((tag) => tag.toLowerCase().includes(query))
-      );
-    }
-
-    if (selectedCategory) {
-      articles = articles.filter(
-        (a) => a.category === selectedCategory || a.subcategory === selectedCategory
-      );
-    }
-
-    if (bookmarkedOnly) {
-      articles = articles.filter((a) => a.tags.includes('收藏'));
-    }
-
-    // 排序
-    articles = [...articles].sort((a, b) => {
-      if (sortBy === 'views') return b.views - a.views;
-      if (sortBy === 'date') return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
-      return a.title.localeCompare(b.title);
+    return filterKnowledgeArticles(knowledgeArticles, {
+      searchQuery,
+      selectedCategory,
+      selectedTags,
+      bookmarkedOnly,
+      sortBy,
     });
+  }, [searchQuery, selectedCategory, selectedTags, bookmarkedOnly, sortBy]);
 
-    return articles;
-  }, [searchQuery, selectedCategory, sortBy, bookmarkedOnly]);
+  const filteredStandardArticles = useMemo(
+    () => filteredArticles.filter((article) => article.category === 'standard'),
+    [filteredArticles]
+  );
+
+  const filteredProjectArticles = useMemo(
+    () => filteredArticles.filter((article) => article.category === 'project'),
+    [filteredArticles]
+  );
+
+  const activeFilterLabels = useMemo(
+    () =>
+      buildKnowledgeFilterFeedback({
+        searchQuery,
+        selectedCategory,
+        selectedTags,
+        bookmarkedOnly,
+        sortBy,
+      }),
+    [searchQuery, selectedCategory, selectedTags, bookmarkedOnly, sortBy]
+  );
+
+  const hasNonDefaultFilters =
+    searchQuery.trim().length > 0 ||
+    selectedCategory !== null ||
+    selectedTags.length > 0 ||
+    bookmarkedOnly ||
+    sortBy !== 'views';
+
+  const toggleSelectedTag = (tag: string) => {
+    setSelectedTags((current) =>
+      current.includes(tag)
+        ? current.filter((item) => item !== tag)
+        : [...current, tag]
+    );
+  };
+
+  const toggleSelectedCategory = (categoryId: string) => {
+    setSelectedCategory((current) => (current === categoryId ? null : categoryId));
+  };
+
+  const clearFilters = () => {
+    setSearchQuery('');
+    setSelectedCategory(null);
+    setSelectedTags([]);
+    setBookmarkedOnly(false);
+    setSortBy('views');
+  };
 
   return (
     <div className="space-y-6">
@@ -208,57 +241,88 @@ export default function KnowledgePage() {
       {/* 搜索和筛选栏 */}
       <Card>
         <CardContent className="p-4">
-          <div className="flex flex-wrap items-center gap-4">
-            {/* 搜索框 */}
-            <div className="relative flex-1 min-w-[300px]">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-              <Input
-                placeholder="搜索知识库..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-12 h-11"
-              />
-            </div>
+          <div className="space-y-4">
+            <div className="flex flex-wrap items-center gap-4">
+              {/* 搜索框 */}
+              <div className="relative flex-1 min-w-[300px]">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                <Input
+                  placeholder="搜索知识库..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-12 h-11"
+                />
+              </div>
 
-            {/* 排序 */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="gap-2">
-                  <SortAsc className="h-4 w-4" />
-                  {sortBy === 'views' ? '按热度' : sortBy === 'date' ? '按更新时间' : '按标题'}
+              {/* 排序 */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" className="gap-2">
+                    <SortAsc className="h-4 w-4" />
+                    {getKnowledgeSortLabel(sortBy)}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => setSortBy('views')}>按热度</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setSortBy('date')}>按更新时间</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setSortBy('title')}>按标题</DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              {/* 视图切换 */}
+              <div className="flex border rounded-lg overflow-hidden">
+                <Button
+                  variant={viewMode === 'grid' ? 'secondary' : 'ghost'}
+                  size="sm"
+                  onClick={() => setViewMode('grid')}
+                  className="rounded-none"
+                >
+                  <Grid3X3 className="h-4 w-4" />
                 </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => setSortBy('views')}>按热度</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setSortBy('date')}>按更新时间</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setSortBy('title')}>按标题</DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-
-            {/* 视图切换 */}
-            <div className="flex border rounded-lg overflow-hidden">
-              <Button
-                variant={viewMode === 'grid' ? 'secondary' : 'ghost'}
-                size="sm"
-                onClick={() => setViewMode('grid')}
-                className="rounded-none"
-              >
-                <Grid3X3 className="h-4 w-4" />
-              </Button>
-              <Button
-                variant={viewMode === 'list' ? 'secondary' : 'ghost'}
-                size="sm"
-                onClick={() => setViewMode('list')}
-                className="rounded-none"
-              >
-                <List className="h-4 w-4" />
-              </Button>
+                <Button
+                  variant={viewMode === 'list' ? 'secondary' : 'ghost'}
+                  size="sm"
+                  onClick={() => setViewMode('list')}
+                  className="rounded-none"
+                >
+                  <List className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
 
-            <Button variant="outline">
-              <Filter className="mr-2 h-4 w-4" />
-              筛选
-            </Button>
+            <div className="flex flex-wrap items-center gap-2 border-t border-border/60 pt-4">
+              <span className="inline-flex items-center text-sm text-muted-foreground">
+                <Tag className="mr-1 h-4 w-4" />
+                标签筛选
+              </span>
+              {visibleTags.map((tag) => (
+                <Button
+                  key={tag}
+                  variant={selectedTags.includes(tag) ? 'secondary' : 'outline'}
+                  size="sm"
+                  onClick={() => toggleSelectedTag(tag)}
+                >
+                  {tag}
+                </Button>
+              ))}
+              {hasNonDefaultFilters && (
+                <Button variant="ghost" size="sm" onClick={clearFilters} className="ml-auto">
+                  清空筛选
+                </Button>
+              )}
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2 border-t border-border/60 pt-4">
+              <span className="inline-flex items-center text-sm text-muted-foreground">
+                <Filter className="mr-1 h-4 w-4" />
+                当前筛选
+              </span>
+              {activeFilterLabels.map((label) => (
+                <Badge key={label} variant="secondary">
+                  {label}
+                </Badge>
+              ))}
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -293,7 +357,7 @@ export default function KnowledgePage() {
                     'cursor-pointer hover:border-[#6366F1]/50 hover:shadow-lg transition-all group overflow-hidden',
                     selectedCategory === category.id && 'border-[#6366F1] ring-1 ring-[#6366F1]'
                   )}
-                  onClick={() => setSelectedCategory(selectedCategory === category.id ? null : category.id)}
+                  onClick={() => toggleSelectedCategory(category.id)}
                 >
                   <CardContent className="p-5">
                     <div className="flex items-start gap-4">
@@ -345,7 +409,7 @@ export default function KnowledgePage() {
               <CardTitle className="text-lg flex items-center gap-2">
                 <FolderOpen className="h-5 w-5" />
                 知识文章
-                <Badge variant="secondary">{filteredArticles.length}</Badge>
+                <Badge variant="secondary">{filteredStandardArticles.length}</Badge>
               </CardTitle>
               <div className="flex items-center gap-2">
                 <Button variant="outline" size="sm">
@@ -360,104 +424,116 @@ export default function KnowledgePage() {
             </CardHeader>
             <CardContent>
               {viewMode === 'grid' ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {filteredArticles.map((article) => (
-                    <div
-                      key={article.id}
-                      className="p-4 rounded-lg border border-border hover:border-[#6366F1]/30 hover:bg-muted/50 transition-all cursor-pointer group"
-                    >
-                      <div className="flex items-start justify-between">
+                filteredStandardArticles.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {filteredStandardArticles.map((article) => (
+                      <div
+                        key={article.id}
+                        className="p-4 rounded-lg border border-border hover:border-[#6366F1]/30 hover:bg-muted/50 transition-all cursor-pointer group"
+                      >
+                        <div className="flex items-start justify-between">
+                          <div className="h-10 w-10 rounded-lg bg-[#6366F1]/10 flex items-center justify-center shrink-0">
+                            <FileText className="h-5 w-5 text-[#6366F1]" />
+                          </div>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100">
+                                <MoreHorizontal className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem>
+                                <Bookmark className="h-4 w-4 mr-2" />
+                                收藏
+                              </DropdownMenuItem>
+                              <DropdownMenuItem>
+                                <ExternalLink className="h-4 w-4 mr-2" />
+                                新窗口打开
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem>
+                                <Download className="h-4 w-4 mr-2" />
+                                下载
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
+                        <h4 className="font-medium text-sm mt-3 group-hover:text-[#6366F1] transition-colors">
+                          {article.title}
+                        </h4>
+                        <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
+                          {article.content}
+                        </p>
+                        <div className="flex flex-wrap gap-2 mt-3">
+                          <Badge variant="outline" className="text-xs">
+                            {article.subcategory}
+                          </Badge>
+                          {article.tags.slice(0, 3).map((tag) => (
+                            <Badge key={tag} variant="secondary" className="text-xs">
+                              <Tag className="h-3 w-3 mr-1" />
+                              {tag}
+                            </Badge>
+                          ))}
+                        </div>
+                        <div className="flex items-center gap-4 mt-3 pt-3 border-t border-border text-xs text-muted-foreground">
+                          <span className="flex items-center gap-1">
+                            <Eye className="h-3 w-3" />
+                            {article.views}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <User className="h-3 w-3" />
+                            {article.author}
+                          </span>
+                          <span className="flex items-center gap-1 ml-auto">
+                            <Clock className="h-3 w-3" />
+                            {article.updatedAt}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="rounded-lg border border-dashed border-border px-6 py-10 text-center text-sm text-muted-foreground">
+                    当前筛选下暂无标准知识文章。
+                  </div>
+                )
+              ) : (
+                filteredStandardArticles.length > 0 ? (
+                  <div className="divide-y divide-border">
+                    {filteredStandardArticles.map((article) => (
+                      <div
+                        key={article.id}
+                        className="flex items-center gap-4 p-4 hover:bg-muted/50 transition-colors cursor-pointer group"
+                      >
                         <div className="h-10 w-10 rounded-lg bg-[#6366F1]/10 flex items-center justify-center shrink-0">
                           <FileText className="h-5 w-5 text-[#6366F1]" />
                         </div>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100">
-                              <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem>
-                              <Bookmark className="h-4 w-4 mr-2" />
-                              收藏
-                            </DropdownMenuItem>
-                            <DropdownMenuItem>
-                              <ExternalLink className="h-4 w-4 mr-2" />
-                              新窗口打开
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem>
-                              <Download className="h-4 w-4 mr-2" />
-                              下载
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </div>
-                      <h4 className="font-medium text-sm mt-3 group-hover:text-[#6366F1] transition-colors">
-                        {article.title}
-                      </h4>
-                      <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
-                        {article.content}
-                      </p>
-                      <div className="flex flex-wrap gap-2 mt-3">
-                        <Badge variant="outline" className="text-xs">
-                          {article.subcategory}
-                        </Badge>
-                        {article.tags.slice(0, 2).map((tag) => (
-                          <Badge key={tag} variant="secondary" className="text-xs">
-                            <Tag className="h-3 w-3 mr-1" />
-                            {tag}
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-medium text-sm group-hover:text-[#6366F1] transition-colors">
+                            {article.title}
+                          </h4>
+                          <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">
+                            {article.content}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-4 shrink-0">
+                          <Badge variant="outline" className="text-xs">
+                            {article.subcategory}
                           </Badge>
-                        ))}
+                          <span className="text-xs text-muted-foreground flex items-center gap-1">
+                            <Eye className="h-3 w-3" />
+                            {article.views}
+                          </span>
+                        </div>
+                        <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
                       </div>
-                      <div className="flex items-center gap-4 mt-3 pt-3 border-t border-border text-xs text-muted-foreground">
-                        <span className="flex items-center gap-1">
-                          <Eye className="h-3 w-3" />
-                          {article.views}
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <User className="h-3 w-3" />
-                          {article.author}
-                        </span>
-                        <span className="flex items-center gap-1 ml-auto">
-                          <Clock className="h-3 w-3" />
-                          {article.updatedAt}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="divide-y divide-border">
-                  {filteredArticles.map((article) => (
-                    <div
-                      key={article.id}
-                      className="flex items-center gap-4 p-4 hover:bg-muted/50 transition-colors cursor-pointer group"
-                    >
-                      <div className="h-10 w-10 rounded-lg bg-[#6366F1]/10 flex items-center justify-center shrink-0">
-                        <FileText className="h-5 w-5 text-[#6366F1]" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h4 className="font-medium text-sm group-hover:text-[#6366F1] transition-colors">
-                          {article.title}
-                        </h4>
-                        <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">
-                          {article.content}
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-4 shrink-0">
-                        <Badge variant="outline" className="text-xs">
-                          {article.subcategory}
-                        </Badge>
-                        <span className="text-xs text-muted-foreground flex items-center gap-1">
-                          <Eye className="h-3 w-3" />
-                          {article.views}
-                        </span>
-                      </div>
-                      <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="rounded-lg border border-dashed border-border px-6 py-10 text-center text-sm text-muted-foreground">
+                    当前筛选下暂无标准知识文章。
+                  </div>
+                )
               )}
             </CardContent>
           </Card>
@@ -471,7 +547,11 @@ export default function KnowledgePage() {
               return (
                 <Card
                   key={category.id}
-                  className="cursor-pointer hover:border-[#6366F1]/50 hover:shadow-lg transition-all group"
+                  className={cn(
+                    'cursor-pointer hover:border-[#6366F1]/50 hover:shadow-lg transition-all group',
+                    selectedCategory === category.id && 'border-[#6366F1] ring-1 ring-[#6366F1]'
+                  )}
+                  onClick={() => toggleSelectedCategory(category.id)}
                 >
                   <CardContent className="p-5">
                     <div className="flex items-start gap-4">
@@ -508,6 +588,7 @@ export default function KnowledgePage() {
               <CardTitle className="text-lg flex items-center gap-2">
                 <BookOpen className="h-5 w-5" />
                 项目知识
+                <Badge variant="secondary">{filteredProjectArticles.length}</Badge>
               </CardTitle>
               <Button variant="outline" size="sm">
                 <Upload className="h-4 w-4 mr-1" />
@@ -515,9 +596,8 @@ export default function KnowledgePage() {
               </Button>
             </CardHeader>
             <CardContent className="space-y-4">
-              {knowledgeArticles
-                .filter((a) => a.category === 'project')
-                .map((article) => (
+              {filteredProjectArticles.length > 0 ? (
+                filteredProjectArticles.map((article) => (
                   <div
                     key={article.id}
                     className="flex items-start gap-4 p-4 rounded-lg border border-border hover:border-[#6366F1]/30 hover:bg-muted/50 transition-all cursor-pointer group"
@@ -545,7 +625,12 @@ export default function KnowledgePage() {
                     </div>
                     <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-[#6366F1] transition-colors shrink-0" />
                   </div>
-                ))}
+                ))
+              ) : (
+                <div className="rounded-lg border border-dashed border-border px-6 py-10 text-center text-sm text-muted-foreground">
+                  当前筛选下暂无项目知识文章。
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>

@@ -2,21 +2,18 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import {
   Target,
   CheckSquare,
   Clock,
   TrendingUp,
-  Users,
   Calendar,
   ArrowRight,
   Plus,
   Activity,
   ChevronRight,
   RefreshCw,
-  Bell,
-  Settings,
-  ExternalLink,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -42,6 +39,11 @@ import {
   dashboardStats,
   allTasks,
 } from '@/lib/data';
+import {
+  createInitialDashboardRefreshState,
+  formatDashboardUpdateLabel,
+  refreshDashboardState,
+} from '@/lib/dashboard';
 import {
   Tooltip as TooltipUI,
   TooltipContent,
@@ -75,14 +77,6 @@ const phaseColors = {
   development: 'bg-[#06B6D4]',
   testing: 'bg-[#F59E0B]',
   deployment: 'bg-[#10B981]',
-};
-
-const phaseLabels = {
-  preparation: '准备阶段',
-  blueprint: '蓝图设计',
-  development: '开发配置',
-  testing: '测试验证',
-  deployment: '上线部署',
 };
 
 function AnimatedNumber({ value, suffix = '' }: { value: number; suffix?: string }) {
@@ -176,12 +170,18 @@ function StatCard({
 }
 
 export default function DashboardPage() {
-  const [mounted, setMounted] = useState(false);
-  const [lastUpdate, setLastUpdate] = useState(new Date());
+  const router = useRouter();
+  const [refreshState, setRefreshState] = useState(createInitialDashboardRefreshState);
 
   useEffect(() => {
-    setMounted(true);
+    setRefreshState((current) => refreshDashboardState(current, new Date()));
   }, []);
+
+  const handleRefresh = () => {
+    setRefreshState((current) => refreshDashboardState(current, new Date()));
+  };
+
+  const updateLabel = formatDashboardUpdateLabel(refreshState.lastUpdatedAt);
 
   const recentTasks = allTasks
     .filter((t) => t.status !== 'completed')
@@ -201,7 +201,7 @@ export default function DashboardPage() {
             以下是您项目的实时状态概览
             <span className="ml-2 inline-flex items-center text-xs">
               <span className="h-2 w-2 rounded-full bg-[#10B981] mr-1 animate-pulse"></span>
-              数据更新时间: {lastUpdate.toLocaleTimeString()}
+              {updateLabel}
             </span>
           </p>
         </div>
@@ -209,7 +209,7 @@ export default function DashboardPage() {
           <TooltipProvider>
             <TooltipUI>
               <TooltipTrigger asChild>
-                <Button variant="outline" onClick={() => setLastUpdate(new Date())}>
+                <Button variant="outline" onClick={handleRefresh}>
                   <RefreshCw className="h-4 w-4" />
                 </Button>
               </TooltipTrigger>
@@ -244,7 +244,7 @@ export default function DashboardPage() {
           description={`${dashboardStats.inProgressProjects} 个进行中`}
           trend="+2 本月"
           trendUp={true}
-          onClick={() => window.location.href = '/projects'}
+          onClick={() => router.push('/projects')}
         />
 
         <StatCard
@@ -254,7 +254,7 @@ export default function DashboardPage() {
           icon={CheckSquare}
           iconBg="bg-[#10B981]/10"
           iconColor="text-[#10B981]"
-          onClick={() => window.location.href = '/tasks'}
+          onClick={() => router.push('/tasks')}
         />
 
         <StatCard
@@ -264,7 +264,7 @@ export default function DashboardPage() {
           iconBg="bg-[#F59E0B]/10"
           iconColor="text-[#F59E0B]"
           description={`${dashboardStats.blockedTasks} 个被阻塞`}
-          onClick={() => window.location.href = '/tasks'}
+          onClick={() => router.push('/tasks')}
         />
 
         <StatCard
@@ -275,7 +275,7 @@ export default function DashboardPage() {
           iconBg="bg-[#06B6D4]/10"
           iconColor="text-[#06B6D4]"
           description={`${dashboardStats.upcomingMilestones} 个即将到期`}
-          onClick={() => window.location.href = '/milestones'}
+          onClick={() => router.push('/milestones')}
         />
       </div>
 

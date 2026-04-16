@@ -1,12 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import {
   CheckSquare,
   Clock,
   ChevronRight,
   Calendar,
-  Users,
   FileText,
   CheckCircle2,
   Circle,
@@ -18,9 +17,23 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
-import { milestones, teamMembers } from '@/lib/data';
+import { milestones } from '@/lib/data';
+import {
+  filterMilestonesByPhase,
+  getMilestoneOverallProgress,
+  getMilestoneTaskSummary,
+  getSelectedMilestone,
+  type MilestonePhaseFilter,
+} from '@/lib/milestones';
 
 const phaseConfig = {
+  all: {
+    label: '全部阶段',
+    color: '#6366F1',
+    bgColor: 'bg-[#6366F1]',
+    borderColor: 'border-[#6366F1]/30',
+    textColor: 'text-[#6366F1]',
+  },
   preparation: {
     label: '准备阶段',
     color: '#6366F1',
@@ -80,7 +93,30 @@ const taskStatusConfig = {
 };
 
 export default function MilestonesPage() {
-  const [selectedMilestone, setSelectedMilestone] = useState(milestones[0]);
+  const [selectedPhase, setSelectedPhase] = useState<MilestonePhaseFilter>('all');
+  const [selectedMilestoneId, setSelectedMilestoneId] = useState(milestones[0]?.id ?? '');
+
+  const filteredMilestones = useMemo(
+    () => filterMilestonesByPhase(milestones, selectedPhase),
+    [selectedPhase]
+  );
+
+  const selectedMilestone = useMemo(
+    () => getSelectedMilestone(filteredMilestones, selectedMilestoneId),
+    [filteredMilestones, selectedMilestoneId]
+  );
+
+  const selectedMilestoneTaskSummary = useMemo(
+    () => (selectedMilestone ? getMilestoneTaskSummary(selectedMilestone) : null),
+    [selectedMilestone]
+  );
+
+  const overallProgress = useMemo(
+    () => getMilestoneOverallProgress(filteredMilestones),
+    [filteredMilestones]
+  );
+
+  const phaseFilters = (Object.keys(phaseConfig) as Array<keyof typeof phaseConfig>);
 
   return (
     <div className="space-y-6">
@@ -104,6 +140,24 @@ export default function MilestonesPage() {
         </div>
       </div>
 
+      <div className="flex flex-wrap gap-2">
+        {phaseFilters.map((phase) => {
+          const isActive = selectedPhase === phase;
+          const phaseInfo = phaseConfig[phase];
+
+          return (
+            <Button
+              key={phase}
+              variant={isActive ? 'secondary' : 'outline'}
+              onClick={() => setSelectedPhase(phase as MilestonePhaseFilter)}
+              className={cn(isActive && phaseInfo.textColor)}
+            >
+              {phaseInfo.label}
+            </Button>
+          );
+        })}
+      </div>
+
       {/* 横向时间线 */}
       <Card>
         <CardContent className="p-6">
@@ -113,24 +167,25 @@ export default function MilestonesPage() {
 
             {/* 阶段节点 */}
             <div className="relative flex justify-between">
-              {milestones.map((milestone, index) => {
+              {filteredMilestones.map((milestone, index) => {
                 const config = phaseConfig[milestone.phase];
                 const isActive = milestone.status === 'in_progress';
                 const isCompleted = milestone.status === 'completed';
-                const isLast = index === milestones.length - 1;
+                const isSelected = selectedMilestone?.id === milestone.id;
 
                 return (
                   <div
                     key={milestone.id}
-                    className={cn('flex flex-col items-center relative z-10', isLast && 'invisible')}
+                    className="flex flex-col items-center relative z-10"
                   >
                     <button
-                      onClick={() => setSelectedMilestone(milestone)}
+                      onClick={() => setSelectedMilestoneId(milestone.id)}
                       className={cn(
                         'h-12 w-12 rounded-full flex items-center justify-center transition-all',
                         isCompleted && 'bg-[#10B981] text-white',
-                        isActive && `${config.bgColor} text-white shadow-lg shadow-${config.color}/20`,
-                        !isCompleted && !isActive && 'bg-muted text-muted-foreground'
+                        isActive && `${config.bgColor} text-white shadow-lg`,
+                        !isCompleted && !isActive && 'bg-muted text-muted-foreground',
+                        isSelected && 'ring-2 ring-offset-2 ring-[#6366F1]/40'
                       )}
                     >
                       {isCompleted ? (
@@ -157,12 +212,12 @@ export default function MilestonesPage() {
           <div className="mt-8 h-2 bg-muted rounded-full overflow-hidden">
             <div
               className="h-full bg-gradient-to-r from-[#6366F1] via-[#06B6D4] to-[#10B981] transition-all duration-500"
-              style={{ width: '45%' }}
+              style={{ width: `${overallProgress}%` }}
             />
           </div>
           <div className="flex justify-between mt-2 text-xs text-muted-foreground">
             <span>项目开始</span>
-            <span>整体进度 45%</span>
+            <span>整体进度 {overallProgress}%</span>
             <span>项目结束</span>
           </div>
         </CardContent>
@@ -176,19 +231,19 @@ export default function MilestonesPage() {
             <CardTitle className="text-lg">阶段详情</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            {milestones.map((milestone) => {
+            {filteredMilestones.map((milestone) => {
               const config = phaseConfig[milestone.phase];
-              const isSelected = selectedMilestone.id === milestone.id;
+              const isSelected = selectedMilestone?.id === milestone.id;
               const statusInfo = statusConfig[milestone.status];
 
               return (
                 <button
                   key={milestone.id}
-                  onClick={() => setSelectedMilestone(milestone)}
+                  onClick={() => setSelectedMilestoneId(milestone.id)}
                   className={cn(
                     'w-full p-4 rounded-lg border text-left transition-all',
                     isSelected
-                      ? `border-${milestone.phase === 'preparation' ? '[#6366F1]' : milestone.phase === 'blueprint' ? '[#8B5CF6]' : milestone.phase === 'development' ? '[#06B6D4]' : milestone.phase === 'testing' ? '[#F59E0B]' : '[#10B981]'}/50 bg-muted/50 shadow-sm`
+                      ? cn(config.borderColor, 'bg-muted/50 shadow-sm')
                       : 'border-border hover:border-muted-foreground/30'
                   )}
                 >
@@ -229,6 +284,11 @@ export default function MilestonesPage() {
                 </button>
               );
             })}
+            {filteredMilestones.length === 0 && (
+              <div className="rounded-lg border border-dashed border-border px-4 py-8 text-center text-sm text-muted-foreground">
+                当前阶段筛选下暂无里程碑。
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -236,28 +296,55 @@ export default function MilestonesPage() {
         <Card className="lg:col-span-2">
           <CardHeader className="flex flex-row items-center justify-between">
             <div>
-              <CardTitle className="text-lg">{selectedMilestone.name}</CardTitle>
+              <CardTitle className="text-lg">{selectedMilestone?.name ?? '暂无里程碑'}</CardTitle>
               <p className="text-sm text-muted-foreground mt-1">
-                {selectedMilestone.description}
+                {selectedMilestone?.description ?? '当前筛选下暂无阶段详情。'}
               </p>
             </div>
-            <Badge
-              variant="outline"
-              className={cn(
-                'text-sm',
-                phaseConfig[selectedMilestone.phase].textColor,
-                phaseConfig[selectedMilestone.phase].borderColor
-              )}
-            >
-              {phaseConfig[selectedMilestone.phase].label}
-            </Badge>
+            {selectedMilestone && (
+              <Badge
+                variant="outline"
+                className={cn(
+                  'text-sm',
+                  phaseConfig[selectedMilestone.phase].textColor,
+                  phaseConfig[selectedMilestone.phase].borderColor
+                )}
+              >
+                {phaseConfig[selectedMilestone.phase].label}
+              </Badge>
+            )}
           </CardHeader>
           <CardContent>
-            <Tabs defaultValue="tasks" className="w-full">
+            {selectedMilestone && selectedMilestoneTaskSummary ? (
+              <>
+                <div className="grid grid-cols-2 xl:grid-cols-5 gap-3 mb-4">
+                  <div className="rounded-lg bg-muted/50 p-4">
+                    <p className="text-xs text-muted-foreground">任务总数</p>
+                    <p className="text-lg font-semibold mt-1">{selectedMilestoneTaskSummary.total}</p>
+                  </div>
+                  <div className="rounded-lg bg-muted/50 p-4">
+                    <p className="text-xs text-muted-foreground">已完成</p>
+                    <p className="text-lg font-semibold mt-1">{selectedMilestoneTaskSummary.completed}</p>
+                  </div>
+                  <div className="rounded-lg bg-muted/50 p-4">
+                    <p className="text-xs text-muted-foreground">进行中</p>
+                    <p className="text-lg font-semibold mt-1">{selectedMilestoneTaskSummary.inProgress}</p>
+                  </div>
+                  <div className="rounded-lg bg-muted/50 p-4">
+                    <p className="text-xs text-muted-foreground">待处理</p>
+                    <p className="text-lg font-semibold mt-1">{selectedMilestoneTaskSummary.pending}</p>
+                  </div>
+                  <div className="rounded-lg bg-muted/50 p-4">
+                    <p className="text-xs text-muted-foreground">完成率</p>
+                    <p className="text-lg font-semibold mt-1">{selectedMilestoneTaskSummary.completionRate}%</p>
+                  </div>
+                </div>
+
+                <Tabs defaultValue="tasks" className="w-full">
               <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="tasks">
                   <CheckSquare className="h-4 w-4 mr-2" />
-                  任务列表 ({selectedMilestone.tasks.length})
+                  任务列表 ({selectedMilestoneTaskSummary.total})
                 </TabsTrigger>
                 <TabsTrigger value="details">
                   <FileText className="h-4 w-4 mr-2" />
@@ -337,13 +424,11 @@ export default function MilestonesPage() {
                   </div>
                   <div className="p-4 rounded-lg bg-muted/50">
                     <p className="text-xs text-muted-foreground">任务总数</p>
-                    <p className="text-sm font-medium mt-1">{selectedMilestone.tasks.length} 个</p>
+                    <p className="text-sm font-medium mt-1">{selectedMilestoneTaskSummary.total} 个</p>
                   </div>
                   <div className="p-4 rounded-lg bg-muted/50">
                     <p className="text-xs text-muted-foreground">已完成</p>
-                    <p className="text-sm font-medium mt-1">
-                      {selectedMilestone.tasks.filter((t) => t.status === 'completed').length} 个
-                    </p>
+                    <p className="text-sm font-medium mt-1">{selectedMilestoneTaskSummary.completed} 个</p>
                   </div>
                 </div>
 
@@ -355,6 +440,12 @@ export default function MilestonesPage() {
                 </div>
               </TabsContent>
             </Tabs>
+              </>
+            ) : (
+              <div className="rounded-lg border border-dashed border-border px-4 py-10 text-center text-sm text-muted-foreground">
+                当前筛选下暂无阶段详情。
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>

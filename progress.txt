@@ -1,0 +1,148 @@
+[2026-04-16] Ralph 初始化
+- 仓库来源: https://github.com/Frank-zhao-junjun/Ariba.git
+- 需求来源: AGENTS.md, README.md, SPEC.md, src/lib/data.ts
+- 当前页面覆盖: /, /projects, /milestones, /tasks, /knowledge, /assistant, /operations, /team, /settings
+- 当前质量基线:
+  - pnpm install --frozen-lockfile -> PASS
+  - pnpm lint . -> FAIL
+    - src/app/(app)/assistant/page.tsx: Date.now 在组件内消息创建逻辑中触发 react-hooks/purity
+    - 多页面存在 unused-vars warnings，先不跨故事处理
+  - pnpm ts-check -> PASS
+  - pnpm exec next build -> PASS
+  - 自动化测试文件 -> 缺失
+- 当前最高优先级故事: US-001 AI 助手消息发送稳定化
+- 选择理由: 它既是核心用户路径，也是当前 lint gate 的唯一 error 来源，适合作为 Ralph 第一轮并顺带建立最小测试基线。
+
+[2026-04-16] US-001 完成
+- Red:
+  - pnpm exec tsx --test src/lib/assistant.test.ts -> FAIL
+  - 失败原因: Cannot find module './assistant'
+- Green:
+  - 新增 src/lib/assistant.ts，封装 createAssistantMessage
+  - assistant 页面改为通过 helper 创建消息，移除组件内 Date.now 消息 ID 生成
+  - 新增 src/lib/assistant.test.ts，使用 node:test + tsx 建立最小测试基线
+- Verify:
+  - pnpm exec tsx --test src/lib/assistant.test.ts -> PASS (2 tests)
+  - pnpm lint . -> PASS with 55 warnings, 0 errors
+  - pnpm ts-check -> PASS
+  - pnpm exec next build -> PASS
+  - pnpm exec next start --port 5000 -> Ready
+  - Invoke-WebRequest http://127.0.0.1:5000/assistant -> StatusCode=200, content contains '实施助手'
+- Lessons:
+  - React purity lint 的稳定解法是把不纯 ID 生成移到模块级 helper，并在测试中注入 idGenerator。
+  - 这份仓库当前没有测试框架，tsx + node:test 是成本最低的 Ralph 单故事 TDD 起点。
+- Next story candidate:
+  - US-002 首页仪表板刷新与时间状态稳定化
+
+[2026-04-16] US-002 完成
+- Red:
+  - pnpm exec tsx --test src/lib/dashboard.test.ts -> FAIL
+  - 失败原因: Cannot find module './dashboard'
+- Green:
+  - 新增 src/lib/dashboard.ts，封装首页刷新状态初始化、更新时间格式化与刷新更新逻辑
+  - 首页改为先渲染稳定占位 `数据更新时间: --:--:--`，挂载后再注入当前时间
+  - 刷新按钮仅更新 refreshState.lastUpdatedAt，统计卡片导航改为 router.push
+  - 新增 src/lib/dashboard.test.ts，锁定首页时间状态的初始占位与刷新行为
+- Verify:
+  - pnpm exec tsx --test src/lib/dashboard.test.ts -> PASS (4 tests)
+  - pnpm lint . -> PASS with 49 warnings, 0 errors
+  - pnpm ts-check -> PASS
+  - pnpm exec next build -> PASS
+  - pnpm exec next start --port 5000 -> Ready
+  - Invoke-WebRequest http://127.0.0.1:5000/ -> StatusCode=200, content contains '查看项目', content contains '数据更新时间: --:--:--'
+- Lessons:
+  - 首页这类 client page 的时间展示不能在初始 render 直接 new Date()，先占位再在 effect 注入可以避免 hydration 漂移。
+  - 如果只需要更新时间，状态应只保存 lastUpdatedAt，不要引入未使用的 mounted 标记或额外刷新状态。
+- Next story candidate:
+  - US-003 知识库搜索筛选闭环
+
+[2026-04-16] US-003 完成
+- Red:
+  - pnpm exec tsx --test src/lib/knowledge.test.ts -> FAIL
+  - 失败原因: Cannot find module './knowledge'
+- Green:
+  - 新增 src/lib/knowledge.ts，统一封装知识文章分类映射、组合筛选、标签聚合和可见筛选反馈
+  - 修正常见分类卡片 id 与文章 subcategory 不一致导致的筛选失效问题
+  - 为知识库 mock 数据补上 `收藏` 标签，使收藏筛选在演示环境中可验证
+  - 知识库页面接入标签筛选、筛选反馈、清空筛选和项目知识列表联动过滤，并移除未接线状态
+  - 新增 src/lib/knowledge.test.ts，锁定分类映射、组合筛选和反馈标签行为
+- Verify:
+  - pnpm exec tsx --test src/lib/knowledge.test.ts -> PASS (3 tests)
+  - pnpm lint . -> PASS with 43 warnings, 0 errors
+  - pnpm ts-check -> PASS
+  - pnpm exec next build -> PASS
+  - pnpm exec next start --port 5000 -> Ready
+  - Invoke-WebRequest http://127.0.0.1:5000/knowledge -> StatusCode=200, content contains '当前筛选', '排序: 按热度', '知识文章'
+- Lessons:
+  - 页面筛选状态如果跨多个数据区块复用，应先抽成 helper，再让标准知识和项目知识共用同一套过滤结果，避免一半页面接线一半失效。
+  - demo 数据需要覆盖收藏这类交互路径，否则 UI 虽然接线了，但无法在 smoke 中证明行为闭环。
+- Next story candidate:
+  - US-004 项目列表到详情的导航闭环
+
+[2026-04-16] US-004 完成
+- Red:
+  - pnpm exec tsx --test src/lib/projects.test.ts -> FAIL
+  - 失败原因: Cannot find module './projects'
+- Green:
+  - 新增 src/lib/projects.ts，统一封装项目详情地址、项目查询、状态文案和静态参数生成
+  - 项目列表卡片改为真实 Link 跳转详情页，消除“查看详情”仅为视觉提示的问题
+  - 新增 src/app/(app)/projects/[id]/page.tsx，补齐项目详情页并为非法 id 返回 notFound
+  - 新增 src/lib/projects.test.ts，锁定详情地址生成和项目查询行为
+- Verify:
+  - pnpm exec tsx --test src/lib/projects.test.ts -> PASS (3 tests)
+  - pnpm lint . -> PASS with 40 warnings, 0 errors
+  - pnpm ts-check -> PASS
+  - pnpm exec next build -> PASS
+  - pnpm exec next start --port 5000 -> Ready
+  - Invoke-WebRequest http://127.0.0.1:5000/projects/proj-001 -> DetailStatus=200, content contains '华润集团 Ariba 项目', '张实施顾问'
+  - Invoke-WebRequest http://127.0.0.1:5000/projects/proj-999 -> MissingStatus=404
+- Lessons:
+  - 列表页和详情页共享状态文案与路由 helper，可以避免“列表能点、详情字段不一致”这类双处漂移。
+  - 对动态详情页补 generateStaticParams 后，构建输出会明确列出预渲染路径，适合作为 Ralph 的可验证证据。
+- Next story candidate:
+  - US-005 里程碑阶段筛选与任务透视
+
+[2026-04-16] US-005 完成
+- Red:
+  - pnpm exec tsx --test src/lib/milestones.test.ts -> FAIL
+  - 失败原因: Cannot find module './milestones'
+- Green:
+  - 新增 src/lib/milestones.ts，统一封装阶段筛选、当前里程碑选择、任务汇总和整体进度计算
+  - 里程碑页新增阶段筛选按钮，并让时间线、阶段列表和右侧详情联动同一套过滤结果
+  - 修正最后阶段节点被隐藏的问题，并为阶段任务增加摘要透视卡片
+  - 新增 src/lib/milestones.test.ts，锁定阶段筛选、当前选择回退和任务汇总行为
+- Verify:
+  - pnpm exec tsx --test src/lib/milestones.test.ts -> PASS (3 tests)
+  - pnpm lint . -> PASS with 38 warnings, 0 errors
+  - pnpm ts-check -> PASS
+  - pnpm exec next build -> PASS
+  - pnpm exec next start --port 5000 -> Ready
+  - Invoke-WebRequest http://127.0.0.1:5000/milestones -> StatusCode=200, content contains '全部阶段', '任务总数', '项目准备'
+- Lessons:
+  - 筛选页最稳的做法是把“当前选择”从对象改成 id，再用 helper 从过滤结果里回退到首项，避免筛选后选中态悬空。
+  - 里程碑这种汇总页不该写死整体进度，直接由 mock 数据推导才能保证展示口径一致。
+- Next story candidate:
+  - US-006 任务清单筛选与视图一致性
+
+[2026-04-16] US-006 完成
+- Red:
+  - pnpm exec tsx --test src/lib/tasks.test.ts -> FAIL
+  - 失败原因: Cannot find module './tasks'
+- Green:
+  - 新增 src/lib/tasks.ts，统一封装任务筛选、按状态分组、统计汇总和筛选反馈文案
+  - 任务页改为用同一套 helper 驱动看板和列表视图，Tabs 改成受控状态，修复视图切换与筛选状态漂移
+  - 统计卡片改为基于筛选结果计算，并补上当前筛选反馈与清空筛选
+  - 移除未接线的新建/编辑/删除等任务操作控件，避免误导用户
+  - 新增 src/lib/tasks.test.ts，锁定组合筛选、看板分组和统计口径
+- Verify:
+  - pnpm exec tsx --test src/lib/tasks.test.ts -> PASS (3 tests)
+  - pnpm lint . -> PASS with 31 warnings, 0 errors
+  - pnpm ts-check -> PASS
+  - pnpm exec next build -> PASS
+  - pnpm exec next start --port 5000 -> Ready
+  - Invoke-WebRequest http://127.0.0.1:5000/tasks -> StatusCode=200, content contains '当前筛选', '全部任务', '看板视图'
+- Lessons:
+  - 任务页这类双视图界面必须让 Tabs 受控，否则工具栏和内容区很容易各管各的状态。
+  - 当列表/看板没有详情页支撑时，应该去掉伪操作入口，而不是保留会误导用户的菜单和按钮。
+- Next story candidate:
+  - US-007 团队目录搜索与角色浏览

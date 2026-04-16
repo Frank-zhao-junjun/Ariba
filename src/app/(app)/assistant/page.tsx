@@ -2,11 +2,12 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { Bot, Send, Loader2, MessageSquare, Sparkles, Copy, ThumbsUp, ThumbsDown } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { createAssistantMessage, type AssistantMessage } from '@/lib/assistant';
 import { cn } from '@/lib/utils';
 
 // 预设快捷问题
@@ -93,17 +94,10 @@ const mockResponses = [
 - 保留原始文件备份`,
 ];
 
-interface Message {
-  id: string;
-  role: 'user' | 'assistant';
-  content: string;
-  timestamp: Date;
-}
-
 export default function AssistantPage() {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: 'welcome',
+  const [messages, setMessages] = useState<AssistantMessage[]>(() => [
+    createAssistantMessage({
+      idGenerator: () => 'welcome',
       role: 'assistant',
       content: `您好！我是 Ariba 实施助手，可以帮助您：
 
@@ -113,8 +107,7 @@ export default function AssistantPage() {
 • 生成文档和代码示例
 
 请随时向我提问，或使用下方的快捷问题开始。`,
-      timestamp: new Date(),
-    },
+    }),
   ]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -135,12 +128,10 @@ export default function AssistantPage() {
     if (!query) return;
 
     // 添加用户消息
-    const userMessage: Message = {
-      id: Date.now().toString(),
+    const userMessage = createAssistantMessage({
       role: 'user',
       content: query,
-      timestamp: new Date(),
-    };
+    });
     setMessages((prev) => [...prev, userMessage]);
     setInputValue('');
     setIsLoading(true);
@@ -148,12 +139,10 @@ export default function AssistantPage() {
     // 模拟AI响应（实际项目中应调用LLM API）
     setTimeout(() => {
       const randomResponse = mockResponses[Math.floor(Math.random() * mockResponses.length)];
-      const assistantMessage: Message = {
-        id: (Date.now() + 1).toString(),
+      const assistantMessage = createAssistantMessage({
         role: 'assistant',
         content: randomResponse,
-        timestamp: new Date(),
-      };
+      });
       setMessages((prev) => [...prev, assistantMessage]);
       setIsLoading(false);
     }, 1500);
