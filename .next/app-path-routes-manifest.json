@@ -1,0 +1,16 @@
+{
+  "/(app)/assistant/page": "/assistant",
+  "/(app)/knowledge/page": "/knowledge",
+  "/(app)/milestones/page": "/milestones",
+  "/(app)/operations/page": "/operations",
+  "/(app)/page": "/",
+  "/(app)/projects/[id]/page": "/projects/[id]",
+  "/(app)/projects/page": "/projects",
+  "/(app)/settings/page": "/settings",
+  "/(app)/tasks/page": "/tasks",
+  "/(app)/team/page": "/team",
+  "/_global-error/page": "/_global-error",
+  "/_not-found/page": "/_not-found",
+  "/favicon.ico/route": "/favicon.ico",
+  "/robots.txt/route": "/robots.txt"
+}
