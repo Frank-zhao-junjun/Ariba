@@ -25,81 +25,81 @@ Ariba 项目实施助手旨在解决企业实施 SAP Ariba 项目过程中的核
 
 ## 系统架构
 
-本项目采用 **双栈架构**：
+本项目采用 **主从架构**：
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                    Ariba 项目实施助手                        │
-├─────────────────────────────┬───────────────────────────────┤
-│      前端 (Frontend)        │        后端 (Backend)         │
-│   Next.js 16 + React 19     │    Python + FastAPI           │
-│   - 项目管理仪表板          │    - 故障排除助手             │
-│   - 知识库管理              │    - 检查清单生成器           │
-│   - AI 助手界面             │    - 知识图谱服务             │
-│   - 运维监控                │    - 语义搜索服务             │
-└─────────────────────────────┴───────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────┐
+│                    Ariba 项目实施助手                                │
+├──────────────────────────────────────┬──────────────────────────────┤
+│         主系统 (Main System)         │      辅助服务 (Auxiliary)    │
+│                                      │                              │
+│   ┌─────────────────────────────┐   │   ┌──────────────────────┐   │
+│   │   Next.js 16 + React 19     │   │   │   FastAPI 服务       │   │
+│   │   - 项目管理仪表板          │   │   │   - 故障排除API      │   │
+│   │   - 知识库管理              │   │   │   - 检查清单API      │   │
+│   │   - AI 助手界面             │   │   │   - 知识图谱查询     │   │
+│   │   - 运维监控                │   │   └──────────────────────┘   │
+│   └─────────────────────────────┘   │                              │
+│                                      │   (web/backend/)             │
+│   入口: http://localhost:5000        │   入口: http://localhost:8000│
+└──────────────────────────────────────┴──────────────────────────────┘
 ```
+
+**说明：**
+- **主系统** (`src/`) - 完整的 Next.js 全栈应用，包含前端界面和模拟数据层
+- **辅助服务** (`web/backend/`) - 独立的 FastAPI 服务，提供故障排除、检查清单等 API（可选扩展）
 
 ## 核心功能
 
-### 1. 项目管理（Next.js 前端）
+### 主系统功能 (Next.js)
+
+#### 1. 项目管理
 - **实施里程碑追踪** - 5 阶段跟踪（准备、蓝图设计、开发配置、测试验证、上线部署）
 - **任务清单管理** - 看板视图 + 列表视图，支持状态/优先级/类别组合筛选
 - **项目进度仪表板** - 统计卡片、趋势图、任务分布、里程碑时间线
 - **项目详情页** - 从项目列表直接进入项目详情
 
-### 2. 知识库管理（Next.js 前端）
+#### 2. 知识库管理
 - **标准知识库**：官方知识图谱、最佳实践、配置指南、接口指南、FAQ
 - **项目知识库**：企业背景、需求文档、蓝图设计、实施文档
 - **搜索与筛选**：全文搜索、分类筛选、标签筛选、收藏筛选，支持组合使用
 - **文档模板库**：需求文档、测试用例、培训材料、汇报模板
 
-### 3. AI 实施助手（Next.js 前端）
+#### 3. AI 实施助手
 - 对话式交互界面
 - 快捷问题入口
 - 消息复制与反馈
 - 模拟 AI 回复演示
 
-### 4. 运维中心（Next.js 前端）
+#### 4. 运维中心
 - 系统健康监控概览
 - 服务状态筛选与浏览
 - 性能指标（CPU/内存/磁盘/网络）
 - 运维日志级别筛选
 - 告警记录浏览
 
-### 5. 团队协作（Next.js 前端）
+#### 5. 团队协作
 - 成员搜索与角色筛选
 - 角色分类统计
 - 成员信息展示
 
-### 6. 系统设置（Next.js 前端）
+#### 6. 系统设置
 - 个人资料编辑与保存反馈
 - 通知偏好管理
 - 安全设置（两步验证）
 - 系统偏好（语言/时区/主题/日期格式）
 
-### 7. 故障排除助手（Python 后端）
-- **智能诊断引擎** - 根因分析和解决方案推荐
-- **语义搜索** - 自然语言查询理解
-- **知识图谱** - 故障模式关联分析
-- **多模态分析** - 支持日志、截图等多种输入
-- **版本感知** - 根据 Ariba 版本提供针对性方案
+### 辅助服务功能 (FastAPI)
 
-### 8. 检查清单生成器（Python 后端）
-- **模板管理** - 预定义检查清单模板
-- **智能推荐** - 基于项目特征自动推荐检查项
-- **工作流集成** - 与项目管理模块联动
+**可选扩展服务**，提供以下 API：
 
-### 9. Web 服务层（FastAPI）
-- **RESTful API** - 标准化的 API 接口
-- **Dashboard API** - 仪表板数据聚合
-- **Knowledge Graph API** - 知识图谱查询
-- **Checklist API** - 检查清单管理
-- **Troubleshooting API** - 故障诊断接口
+- **故障排除助手** - 智能诊断、语义搜索、知识图谱分析
+- **检查清单生成器** - 模板管理、智能推荐
+- **知识图谱服务** - 关系可视化、版本对比
 
 ## 技术栈
 
-### 前端技术栈
+### 主系统技术栈
 
 | 技术 | 版本 | 说明 |
 |------|------|------|
@@ -110,8 +110,9 @@ Ariba 项目实施助手旨在解决企业实施 SAP Ariba 项目过程中的核
 | Tailwind CSS | 4 | 样式方案 |
 | Recharts | - | 图表库 |
 | Lucide React | - | 图标库 |
+| Node.js | 24+ | 运行环境 |
 
-### 后端技术栈
+### 辅助服务技术栈
 
 | 技术 | 版本 | 说明 |
 |------|------|------|
@@ -127,18 +128,18 @@ Ariba 项目实施助手旨在解决企业实施 SAP Ariba 项目过程中的核
 |------|------|
 | Docker | 容器化部署 |
 | Docker Compose | 本地开发编排 |
-| Kubernetes | 生产环境编排 |
-| Nginx | 反向代理 |
+| Kubernetes | 生产环境编排（可选） |
 
 ## 快速开始
 
 ### 环境要求
 - Node.js 24+
-- Python 3.11+
+- Python 3.11+（如使用辅助服务）
 - pnpm 8+
-- Docker（可选，用于容器化部署）
 
-### 1. 前端启动（Next.js）
+### 方式一：仅启动主系统（推荐）
+
+主系统已包含完整的前端界面和模拟数据，可独立运行：
 
 ```bash
 # 安装依赖
@@ -150,13 +151,15 @@ pnpm dev
 # 访问 http://localhost:5000
 ```
 
-### 2. 后端启动（FastAPI）
+### 方式二：启动辅助服务（可选）
+
+如需使用 FastAPI 提供的故障排除、检查清单等功能：
 
 ```bash
-# 进入后端目录
+# 进入辅助服务目录
 cd web/backend
 
-# 创建虚拟环境（推荐）
+# 创建虚拟环境
 python -m venv venv
 source venv/bin/activate  # Linux/macOS
 # 或 venv\Scripts\activate  # Windows
@@ -167,11 +170,10 @@ pip install -r requirements.txt
 # 启动服务
 python api_server.py
 
-# 访问 http://localhost:8000
 # API 文档 http://localhost:8000/docs
 ```
 
-### 3. 全栈启动（Docker Compose）
+### 方式三：Docker Compose 全栈启动
 
 ```bash
 # 开发环境
@@ -181,26 +183,24 @@ docker-compose -f docker-compose.dev.yml up
 docker-compose -f docker-compose.prod.yml up -d
 ```
 
-### 4. 构建与部署
+### 构建与部署
 
 ```bash
-# 前端构建
+# 主系统构建
 pnpm build
-
-# 前端生产服务
 pnpm start
 
 # Docker 构建
-docker build -f Dockerfile.backend -t ariba-backend .
-docker build -f Dockerfile.frontend -t ariba-frontend .
+docker build -f Dockerfile.backend -t ariba-aux .
+docker build -f Dockerfile.frontend -t ariba-web .
 
-# K8s 部署
+# K8s 部署（可选）
 kubectl apply -f k8s/
 ```
 
 ## 质量验证
 
-### 前端验证
+### 主系统验证
 
 ```bash
 # Lint 检查
@@ -218,16 +218,10 @@ pnpm exec tsx --test src/lib/projects.test.ts
 pnpm exec tsx --test src/lib/tasks.test.ts
 ```
 
-### 后端验证
+### 辅助服务验证（可选）
 
 ```bash
 cd web/backend
-
-# Python 测试
-python -m pytest tests/
-
-# 故障排除助手测试
-cd ../../故障排除助手
 python -m pytest tests/
 ```
 
@@ -249,10 +243,10 @@ pnpm lint . && pnpm ts-check && pnpm build
 
 ```
 .
-├── src/                          # Next.js 前端源码
+├── src/                          # 主系统（Next.js 前端）
 │   ├── app/
 │   │   ├── (app)/               # 应用布局组
-│   │   │   ├── layout.tsx       # 应用布局（侧边栏、头部）
+│   │   │   ├── layout.tsx       # 应用布局
 │   │   │   ├── page.tsx         # 首页仪表板
 │   │   │   ├── projects/        # 项目管理
 │   │   │   ├── milestones/      # 里程碑追踪
@@ -266,85 +260,56 @@ pnpm lint . && pnpm ts-check && pnpm build
 │   ├── components/
 │   │   ├── layout/             # 布局组件
 │   │   └── ui/                 # shadcn/ui 组件库
-│   └── lib/
-│       ├── utils.ts            # 工具函数
-│       ├── data.ts             # 模拟数据
-│       ├── assistant.ts        # 助手逻辑
-│       ├── dashboard.ts        # 仪表板逻辑
-│       ├── knowledge.ts        # 知识库逻辑
-│       ├── milestones.ts       # 里程碑逻辑
-│       ├── projects.ts         # 项目逻辑
-│       ├── tasks.ts            # 任务逻辑
+│   └── lib/                    # 业务逻辑 + 模拟数据
+│       ├── utils.ts
+│       ├── data.ts
+│       ├── assistant.ts
+│       ├── dashboard.ts
+│       ├── knowledge.ts
+│       ├── milestones.ts
+│       ├── projects.ts
+│       ├── tasks.ts
 │       └── *.test.ts           # 单元测试
 │
-├── web/                         # Web 服务层
-│   ├── backend/                 # FastAPI 后端
-│   │   ├── api/                # API 路由
-│   │   │   ├── troubleshooting.py
-│   │   │   ├── checklist.py
-│   │   │   ├── dashboard.py
-│   │   │   └── graph.py
-│   │   ├── models/             # 数据模型
-│   │   ├── tests/              # 后端测试
-│   │   ├── api_server.py       # 服务入口
-│   │   └── requirements.txt
-│   │
-│   └── frontend/               # React + Vite 前端
-│       ├── src/
-│       │   ├── api/           # API 客户端
-│       │   ├── components/    # 共享组件
-│       │   ├── pages/         # 页面组件
-│       │   └── styles/        # 样式文件
-│       ├── tests/             # 前端测试
-│       └── package.json
+├── web/                         # 辅助服务（可选扩展）
+│   └── backend/                 # FastAPI 后端服务
+│       ├── api/                # API 路由
+│       │   ├── troubleshooting.py
+│       │   ├── checklist.py
+│       │   ├── dashboard.py
+│       │   └── graph.py
+│       ├── models/             # 数据模型
+│       ├── tests/              # 测试
+│       ├── api_server.py       # 服务入口
+│       └── requirements.txt
 │
-├── 故障排除助手/               # Python 故障诊断模块
+├── 故障排除助手/               # Python 故障诊断模块（独立）
 │   ├── core/                  # 核心引擎
 │   ├── diagnosis/             # 诊断逻辑
 │   ├── semantic/              # 语义搜索
 │   ├── knowledge_graph/       # 知识图谱
-│   ├── multimodal/            # 多模态分析
-│   ├── recommendation/        # 推荐引擎
-│   ├── monitoring/            # 监控模块
-│   ├── tests/                 # 模块测试
+│   ├── tests/                 # 测试
 │   └── fixtures/              # 测试数据
 │
-├── shared/                     # 共享模块
+├── shared/                     # 共享模块（独立）
 │   ├── config/                # 配置管理
 │   ├── interfaces/            # 接口定义
-│   ├── knowledge/             # 知识库工具
-│   └── monitoring/            # 监控工具
+│   └── knowledge/             # 知识库工具
 │
-├── k8s/                        # Kubernetes 配置
-│   ├── backend-deployment.yaml
-│   ├── frontend-deployment.yaml
-│   ├── ingress.yaml
-│   └── hpa.yaml
-│
+├── k8s/                        # Kubernetes 配置（可选）
 ├── scripts/                    # 脚本工具
-│   ├── build.sh
-│   ├── dev.sh
-│   ├── start.sh
-│   └── prepare.sh
-│
-├── data/                       # 数据存储
-│   └── ariba_assistant.db      # SQLite 数据库
-│
-├── docker-compose.dev.yml      # 开发环境编排
-├── docker-compose.prod.yml     # 生产环境编排
-├── Dockerfile.backend          # 后端镜像
-├── Dockerfile.frontend         # 前端镜像
-├── deploy.sh                   # 部署脚本
-├── ralph.cmd                   # Windows Ralph 入口
-├── prd.json                    # Ralph 用户故事
-└── README.md                   # 本文件
+├── docker-compose.dev.yml      # Docker 开发配置
+├── docker-compose.prod.yml     # Docker 生产配置
+├── ralph.cmd                   # Ralph 入口
+├── prd.json                    # 用户故事与质量门禁
+└── README.md
 ```
 
 ## API 文档
 
-### 后端 API
+### 辅助服务 API（可选）
 
-启动后端服务后访问：
+启动辅助服务后访问：
 - Swagger UI: http://localhost:8000/docs
 - ReDoc: http://localhost:8000/redoc
 
