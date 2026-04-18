@@ -1,0 +1,36 @@
+{
+  "score": 45,
+  "recommendation": "可选数据库",
+  "reason": "有一定优化空间，建议引入SQLite",
+  "data_analysis": {
+    "total_files": 733,
+    "total_size_mb": 3.603377342224121,
+    "avg_file_size_kb": 5.033913231156207,
+    "max_file_size_kb": 767.837890625,
+    "categories": {
+      "SAP-Ariba": 6,
+      "01-供应商管理": 273,
+      "02-寻源与合同": 35,
+      "03-采购流程": 169,
+      "04-发票与付款": 103,
+      "05-目录管理": 1,
+      "06-实施指南": 100,
+      "07-API集成": 4,
+      "08-故障排查": 4,
+      "12-用户上传": 27,
+      "12-知识更新": 11
+    },
+    "weekly_growth": 20,
+    "monthly_growth": 80,
+    "yearly_growth": 960
+  },
+  "performance": {
+    "avg_search_ms": 0.05230307579040527,
+    "max_search_ms": 0.06985664367675781
+  },
+  "recommendations": [
+    "继续使用文件存储+倒排索引方案",
+    "实施缓存预热机制",
+    "添加性能监控"
+  ]
+}

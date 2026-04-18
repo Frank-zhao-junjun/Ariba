@@ -1,100 +1,80 @@
-.next
-
-# Dependencies
-node_modules/
-.pnp
-.pnp.js
-
-# Production build
-dist/
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
 build/
-out/
-.next/
-.rsbuild/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
 
-# Testing
-coverage/
-*.lcov
-.nyc_output
-
-# Environment variables
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-
-# Logs
-logs/
-*.log
+# Node
+node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
-lerna-debug.log*
 
-# Runtime data
-pids
-*.pid
-*.seed
-*.pid.lock
-
-# Diagnostic reports
-report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
-
-# Cache
-.cache/
-.parcel-cache/
-.eslintcache
-.stylelintcache
-.npm
-.yarn/cache
-.yarn/unplugged
-.yarn/build-state.yml
-.yarn/install-state.gz
-node-compile-cache/
-
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-!.vscode/settings.json
+# IDE
+.vscode/
 .idea/
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
 *.swp
 *.swo
 *~
 
-# OS files
+# OS
 .DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
 Thumbs.db
-Desktop.ini
+
+# Logs
+*.log
 
 # Temporary files
+tmp/
+temp/
 *.tmp
-*.temp
-.tmp/
-.temp/
 
-# Optional files
-*.tgz
-*.gz
-*.zip
-*.tar
+# Environment variables
+.env
+.env.local
+.env.*.local
 
-# TypeScript
-*.tsbuildinfo
+# Data files (large datasets)
+data/*.json
+data/*.csv
+data/*.xlsx
+data/*.pkl
+data/*.bin
 
-# Misc
-.vercel
-.turbo
+# Knowledge base (large markdown files)
+SAP-Ariba/知识库/
+SAP-Ariba/12-知识更新/
+SAP-Ariba/原始文档/
+SAP-Ariba/分类/
+SAP-Ariba/索引/
 
-.coze-logs
+# Test results
+测试报告/
+coverage/
+.pytest_cache/
+
+# Build artifacts
+dist/
+build/
+*.min.js
+*.min.css

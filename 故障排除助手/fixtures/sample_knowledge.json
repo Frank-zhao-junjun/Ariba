@@ -1,0 +1,90 @@
+[
+  {
+    "id": "KBE-001",
+    "title": "供应商登录失败",
+    "description": "供应商无法登录Ariba采购门户，提示用户名或密码错误",
+    "solution": "1. 检查供应商邮箱是否已激活\n2. 发送密码重置邮件\n3. 确认账户状态为Active\n4. 检查SSO配置是否正确",
+    "category": "08-故障排查",
+    "tags": ["#供应商", "#登录", "#认证", "#SSO"],
+    "versions": ["#V2602", "#V2604", "#V2605"],
+    "source": "SAP Ariba Administration Guide",
+    "related_ids": ["KBE-002", "KBE-003"]
+  },
+  {
+    "id": "KBE-002",
+    "title": "审批流程卡住",
+    "description": "采购申请在审批流程中无法继续，卡在某个审批节点",
+    "solution": "1. 检查审批人是否设置了代理\n2. 查看审批工作流配置\n3. 确认审批规则是否正确\n4. 联系系统管理员重新触发流程",
+    "category": "08-故障排查",
+    "tags": ["#审批", "#工作流", "#卡住"],
+    "versions": ["#V2602", "#V2605", "#VNextGen"],
+    "source": "Ariba Workflow Guide",
+    "related_ids": ["KBE-001", "KBE-004"]
+  },
+  {
+    "id": "KBE-003",
+    "title": "发票匹配失败",
+    "description": "三向匹配失败，采购订单与收货数量不一致",
+    "solution": "1. 核对采购订单数量\n2. 确认收货数量\n3. 检查发票金额计算\n4. 执行2-Way匹配替代方案",
+    "category": "08-故障排查",
+    "tags": ["#发票", "#匹配", "#PO"],
+    "versions": ["#V2602", "#V2604", "#V2605", "#VClassic"],
+    "source": "Invoice Management Guide",
+    "related_ids": ["KBE-005"]
+  },
+  {
+    "id": "KBE-004",
+    "title": "预算检查失败",
+    "description": "提交请购单时预算检查失败，无法通过审批",
+    "solution": "1. 检查预算周期设置\n2. 确认预算金额是否充足\n3. 查看预算分配规则\n4. 联系财务调整预算",
+    "category": "08-故障排查",
+    "tags": ["#预算", "#请购单", "#审批"],
+    "versions": ["#V2604", "#V2605"],
+    "source": "Budget Management Guide",
+    "related_ids": ["KBE-002"]
+  },
+  {
+    "id": "KBE-005",
+    "title": "合同审批超时",
+    "description": "合同在审批过程中超时，需要重新提交",
+    "solution": "1. 检查合同审批超时设置\n2. 延长审批期限\n3. 手动重新激活合同\n4. 配置自动提醒",
+    "category": "08-故障排查",
+    "tags": ["#合同", "#审批", "#超时"],
+    "versions": ["#V2602", "#V2605", "#VNextGen"],
+    "source": "Contract Management Guide",
+    "related_ids": ["KBE-002"]
+  },
+  {
+    "id": "KBE-006",
+    "title": "目录同步失败",
+    "description": " Punchout目录同步失败，无法获取供应商目录",
+    "solution": "1. 检查cXML配置\n2. 验证供应商连接\n3. 测试网络连通性\n4. 查看同步日志排查错误",
+    "category": "08-故障排查",
+    "tags": ["#目录", "#同步", "#Punchout"],
+    "versions": ["#V2605", "#VNextGen"],
+    "source": "Catalog Integration Guide",
+    "related_ids": []
+  },
+  {
+    "id": "KBE-007",
+    "title": "供应商注册审核失败",
+    "description": "供应商自助注册后审核流程无法完成",
+    "solution": "1. 检查SQP问卷配置\n2. 确认审核工作流\n3. 查看审核拒绝原因\n4. 手动触发重新审核",
+    "category": "08-故障排查",
+    "tags": ["#供应商", "#注册", "#SQP"],
+    "versions": ["#V2602", "#V2604", "#V2605", "#VClassic"],
+    "source": "Supplier Qualification Guide",
+    "related_ids": ["KBE-001"]
+  },
+  {
+    "id": "KBE-008",
+    "title": "移动端显示异常",
+    "description": "Ariba移动应用界面显示不完整或错位",
+    "solution": "1. 清除应用缓存\n2. 更新到最新版本\n3. 检查手机系统兼容性\n4. 重新安装应用",
+    "category": "08-故障排查",
+    "tags": ["#移动", "#显示", "#UI"],
+    "versions": ["#V2604", "#V2605"],
+    "source": "Mobile App Guide",
+    "related_ids": []
+  }
+]
