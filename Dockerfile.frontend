@@ -21,6 +21,9 @@ COPY . .
 # 构建 Next.js
 RUN pnpm next build
 
+# 构建服务器入口 (用于生产启动)
+RUN pnpm tsup src/server.ts --format cjs --platform node --target node20 --outDir dist --no-splitting --no-minify
+
 # 生产阶段
 FROM node:20-alpine AS runner
 
@@ -39,6 +42,7 @@ COPY --from=builder /app/pnpm-lock.yaml* ./
 COPY --from=builder /app/next.config.* ./
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/src ./src
 
 # 只安装生产依赖

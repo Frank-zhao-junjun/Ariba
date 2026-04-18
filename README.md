@@ -190,8 +190,8 @@ docker-compose -f docker-compose.prod.yml up -d
 pnpm build
 pnpm start
 
-# Docker 构建
-docker build -f Dockerfile.backend -t ariba-aux .
+# Docker 构建（注意 context 路径）
+docker build -f Dockerfile.backend -t ariba-backend ./web/backend
 docker build -f Dockerfile.frontend -t ariba-web .
 
 # K8s 部署（可选）
