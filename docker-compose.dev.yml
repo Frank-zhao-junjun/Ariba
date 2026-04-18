@@ -1,0 +1,43 @@
+# Docker Compose - 开发环境
+version: '3.8'
+
+services:
+  # 后端API服务
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: ariba-backend
+    ports:
+      - "8000:8000"
+    environment:
+      - ENVIRONMENT=development
+      - ARIBAS_LOG_LEVEL=DEBUG
+      - ARIBAS_CACHE__ENABLED=false
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+    networks:
+      - ariba-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # 前端Web服务
+  frontend:
+    build:
+      context: ./web/frontend
+      dockerfile: ../../Dockerfile.frontend
+    container_name: ariba-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - ariba-network
+
+networks:
+  ariba-network:
+    driver: bridge

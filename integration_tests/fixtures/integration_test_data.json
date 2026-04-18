@@ -1,0 +1,49 @@
+{
+  "version_tags": ["#V2505", "#V2602", "#V2604", "#V2605", "#VNextGen", "#VClassic"],
+  "test_projects": [
+    {
+      "id": "PRJ-001",
+      "name": "制造业Ariba实施项目",
+      "company_size": "large_enterprise",
+      "industry": "manufacturing",
+      "existing_systems": ["SAP S/4HANA", "Oracle EBS"],
+      "integration_level": "level_3",
+      "target_version": "V2605"
+    },
+    {
+      "id": "PRJ-002",
+      "name": "零售业采购优化项目",
+      "company_size": "medium_enterprise",
+      "industry": "retail",
+      "existing_systems": ["SAP ECC"],
+      "integration_level": "level_2",
+      "target_version": "V2604"
+    }
+  ],
+  "knowledge_base_sharing": {
+    "故障排除助手路径": "故障排除助手/fixtures/sample_knowledge.json",
+    "实施检查清单路径": "实施检查清单生成器/fixtures/demo_checklist.json"
+  },
+  "end_to_end_scenarios": [
+    {
+      "scenario_id": "E2E-001",
+      "name": "实施故障排查",
+      "steps": [
+        "用户在清单中遇到配置失败",
+        "调用故障排除助手查询错误信息",
+        "返回解决方案",
+        "更新清单状态"
+      ]
+    },
+    {
+      "scenario_id": "E2E-002",
+      "name": "智能推荐联动",
+      "steps": [
+        "根据项目特征生成清单",
+        "推荐高优先级项",
+        "提供相关FAQ",
+        "生成综合报告"
+      ]
+    }
+  ]
+}

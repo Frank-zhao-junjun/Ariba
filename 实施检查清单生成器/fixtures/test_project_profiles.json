@@ -1,0 +1,51 @@
+{
+  "project_profiles": [
+    {
+      "id": "profile-001",
+      "company_size": "sme",
+      "industry": "technology",
+      "existing_systems": [],
+      "integration_level": "level_1",
+      "description": "小型科技公司，标准化实施"
+    },
+    {
+      "id": "profile-002",
+      "company_size": "mid_market",
+      "industry": "retail",
+      "existing_systems": ["Microsoft Dynamics NAV"],
+      "integration_level": "level_2",
+      "description": "中型零售企业，与ERP集成"
+    },
+    {
+      "id": "profile-003",
+      "company_size": "large_enterprise",
+      "industry": "manufacturing",
+      "existing_systems": ["SAP S/4HANA", "Oracle EBS", "QAD"],
+      "integration_level": "level_3",
+      "description": "大型制造企业，多系统集成"
+    },
+    {
+      "id": "profile-004",
+      "company_size": "global_enterprise",
+      "industry": "financial_services",
+      "existing_systems": ["SAP S/4HANA", "Salesforce", "Workday", "Custom Systems"],
+      "integration_level": "level_4",
+      "description": "跨国金融集团，全面定制开发"
+    },
+    {
+      "id": "profile-005",
+      "company_size": "large_enterprise",
+      "industry": "healthcare",
+      "existing_systems": ["Epic Systems", "SAP ERP"],
+      "integration_level": "level_3",
+      "description": "大型医疗集团，合规要求高"
+    }
+  ],
+  "expected_risk_levels": {
+    "profile-001": "low",
+    "profile-002": "low",
+    "profile-003": "medium",
+    "profile-004": "high",
+    "profile-005": "high"
+  }
+}
