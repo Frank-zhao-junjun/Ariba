@@ -78,19 +78,65 @@
     },
     {
       "id": "US-002",
-      "priority": 2,
-      "title": "首页仪表板刷新与时间状态稳定化",
-      "userStory": "作为项目经理，我希望首页刷新操作和更新时间展示稳定、可预测，避免 hydration 和交互异常。",
-      "dependsOn": [],
+      "priority": 1,
+      "title": "AI 助手快捷问题面板",
+      "userStory": "作为实施顾问，我希望快速选择常见问题进行提问，减少重复输入。",
+      "dependsOn": ["US-001"],
       "paths": [
-        "src/app/(app)/page.tsx",
-        "src/lib/dashboard.ts",
-        "src/lib/dashboard.test.ts"
+        "src/app/(app)/assistant/page.tsx"
       ],
       "acceptance": [
-        "刷新动作只更新需要变化的时间状态。",
-        "更新时间展示不引入 hydration 风险。",
-        "首页关键 CTA 仍可导航到项目和任务。"
+        "快捷问题按钮组显示在聊天界面下方。",
+        "点击快捷问题自动填充到输入框并发送。",
+        "快捷问题列表包含至少 4 个常见问题。"
+      ],
+      "testPlan": [
+        "pnpm lint src/app/(app)/assistant/page.tsx",
+        "pnpm ts-check",
+        "pnpm exec next build"
+      ],
+      "deployPlan": [
+        "pnpm exec next start --port 5000"
+      ],
+      "passes": true
+    },
+    {
+      "id": "US-003",
+      "priority": 1,
+      "title": "AI 助手消息操作反馈",
+      "userStory": "作为实施顾问，我希望复制 AI 回复内容或对回复进行反馈。",
+      "dependsOn": ["US-001"],
+      "paths": [
+        "src/app/(app)/assistant/page.tsx"
+      ],
+      "acceptance": [
+        "每条 AI 消息显示复制按钮。",
+        "复制成功有视觉反馈（toast 或 tooltip）。",
+        "提供点赞/点踩反馈按钮。"
+      ],
+      "testPlan": [
+        "pnpm lint src/app/(app)/assistant/page.tsx",
+        "pnpm ts-check",
+        "pnpm exec next build"
+      ],
+      "deployPlan": [
+        "pnpm exec next start --port 5000"
+      ],
+      "passes": true
+    },
+    {
+      "id": "US-004",
+      "priority": 2,
+      "title": "首页仪表板统计卡片",
+      "userStory": "作为项目经理，我希望首页展示项目关键指标的统计卡片，快速了解整体情况。",
+      "dependsOn": [],
+      "paths": [
+        "src/app/(app)/page.tsx"
+      ],
+      "acceptance": [
+        "显示项目总数、任务完成率、待处理任务、里程碑进度四个卡片。",
+        "卡片数据与 mock 数据一致。",
+        "卡片有对应图标和颜色区分。"
       ],
       "testPlan": [
         "pnpm lint src/app/(app)/page.tsx",
@@ -103,24 +149,21 @@
       "passes": true
     },
     {
-      "id": "US-003",
-      "priority": 3,
-      "title": "知识库搜索筛选闭环",
-      "userStory": "作为实施顾问，我希望通过搜索、分类、收藏筛选快速定位知识库内容。",
-      "dependsOn": [],
+      "id": "US-005",
+      "priority": 2,
+      "title": "首页任务完成趋势图",
+      "userStory": "作为项目经理，我希望看到任务完成趋势的可视化图表。",
+      "dependsOn": ["US-004"],
       "paths": [
-        "src/app/(app)/knowledge/page.tsx",
-        "src/lib/data.ts",
-        "src/lib/knowledge.ts",
-        "src/lib/knowledge.test.ts"
+        "src/app/(app)/page.tsx"
       ],
       "acceptance": [
-        "搜索、分类、排序和收藏筛选可组合使用。",
-        "筛选状态有明确可见反馈。",
-        "无效或未接线状态从 UI 中移除或补齐。"
+        "使用 AreaChart 展示近 6 个月任务完成趋势。",
+        "图表使用 Recharts 库实现。",
+        "图表响应式适配容器宽度。"
       ],
       "testPlan": [
-        "pnpm lint src/app/(app)/knowledge/page.tsx",
+        "pnpm lint src/app/(app)/page.tsx",
         "pnpm ts-check",
         "pnpm exec next build"
       ],
@@ -130,24 +173,148 @@
       "passes": true
     },
     {
-      "id": "US-004",
-      "priority": 4,
-      "title": "项目列表到详情的导航闭环",
-      "userStory": "作为项目经理，我希望从项目列表进入项目详情，而不是停留在只读卡片视图。",
+      "id": "US-006",
+      "priority": 2,
+      "title": "首页任务状态分布图",
+      "userStory": "作为项目经理，我希望看到任务状态分布的饼图。",
+      "dependsOn": ["US-004"],
+      "paths": [
+        "src/app/(app)/page.tsx"
+      ],
+      "acceptance": [
+        "使用 PieChart 展示待处理/进行中/已完成/阻塞的任务分布。",
+        "每个状态有对应颜色标识。",
+        "显示图例和百分比。"
+      ],
+      "testPlan": [
+        "pnpm lint src/app/(app)/page.tsx",
+        "pnpm ts-check",
+        "pnpm exec next build"
+      ],
+      "deployPlan": [
+        "pnpm exec next start --port 5000"
+      ],
+      "passes": true
+    },
+    {
+      "id": "US-007",
+      "priority": 2,
+      "title": "首页最近任务列表",
+      "userStory": "作为项目经理，我希望看到最近更新的任务列表。",
+      "dependsOn": ["US-004"],
+      "paths": [
+        "src/app/(app)/page.tsx"
+      ],
+      "acceptance": [
+        "显示最近 5 个任务的标题、状态、截止日期。",
+        "点击任务可跳转到任务详情（或任务页面）。",
+        "列表有'查看全部'入口跳转到任务清单。"
+      ],
+      "testPlan": [
+        "pnpm lint src/app/(app)/page.tsx",
+        "pnpm ts-check",
+        "pnpm exec next build"
+      ],
+      "deployPlan": [
+        "pnpm exec next start --port 5000"
+      ],
+      "passes": true
+    },
+    {
+      "id": "US-008",
+      "priority": 2,
+      "title": "首页里程碑时间线",
+      "userStory": "作为项目经理，我希望看到项目里程碑的简化时间线。",
+      "dependsOn": ["US-004"],
+      "paths": [
+        "src/app/(app)/page.tsx"
+      ],
+      "acceptance": [
+        "显示当前阶段和下一阶段。",
+        "显示阶段进度条。",
+        "有入口跳转到完整里程碑页面。"
+      ],
+      "testPlan": [
+        "pnpm lint src/app/(app)/page.tsx",
+        "pnpm ts-check",
+        "pnpm exec next build"
+      ],
+      "deployPlan": [
+        "pnpm exec next start --port 5000"
+      ],
+      "passes": true
+    },
+    {
+      "id": "US-009",
+      "priority": 2,
+      "title": "首页仪表板刷新与时间状态稳定化",
+      "userStory": "作为项目经理，我希望首页刷新操作和更新时间展示稳定、可预测，避免 hydration 和交互异常。",
+      "dependsOn": ["US-004"],
+      "paths": [
+        "src/app/(app)/page.tsx",
+        "src/lib/dashboard.ts",
+        "src/lib/dashboard.test.ts"
+      ],
+      "acceptance": [
+        "刷新动作只更新需要变化的时间状态。",
+        "更新时间展示不引入 hydration 风险。",
+        "首页关键 CTA 仍可导航到项目和任务。"
+      ],
+      "testPlan": [
+        "pnpm exec tsx --test src/lib/dashboard.test.ts",
+        "pnpm lint src/app/(app)/page.tsx",
+        "pnpm ts-check",
+        "pnpm exec next build"
+      ],
+      "deployPlan": [
+        "pnpm exec next start --port 5000"
+      ],
+      "passes": true
+    },
+    {
+      "id": "US-010",
+      "priority": 3,
+      "title": "项目列表展示",
+      "userStory": "作为项目经理，我希望查看所有项目的列表，了解项目概览。",
       "dependsOn": [],
       "paths": [
         "src/app/(app)/projects/page.tsx",
+        "src/lib/data.ts"
+      ],
+      "acceptance": [
+        "以卡片形式展示所有项目。",
+        "每张卡片显示项目名称、描述、进度、状态。",
+        "显示项目团队成员头像。"
+      ],
+      "testPlan": [
+        "pnpm lint src/app/(app)/projects/page.tsx",
+        "pnpm ts-check",
+        "pnpm exec next build"
+      ],
+      "deployPlan": [
+        "pnpm exec next start --port 5000"
+      ],
+      "passes": true
+    },
+    {
+      "id": "US-011",
+      "priority": 3,
+      "title": "项目列表到详情的导航",
+      "userStory": "作为项目经理，我希望从项目列表进入项目详情页面。",
+      "dependsOn": ["US-010"],
+      "paths": [
+        "src/app/(app)/projects/page.tsx",
         "src/app/(app)/projects/[id]/page.tsx",
-        "src/lib/data.ts",
         "src/lib/projects.ts",
         "src/lib/projects.test.ts"
       ],
       "acceptance": [
-        "项目卡片可进入项目详情。",
+        "项目卡片可点击进入项目详情。",
         "项目详情展示与列表一致的核心信息。",
         "不存在死链或空白详情页。"
       ],
       "testPlan": [
+        "pnpm exec tsx --test src/lib/projects.test.ts",
         "pnpm ts-check",
         "pnpm exec next build"
       ],
@@ -157,21 +324,19 @@
       "passes": true
     },
     {
-      "id": "US-005",
-      "priority": 5,
-      "title": "里程碑阶段筛选与任务透视",
-      "userStory": "作为实施团队成员，我希望按阶段查看里程碑和任务，以便快速判断当前项目所处阶段。",
+      "id": "US-012",
+      "priority": 4,
+      "title": "里程碑时间线展示",
+      "userStory": "作为实施团队成员，我希望查看项目里程碑的横向时间线。",
       "dependsOn": [],
       "paths": [
         "src/app/(app)/milestones/page.tsx",
-        "src/lib/data.ts",
-        "src/lib/milestones.ts",
-        "src/lib/milestones.test.ts"
+        "src/lib/data.ts"
       ],
       "acceptance": [
-        "阶段筛选结果与里程碑状态一致。",
-        "任务数量和进度展示与 mock 数据一致。",
-        "无无效导入和无效状态控件残留。"
+        "以横向时间线展示 5 个阶段（启动/蓝图/构建/测试/上线）。",
+        "当前阶段高亮显示。",
+        "每个阶段显示状态图标。"
       ],
       "testPlan": [
         "pnpm lint src/app/(app)/milestones/page.tsx",
@@ -184,21 +349,46 @@
       "passes": true
     },
     {
-      "id": "US-006",
-      "priority": 6,
-      "title": "任务清单筛选与视图一致性",
-      "userStory": "作为项目成员，我希望看板视图和列表视图共享统一的筛选逻辑。",
+      "id": "US-013",
+      "priority": 4,
+      "title": "里程碑阶段详情与筛选",
+      "userStory": "作为实施团队成员，我希望查看阶段详情并按阶段筛选任务。",
+      "dependsOn": ["US-012"],
+      "paths": [
+        "src/app/(app)/milestones/page.tsx",
+        "src/lib/milestones.ts",
+        "src/lib/milestones.test.ts"
+      ],
+      "acceptance": [
+        "显示当前选中阶段的详细信息卡片。",
+        "阶段筛选结果与里程碑状态一致。",
+        "任务数量和进度展示与 mock 数据一致。"
+      ],
+      "testPlan": [
+        "pnpm exec tsx --test src/lib/milestones.test.ts",
+        "pnpm lint src/app/(app)/milestones/page.tsx",
+        "pnpm ts-check",
+        "pnpm exec next build"
+      ],
+      "deployPlan": [
+        "pnpm exec next start --port 5000"
+      ],
+      "passes": true
+    },
+    {
+      "id": "US-014",
+      "priority": 5,
+      "title": "任务看板视图",
+      "userStory": "作为项目成员，我希望以看板形式查看任务，按状态分组。",
       "dependsOn": [],
       "paths": [
         "src/app/(app)/tasks/page.tsx",
-        "src/lib/data.ts",
-        "src/lib/tasks.ts",
-        "src/lib/tasks.test.ts"
+        "src/lib/data.ts"
       ],
       "acceptance": [
-        "状态、优先级和关键字筛选同时作用于两种视图。",
-        "任务统计与筛选结果保持一致。",
-        "无不可点击但暴露给用户的交互控件。"
+        "四列看板：待处理/进行中/阻塞/已完成。",
+        "每列显示任务卡片，包含标题、优先级、截止日期。",
+        "任务卡片可拖拽（视觉演示，暂不需要真正修改状态）。"
       ],
       "testPlan": [
         "pnpm lint src/app/(app)/tasks/page.tsx",
@@ -211,19 +401,147 @@
       "passes": true
     },
     {
-      "id": "US-007",
+      "id": "US-015",
+      "priority": 5,
+      "title": "任务列表视图",
+      "userStory": "作为项目成员，我希望以列表形式查看任务，便于快速扫描。",
+      "dependsOn": ["US-014"],
+      "paths": [
+        "src/app/(app)/tasks/page.tsx"
+      ],
+      "acceptance": [
+        "支持在看板和列表视图间切换。",
+        "列表显示任务标题、状态、优先级、负责人、截止日期。",
+        "列表支持排序。"
+      ],
+      "testPlan": [
+        "pnpm lint src/app/(app)/tasks/page.tsx",
+        "pnpm ts-check",
+        "pnpm exec next build"
+      ],
+      "deployPlan": [
+        "pnpm exec next start --port 5000"
+      ],
+      "passes": true
+    },
+    {
+      "id": "US-016",
+      "priority": 5,
+      "title": "任务筛选与统计",
+      "userStory": "作为项目成员，我希望筛选任务并查看统计概览。",
+      "dependsOn": ["US-014"],
+      "paths": [
+        "src/app/(app)/tasks/page.tsx",
+        "src/lib/tasks.ts",
+        "src/lib/tasks.test.ts"
+      ],
+      "acceptance": [
+        "支持按状态、优先级、类别、关键字筛选。",
+        "筛选同时作用于看板和列表视图。",
+        "任务统计与筛选结果保持一致。"
+      ],
+      "testPlan": [
+        "pnpm exec tsx --test src/lib/tasks.test.ts",
+        "pnpm lint src/app/(app)/tasks/page.tsx",
+        "pnpm ts-check",
+        "pnpm exec next build"
+      ],
+      "deployPlan": [
+        "pnpm exec next start --port 5000"
+      ],
+      "passes": true
+    },
+    {
+      "id": "US-017",
+      "priority": 6,
+      "title": "知识库搜索功能",
+      "userStory": "作为实施顾问，我希望通过关键词搜索知识库内容。",
+      "dependsOn": [],
+      "paths": [
+        "src/app/(app)/knowledge/page.tsx",
+        "src/lib/knowledge.ts",
+        "src/lib/knowledge.test.ts"
+      ],
+      "acceptance": [
+        "搜索框支持实时搜索。",
+        "搜索结果按相关性排序。",
+        "空搜索状态有友好提示。"
+      ],
+      "testPlan": [
+        "pnpm exec tsx --test src/lib/knowledge.test.ts",
+        "pnpm lint src/app/(app)/knowledge/page.tsx",
+        "pnpm ts-check",
+        "pnpm exec next build"
+      ],
+      "deployPlan": [
+        "pnpm exec next start --port 5000"
+      ],
+      "passes": true
+    },
+    {
+      "id": "US-018",
+      "priority": 6,
+      "title": "知识库分类筛选",
+      "userStory": "作为实施顾问，我希望按分类和收藏筛选知识库内容。",
+      "dependsOn": ["US-017"],
+      "paths": [
+        "src/app/(app)/knowledge/page.tsx",
+        "src/lib/knowledge.ts"
+      ],
+      "acceptance": [
+        "支持按标准/项目/模板分类筛选。",
+        "支持只看收藏内容。",
+        "支持排序（最新/最热/按名称）。"
+      ],
+      "testPlan": [
+        "pnpm lint src/app/(app)/knowledge/page.tsx",
+        "pnpm ts-check",
+        "pnpm exec next build"
+      ],
+      "deployPlan": [
+        "pnpm exec next start --port 5000"
+      ],
+      "passes": true
+    },
+    {
+      "id": "US-019",
+      "priority": 6,
+      "title": "知识库内容展示",
+      "userStory": "作为实施顾问，我希望查看知识库文档的详细内容。",
+      "dependsOn": ["US-017"],
+      "paths": [
+        "src/app/(app)/knowledge/page.tsx",
+        "src/lib/data.ts"
+      ],
+      "acceptance": [
+        "知识卡片显示标题、描述、分类、更新时间。",
+        "点击卡片可展开/查看详情。",
+        "支持收藏/取消收藏操作。"
+      ],
+      "testPlan": [
+        "pnpm lint src/app/(app)/knowledge/page.tsx",
+        "pnpm ts-check",
+        "pnpm exec next build"
+      ],
+      "deployPlan": [
+        "pnpm exec next start --port 5000"
+      ],
+      "passes": true
+    },
+    {
+      "id": "US-020",
       "priority": 7,
-      "title": "团队目录搜索与角色浏览",
-      "userStory": "作为项目经理，我希望按姓名和角色浏览团队成员，快速定位责任人。",
+      "title": "团队成员列表展示",
+      "userStory": "作为项目经理，我希望查看团队成员列表和基本信息。",
       "dependsOn": [],
       "paths": [
         "src/app/(app)/team/page.tsx",
         "src/lib/data.ts"
       ],
       "acceptance": [
-        "团队列表支持关键字搜索。",
-        "角色展示和统计口径一致。",
-        "未实现的操作按钮不误导用户。"
+        "以卡片形式展示团队成员。",
+        "每张卡片显示头像、姓名、角色、邮箱。",
+        "显示成员状态（在线/离线/忙碌）。"
       ],
       "testPlan": [
         "pnpm lint src/app/(app)/team/page.tsx",
@@ -236,18 +554,42 @@
       "passes": true
     },
     {
-      "id": "US-008",
+      "id": "US-021",
+      "priority": 7,
+      "title": "团队搜索与角色筛选",
+      "userStory": "作为项目经理，我希望按姓名和角色筛选团队成员。",
+      "dependsOn": ["US-020"],
+      "paths": [
+        "src/app/(app)/team/page.tsx"
+      ],
+      "acceptance": [
+        "支持按姓名关键字搜索。",
+        "支持按角色筛选（项目经理/技术顾问/业务顾问）。",
+        "显示角色统计数量。"
+      ],
+      "testPlan": [
+        "pnpm lint src/app/(app)/team/page.tsx",
+        "pnpm ts-check",
+        "pnpm exec next build"
+      ],
+      "deployPlan": [
+        "pnpm exec next start --port 5000"
+      ],
+      "passes": true
+    },
+    {
+      "id": "US-022",
       "priority": 8,
-      "title": "运维中心筛选与告警浏览",
-      "userStory": "作为运维人员，我希望根据状态和关键字快速过滤服务与日志信息。",
+      "title": "运维中心系统健康概览",
+      "userStory": "作为运维人员，我希望查看系统整体健康状态。",
       "dependsOn": [],
       "paths": [
         "src/app/(app)/operations/page.tsx"
       ],
       "acceptance": [
-        "服务状态、日志和告警有一致的筛选体验。",
-        "关键指标和列表区域保持语义清晰。",
-        "无未接线的搜索框或筛选器残留。"
+        "显示系统健康评分。",
+        "显示各服务状态（正常/警告/错误）。",
+        "显示最近更新时间。"
       ],
       "testPlan": [
         "pnpm lint src/app/(app)/operations/page.tsx",
@@ -260,18 +602,66 @@
       "passes": true
     },
     {
-      "id": "US-009",
+      "id": "US-023",
+      "priority": 8,
+      "title": "运维中心性能指标展示",
+      "userStory": "作为运维人员，我希望查看系统性能指标。",
+      "dependsOn": ["US-022"],
+      "paths": [
+        "src/app/(app)/operations/page.tsx"
+      ],
+      "acceptance": [
+        "显示 CPU、内存、磁盘使用率。",
+        "显示网络流量指标。",
+        "指标使用图表可视化。"
+      ],
+      "testPlan": [
+        "pnpm lint src/app/(app)/operations/page.tsx",
+        "pnpm ts-check",
+        "pnpm exec next build"
+      ],
+      "deployPlan": [
+        "pnpm exec next start --port 5000"
+      ],
+      "passes": true
+    },
+    {
+      "id": "US-024",
+      "priority": 8,
+      "title": "运维日志与告警列表",
+      "userStory": "作为运维人员，我希望查看系统日志和告警信息。",
+      "dependsOn": ["US-022"],
+      "paths": [
+        "src/app/(app)/operations/page.tsx"
+      ],
+      "acceptance": [
+        "显示运维日志列表，支持级别筛选。",
+        "显示告警记录列表。",
+        "支持关键字搜索日志。"
+      ],
+      "testPlan": [
+        "pnpm lint src/app/(app)/operations/page.tsx",
+        "pnpm ts-check",
+        "pnpm exec next build"
+      ],
+      "deployPlan": [
+        "pnpm exec next start --port 5000"
+      ],
+      "passes": true
+    },
+    {
+      "id": "US-025",
       "priority": 9,
-      "title": "设置页偏好保存反馈",
-      "userStory": "作为最终用户，我希望在设置页修改偏好后获得清晰的保存反馈。",
+      "title": "个人资料管理",
+      "userStory": "作为最终用户，我希望管理我的个人资料信息。",
       "dependsOn": [],
       "paths": [
         "src/app/(app)/settings/page.tsx"
       ],
       "acceptance": [
-        "设置项具备可编辑和可保存的最小闭环。",
-        "保存成功或失败有显式反馈。",
-        "布局与现有 design language 保持一致。"
+        "显示当前用户信息（头像、姓名、邮箱、角色）。",
+        "支持编辑个人资料。",
+        "编辑后有保存反馈。"
       ],
       "testPlan": [
         "pnpm lint src/app/(app)/settings/page.tsx",
@@ -284,13 +674,83 @@
       "passes": true
     },
     {
-      "id": "US-010",
+      "id": "US-026",
+      "priority": 9,
+      "title": "通知偏好设置",
+      "userStory": "作为最终用户，我希望配置通知接收偏好。",
+      "dependsOn": ["US-025"],
+      "paths": [
+        "src/app/(app)/settings/page.tsx"
+      ],
+      "acceptance": [
+        "支持开关邮件通知。",
+        "支持开关站内消息通知。",
+        "支持选择通知频率。"
+      ],
+      "testPlan": [
+        "pnpm lint src/app/(app)/settings/page.tsx",
+        "pnpm ts-check",
+        "pnpm exec next build"
+      ],
+      "deployPlan": [
+        "pnpm exec next start --port 5000"
+      ],
+      "passes": true
+    },
+    {
+      "id": "US-027",
+      "priority": 9,
+      "title": "安全与系统偏好设置",
+      "userStory": "作为最终用户，我希望配置安全选项和系统偏好。",
+      "dependsOn": ["US-025"],
+      "paths": [
+        "src/app/(app)/settings/page.tsx"
+      ],
+      "acceptance": [
+        "支持修改密码入口。",
+        "支持双因素认证开关。",
+        "支持主题切换（浅色/深色）。",
+        "支持语言切换。"
+      ],
+      "testPlan": [
+        "pnpm lint src/app/(app)/settings/page.tsx",
+        "pnpm ts-check",
+        "pnpm exec next build"
+      ],
+      "deployPlan": [
+        "pnpm exec next start --port 5000"
+      ],
+      "passes": true
+    },
+    {
+      "id": "US-028",
+      "priority": 10,
+      "title": "智能报告入口",
+      "userStory": "作为项目经理，我希望从仪表板进入智能报告功能。",
+      "dependsOn": ["US-004"],
+      "paths": [
+        "src/app/(app)/page.tsx"
+      ],
+      "acceptance": [
+        "仪表板有智能报告入口。",
+        "入口显示报告概览信息。"
+      ],
+      "testPlan": [
+        "pnpm lint src/app/(app)/page.tsx",
+        "pnpm ts-check",
+        "pnpm exec next build"
+      ],
+      "deployPlan": [
+        "pnpm exec next start --port 5000"
+      ],
+      "passes": true
+    },
+    {
+      "id": "US-029",
       "priority": 10,
       "title": "本地部署冒烟脚本收敛",
       "userStory": "作为开发者，我希望在 Windows 环境下也能完成构建和本地部署冒烟验证。",
-      "dependsOn": [
-        "US-001"
-      ],
+      "dependsOn": [],
       "paths": [
         "package.json",
         "scripts/build.sh",
@@ -298,17 +758,36 @@
         "ralph.cmd"
       ],
       "acceptance": [
-        "Windows 环境存在可执行的本地部署冒烟命令。",
-        "文档明确区分开发、验证和部署命令。",
-        "Ralph 循环可调用统一的 deploy smoke 入口。"
+        "提供 Windows 批处理脚本 ralph.cmd。",
+        "构建和启动脚本跨平台兼容。"
       ],
       "testPlan": [
-        "pnpm ts-check",
         "pnpm exec next build"
       ],
       "deployPlan": [
-        "pnpm exec next build",
         "pnpm exec next start --port 5000"
+      ],
+      "passes": true
+    },
+    {
+      "id": "US-030",
+      "priority": 11,
+      "title": "CI/CD 流水线建立",
+      "userStory": "作为开发者，我希望每次提交自动运行质量门禁检查。",
+      "dependsOn": ["US-029"],
+      "paths": [
+        ".github/workflows/ci.yml"
+      ],
+      "acceptance": [
+        "CI 包含 Node 构建链。",
+        "CI 包含 Python 后端验证。",
+        "CI 包含 Docker 构建验证。"
+      ],
+      "testPlan": [
+        "GitHub Actions 验证"
+      ],
+      "deployPlan": [
+        "GitHub Actions 自动部署"
       ],
       "passes": true
     }
