@@ -31,6 +31,8 @@ const eslintConfig = defineConfig([
     'dist/**',
     // Script files (CommonJS):
     'scripts/**/*.js',
+    // Legacy Vite/Ant Design SPA — separate deps; not part of `pnpm next build`
+    'web/frontend/**',
   ]),
 ]);
 
