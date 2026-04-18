@@ -1,12 +1,39 @@
 # Docker Compose - 开发环境
+# 主系统: Next.js (根目录)
+# 辅助服务: FastAPI (web/backend/)
 version: '3.8'
 
 services:
-  # 后端API服务
-  backend:
+  # 主系统 - Next.js 前端 (http://localhost:5000)
+  web:
     build:
       context: .
-      dockerfile: Dockerfile.backend
+      dockerfile: Dockerfile.frontend
+    container_name: ariba-web
+    ports:
+      - "5000:5000"
+    environment:
+      - NODE_ENV=development
+      - PORT=5000
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/.next
+    command: pnpm dev
+    networks:
+      - ariba-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # 辅助服务 - FastAPI 后端 (可选, http://localhost:8000)
+  backend:
+    build:
+      context: ./web/backend
+      dockerfile: ../../Dockerfile.backend
     container_name: ariba-backend
     ports:
       - "8000:8000"
@@ -15,8 +42,8 @@ services:
       - ARIBAS_LOG_LEVEL=DEBUG
       - ARIBAS_CACHE__ENABLED=false
     volumes:
+      - ./web/backend:/app
       - ./data:/app/data
-      - ./logs:/app/logs
     networks:
       - ariba-network
     healthcheck:
@@ -24,19 +51,6 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-
-  # 前端Web服务
-  frontend:
-    build:
-      context: ./web/frontend
-      dockerfile: ../../Dockerfile.frontend
-    container_name: ariba-frontend
-    ports:
-      - "3000:80"
-    depends_on:
-      - backend
-    networks:
-      - ariba-network
 
 networks:
   ariba-network:

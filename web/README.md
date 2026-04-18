@@ -1,73 +1,98 @@
-# Ariba实施助手 Web界面
+# web/ 目录 - 辅助服务（可选扩展）
 
-为SAP Ariba实施助手开发的完整Web用户界面。
+> ⚠️ **注意**: 此目录包含的是**辅助/遗留子系统**，不是项目的主前端。
+> 
+> **主系统**位于项目根目录的 `src/`，是一个完整的 Next.js 16 + React 19 应用。
 
-## 功能模块
+## 目录定位
 
-| 模块 | 描述 | 路由 |
-|------|------|------|
-| 仪表盘 | 系统概览、知识统计、项目状态 | `/dashboard` |
-| 故障排除 | 知识查询、解决方案搜索 | `/troubleshooting` |
-| 清单管理 | 项目列表、清单查看 | `/checklist` |
-| 项目创建 | 4步向导创建项目 | `/projects/new` |
-| 统计分析 | 完成率、趋势分析 | `/statistics` |
-| 知识图谱 | 故障关系可视化 | `/knowledge-graph` |
+```
+项目根目录/
+├── src/                    ← 主系统（Next.js 前端）⭐ 推荐使用
+│   ├── app/               # 项目管理、知识库、AI助手等
+│   └── lib/               # 业务逻辑 + 模拟数据
+│
+└── web/                   ← 辅助服务（本目录）可选扩展
+    ├── backend/           # FastAPI 后端服务
+    └── frontend/          # 遗留 React + Vite 前端（不建议使用）
+```
 
-## 技术栈
+## 使用场景
 
-- **前端**: React 18 + TypeScript + Vite + Ant Design 5 + ECharts 5
-- **后端**: FastAPI + Uvicorn + Pydantic
+### 场景1：仅使用主系统（推荐）
+```bash
+cd /项目根目录
+pnpm install
+pnpm dev
+# 访问 http://localhost:5000
+```
+主系统已包含完整的前端界面和模拟数据，可独立运行。
 
-## 快速开始
-
-### 后端
+### 场景2：需要 FastAPI 辅助服务（可选）
+当你需要以下功能时，可以启动辅助服务：
+- 故障排除智能诊断 API
+- 检查清单生成 API
+- 知识图谱查询 API
 
 ```bash
-cd backend
+cd /项目根目录/web/backend
+python -m venv venv
+source venv/bin/activate
 pip install -r requirements.txt
 python api_server.py
+# API 文档 http://localhost:8000/docs
 ```
 
-服务运行在 http://localhost:8000
+## web/backend/ 结构
 
-### 前端
+```
+web/backend/
+├── api/                   # API 路由
+│   ├── troubleshooting.py # 故障排除
+│   ├── checklist.py       # 检查清单
+│   ├── dashboard.py       # 仪表板数据
+│   └── graph.py           # 知识图谱
+├── models/                # 数据模型
+├── tests/                 # 测试
+├── api_server.py          # 服务入口
+└── requirements.txt       # 依赖
+```
+
+## web/frontend/ 说明（遗留）
+
+`web/frontend/` 是一个独立的 React + Vite + Ant Design 前端项目，
+**与主系统（Next.js）是平行关系，不是替代关系**。
+
+由于主系统（`src/`）功能更完善、维护更活跃，
+建议优先使用主系统，此遗留前端仅作参考。
+
+## Docker 使用
+
+辅助服务可通过 Docker Compose 与主系统一起启动：
 
 ```bash
-cd frontend
-npm install
-npm run dev
+# 开发环境 - 同时启动主系统和辅助服务
+docker-compose -f docker-compose.dev.yml up
+
+# 生产环境
+docker-compose -f docker-compose.prod.yml up -d
 ```
 
-服务运行在 http://localhost:3000
+## 开发历史
 
-## 文档
+此目录最初是作为一个完整前后端系统开发的，
+后来项目架构演进，主前端迁移到了根目录的 Next.js。
 
+保留此目录的原因：
+1. FastAPI 后端仍作为可选扩展服务使用
+2. 部分功能（故障排除、知识图谱）仍在此维护
+3. 遗留前端代码可供参考
+
+## 相关文档
+
+- [项目根目录 README](../README.md) - 主系统文档
 - [API文档](./docs/API文档.md)
-- [部署指南](./docs/部署指南.md)
-- [用户手册](./docs/用户手册.md)
-- [开发指南](./docs/开发指南.md)
-
-## 项目结构
-
-```
-web/
-├── frontend/          # React前端项目
-│   ├── src/
-│   │   ├── api/       # API调用
-│   │   ├── components/ # 组件库
-│   │   └── pages/     # 页面
-│   └── package.json
-├── backend/            # FastAPI后端
-│   ├── api/           # API路由
-│   ├── models/        # 数据模型
-│   └── api_server.py
-├── docs/              # 文档
-└── .ralph/            # Ralph开发日志
-```
-
-## 开发日志
-
-详见 [.ralph](./.ralph/) 目录
+- [.ralph 开发日志](./.ralph/)
 
 ## License
 
