@@ -1,5 +1,8 @@
 {
   "/(app)/assistant/page": "app/(app)/assistant/page.js",
+  "/(app)/knowledge/page": "app/(app)/knowledge/page.js",
+  "/(app)/milestones/page": "app/(app)/milestones/page.js",
   "/(app)/page": "app/(app)/page.js",
-  "/(app)/projects/page": "app/(app)/projects/page.js"
+  "/(app)/projects/page": "app/(app)/projects/page.js",
+  "/(app)/tasks/page": "app/(app)/tasks/page.js"
 }
